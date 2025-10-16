@@ -1,5 +1,5 @@
 name: arisannusantara
-description: "A new Flutter project."
+description: "Manajemen Arisan Mudah, Cepat & Aman."
 
 publish_to: 'none'
 
@@ -18,9 +18,23 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  change_app_package_name: ^1.5.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/background
     - assets/images/brands
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/brands/logo-md.png"
+  min_sdk_android: 21
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: false

@@ -1,4 +1,4 @@
-package com.ksp.arisannusantara
+package com.arisannusantara.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

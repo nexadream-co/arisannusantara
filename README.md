@@ -15,10 +15,11 @@ Aplikasi yang digunakan untuk mengelola data Arisan.
 
 ### Informasi Perusahaan (untuk kebutuhan akun publisher app)
 
-- **Nama Perusahaan**: KSP PELANGI USAHA MUDA
-- **Alamat Perusahaan**: Jl. Wisma Melati II No.3 No.A 02-No 1, RT.001/RW.009, Gembor, Kec. Periuk, Kota Tangerang, Banten 15133
-- **No telp**: 085692318209
-- **Website**: (opsional)
+- **Nama Perusahaan**: PT. DANA NUSANTARA BERSAMA (ARISAN NUSANTARA)
+- **Alamat Perusahaan**: Gedung Menara Tendean (M-TEN, Jl. Kapten Tendean No.20C Lantai 17 Unit C, RT.4/RW.3, Kuningan Bar., Kec. Mampang Prpt., Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12710)
+- **No telp**: 02140401010
+- **Email**: support@arisannusantara.com
+- **Website**: arisannusantara.com
 
 ### Akun Gmail
 
