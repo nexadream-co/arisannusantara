@@ -1,0 +1,22 @@
+flutter_native_splash:
+  # background warna tema terang.
+  color: "#F5E3B3"
+
+  # image yang tampil di bagian tengah layar splash screen untuk tema terang.
+  image: assets/images/brands/splashscreen.png
+
+  # background warna tema gelap.
+  color_dark: "#F5E3B3"
+
+  # image yang tampil di bagian tengah layar splash screen untuk tema gelap.
+  image_dark: assets/images/brands/splashscreen.png
+
+  # Konfigurasi untuk Android 12
+  android_12:
+    color: "#F5E3B3"
+    image: assets/images/brands/splashscreen.png
+    color_dark: "#F5E3B3"
+    image_dark: assets/images/brands/splashscreen.png
+
+  ios: true
+  web: false
