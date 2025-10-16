@@ -1,3 +1,3 @@
 class AppStrings {
-  static const String appName = 'Nexadream App';
+  final String appName = 'Nexadream App';
 }

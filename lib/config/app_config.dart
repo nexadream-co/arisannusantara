@@ -7,11 +7,11 @@ import 'theme/app_spacing.dart';
 import 'theme/app_text_styles.dart';
 
 class AppConfig {
-  static final colors = AppColors;
-  static final textStyles = AppTextStyles;
-  static const spacing = AppSpacing;
-  static const radius = AppRadius;
-  static const strings = AppStrings;
-  static const assets = AppAssets;
-  static const endpoints = AppEndpoints;
+  static final colors = AppColors();
+  static final textStyles = AppTextStyles();
+  static final spacing = AppSpacing();
+  static final radius = AppRadius();
+  static final strings = AppStrings();
+  static final assets = AppAssets();
+  static final endpoints = AppEndpoints();
 }

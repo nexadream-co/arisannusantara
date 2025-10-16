@@ -1,4 +1,4 @@
 class AppEndpoints {
-  static const String baseUrlDev = 'https://api.nexadream.com';
-  static const String baseUrlProd = 'https://api.nexadream.com';
+  final String baseUrlDev = 'https://api.nexadream.com';
+  final String baseUrlProd = 'https://api.nexadream.com';
 }
