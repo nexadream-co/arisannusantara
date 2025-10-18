@@ -6,6 +6,8 @@ import '../../config/constants/app_endpoints.dart';
 import '../../config/constants/app_strings.dart';
 import '../../config/theme/app_colors.dart';
 import '../../config/theme/app_radius.dart';
+import '../../config/theme/app_shadow.dart';
+import '../../config/theme/app_size.dart';
 import '../../config/theme/app_spacing.dart';
 import '../../config/theme/app_text_styles.dart';
 
@@ -15,8 +17,10 @@ extension AppContextExtensions on BuildContext {
   AppSpacing get spacing => AppConfig.spacing;
   AppRadius get radius => AppConfig.radius;
   AppStrings get strings => AppConfig.strings;
+  AppSize get appSize => AppConfig.appSize;
   AppAssets get assets => AppConfig.assets;
   AppEndpoints get endpoints => AppConfig.endpoints;
+  AppShadow get shadow => AppConfig.shadow;
 }
 
 extension ScreenContextExtensions on BuildContext {

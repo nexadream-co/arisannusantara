@@ -10,17 +10,19 @@ class TitleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: context.appSize.s8),
         Text(title, style: context.textStyles.headline1),
         SizedBox(height: context.spacing.sm),
         if (subtitle != null)
           Container(
-            margin: EdgeInsets.only(bottom: context.spacing.sm),
+            margin: EdgeInsets.only(bottom: context.spacing.md),
             child: Text(subtitle!, style: context.textStyles.body),
           ),
         Container(
-          width: 60,
-          height: 4,
+          width: context.appSize.s64,
+          height: context.appSize.s8,
           decoration: BoxDecoration(
             color: context.colors.secondary,
             borderRadius: BorderRadius.circular(context.radius.small),

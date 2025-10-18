@@ -2,22 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/layouts/user_layout.dart';
-import '../../../../shared/widgets/divider_widget.dart';
 import '../../../../shared/widgets/textfield_primary_widget.dart';
 import '../../../../shared/widgets/title_widget.dart';
-import 'forgot_password_page.dart';
-import 'register_page.dart';
+import '../../../term_conditions/presentations/pages/term_condition_page.dart';
 
-class LoginPage extends StatefulWidget {
-  static const String path = '/login';
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  static const String path = '/register';
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final paddingPage = context.spacing.xl;
@@ -29,17 +26,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          actionsPadding: EdgeInsets.only(
-            top: context.spacing.md,
-            right: paddingPage,
-          ),
-          toolbarHeight: context.appSize.s80,
-          actions: [
-            Image.asset(context.assets.logoFull, height: context.appSize.s56),
-          ],
-        ),
         backgroundColor: Colors.transparent,
         body: Center(
           child: SingleChildScrollView(
@@ -47,13 +33,24 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TitleWidget(title: "Login", subtitle: "Mulai kelola arisanmu!"),
+                TitleWidget(
+                  title: "Daftar",
+                  subtitle: "Daftar untuk kelola arisan",
+                ),
                 SizedBox(height: context.appSize.s40),
+                TextFieldPrimaryWidget(
+                  label: 'Nama',
+                  hintText: 'Masukkan nama lengkap kamu',
+                  suffixIcon: Icon(
+                    Icons.person_outline,
+                    color: context.colors.primary,
+                  ),
+                ),
                 TextFieldPrimaryWidget(
                   label: 'Email',
                   hintText: 'Masukkan email kamu',
                   suffixIcon: Icon(
-                    Icons.person_outline,
+                    Icons.mail_outline,
                     color: context.colors.primary,
                   ),
                 ),
@@ -65,51 +62,55 @@ class _LoginPageState extends State<LoginPage> {
                     color: context.colors.primary,
                   ),
                 ),
-                SizedBox(height: context.appSize.s8),
+                TextFieldPrimaryWidget(
+                  label: 'Konfirmasi Password',
+                  hintText: 'Masukkan konfirmasi password kamu',
+                  suffixIcon: Icon(
+                    Icons.visibility_outlined,
+                    color: context.colors.primary,
+                  ),
+                ),
+                SizedBox(height: context.appSize.s16),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: true,
+                  onChanged: (value) {
+                    context.push(TermConditionPage.path);
+                  },
+                  title: Text(
+                    'Saya menyetujui syarat dan ketentuan aplikasi',
+                    style: context.textStyles.body,
+                  ),
+                ),
+                SizedBox(height: context.appSize.s24),
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      context.go(UserLayout.path);
-                    },
-                    child: Text('Login'),
-                  ),
+                  child: FilledButton(onPressed: () {}, child: Text('Daftar')),
                 ),
                 SizedBox(height: context.appSize.s16),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      context.go(UserLayout.path);
+                      context.pop();
                     },
-                    child: Text('Login Dengan Google'),
-                  ),
-                ),
-                SizedBox(height: context.appSize.s24),
-                DividerWidget(text: 'Atau'),
-                SizedBox(height: context.appSize.s24),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      context.push(RegisterPage.path);
-                    },
-                    child: Text('Daftar'),
+                    child: Text('Batal'),
                   ),
                 ),
                 SizedBox(height: context.appSize.s8),
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      context.push(ForgotPasswordPage.path);
+                      context.pop();
                     },
                     child: RichText(
                       text: TextSpan(
-                        text: 'Lupa password? ',
+                        text: 'Sudah punya akun? ',
                         style: context.textStyles.body,
                         children: [
                           TextSpan(
-                            text: 'Klik disini',
+                            text: 'Login disini',
                             style: context.textStyles.body.copyWith(
                               color: context.colors.primary,
                               fontWeight: FontWeight.bold,

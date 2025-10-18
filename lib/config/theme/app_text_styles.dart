@@ -20,9 +20,14 @@ class AppTextStyles {
     color: AppColors().textPrimary,
   );
 
-  final TextStyle body = TextStyle(
+  final TextStyle subtitle = TextStyle(
     fontSize: 12,
     color: AppColors().textSecondary,
+  );
+
+  final TextStyle body = TextStyle(
+    fontSize: 12,
+    color: AppColors().textPrimary,
   );
 
   final TextStyle caption = TextStyle(
@@ -34,5 +39,15 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: Colors.white,
+  );
+
+  final TextStyle subtitleSmall = TextStyle(
+    fontSize: 10,
+    color: AppColors().textSecondary,
+  );
+
+  final TextStyle bodySmall = TextStyle(
+    fontSize: 10,
+    color: AppColors().textPrimary,
   );
 }
