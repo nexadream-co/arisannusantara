@@ -5,15 +5,15 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../shared/widgets/textfield_primary_widget.dart';
 import '../../../../shared/widgets/title_widget.dart';
 
-class ForgotPasswordPage extends StatefulWidget {
-  static const String path = '/forgot-password';
-  const ForgotPasswordPage({super.key});
+class ProfileEditPage extends StatefulWidget {
+  static const String path = '/profile-edit';
+  const ProfileEditPage({super.key});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  State<ProfileEditPage> createState() => _ProfileEditPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   Widget build(BuildContext context) {
     final paddingPage = context.spacing.xl;
@@ -47,26 +47,42 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TitleWidget(
-                  title: "Lupa\nPassword",
+                  title: "Edit Info\nProfil Anda",
                   subtitle:
-                      "Kami akan mengirimkan tautan ganti\npassword pada email kamu",
+                      "Perbarui informasi akun\nyang anda gunakan saat ini",
                 ),
                 SizedBox(height: context.appSize.s40),
                 TextFieldPrimaryWidget(
-                  label: 'Email anda',
-                  hintText: 'Masukkan email kamu',
+                  margin: EdgeInsets.only(bottom: context.spacing.sm),
+                  label: 'Nama',
+                  hintText: 'Masukkan nama kamu',
                   suffixIcon: Icon(
-                    Icons.mail_outline,
+                    Icons.person_outline,
                     color: context.colors.primary,
                   ),
                 ),
-                SizedBox(height: context.appSize.s8),
+                TextFieldPrimaryWidget(
+                  margin: EdgeInsets.only(bottom: context.spacing.sm),
+                  label: 'Jenis Kelamin',
+                  hintText: 'Laki-laki / Perempuan',
+                  suffixIcon: Icon(
+                    Icons.person_outline,
+                    color: context.colors.primary,
+                  ),
+                ),
+                TextFieldPrimaryWidget(
+                  margin: EdgeInsets.only(bottom: context.spacing.sm),
+                  label: 'No Telp',
+                  hintText: 'Masukkan no telp kamu',
+                  suffixIcon: Icon(
+                    Icons.person_outline,
+                    color: context.colors.primary,
+                  ),
+                ),
+                SizedBox(height: context.appSize.s16),
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {},
-                    child: Text('Kirim Permintaan'),
-                  ),
+                  child: FilledButton(onPressed: () {}, child: Text('Simpan')),
                 ),
                 SizedBox(height: context.appSize.s16),
                 SizedBox(

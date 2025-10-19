@@ -6,6 +6,7 @@ import '../../../auth/presentations/pages/login_page.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../../term_conditions/presentations/pages/term_condition_page.dart';
+import 'profile_edit_page.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String path = '/profile';
@@ -153,6 +154,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          context.push(ProfileEditPage.path);
+                        },
                         title: Text('Edit Profil'),
                         subtitle: Text(
                           'Informasi akun anda',

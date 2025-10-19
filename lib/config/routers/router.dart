@@ -7,6 +7,7 @@ import '../../features/auth/presentations/pages/register_page.dart';
 import '../../features/faq/presentations/pages/faq_page.dart';
 import '../../features/home/presentations/pages/home_page.dart';
 import '../../features/privacy_policy/presentations/pages/privacy_policy_page.dart';
+import '../../features/profile/presentations/pages/profile_edit_page.dart';
 import '../../features/term_conditions/presentations/pages/term_condition_page.dart';
 
 // GoRouter configuration
@@ -33,5 +34,9 @@ final router = GoRouter(
       builder: (context, state) => PrivacyPolicyPage(),
     ),
     GoRoute(path: FaqPage.path, builder: (context, state) => FaqPage()),
+    GoRoute(
+      path: ProfileEditPage.path,
+      builder: (context, state) => ProfileEditPage(),
+    ),
   ],
 );
