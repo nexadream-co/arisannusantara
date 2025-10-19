@@ -14,6 +14,12 @@ class AppTextStyles {
     color: AppColors().textPrimary,
   );
 
+  final TextStyle header = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: AppColors().textPrimary,
+  );
+
   final TextStyle title = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.bold,

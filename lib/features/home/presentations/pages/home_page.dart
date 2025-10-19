@@ -393,11 +393,13 @@ class _HomePageState extends State<HomePage> {
         spacing: context.spacing.md,
         children: [
           FloatingActionButton(
+            heroTag: "qrcode",
             backgroundColor: context.colors.primary,
             child: const Icon(Icons.qr_code),
             onPressed: () {},
           ),
           FloatingActionButton(
+            heroTag: "add-group",
             backgroundColor: context.colors.primary,
             child: const Icon(Icons.add),
             onPressed: () {},

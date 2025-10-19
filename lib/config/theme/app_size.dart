@@ -10,5 +10,8 @@ class AppSize {
   final double s64 = 64.0;
   final double s72 = 72.0;
   final double s80 = 80.0;
+  final double s100 = 100.0;
+  final double s124 = 124.0;
+  final double s158 = 158.0;
   final double s200 = 200.0;
 }
