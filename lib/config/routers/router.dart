@@ -6,6 +6,7 @@ import '../../features/auth/presentations/pages/login_page.dart';
 import '../../features/auth/presentations/pages/register_page.dart';
 import '../../features/faq/presentations/pages/faq_page.dart';
 import '../../features/home/presentations/pages/home_page.dart';
+import '../../features/privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../features/term_conditions/presentations/pages/term_condition_page.dart';
 
 // GoRouter configuration
@@ -26,6 +27,10 @@ final router = GoRouter(
     GoRoute(
       path: TermConditionPage.path,
       builder: (context, state) => TermConditionPage(),
+    ),
+    GoRoute(
+      path: PrivacyPolicyPage.path,
+      builder: (context, state) => PrivacyPolicyPage(),
     ),
     GoRoute(path: FaqPage.path, builder: (context, state) => FaqPage()),
   ],

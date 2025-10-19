@@ -46,7 +46,7 @@ class _FaqPageState extends State<FaqPage> {
                   Column(
                     children: <Widget>[
                       Container(
-                        margin: EdgeInsets.only(bottom: context.spacing.sm),
+                        margin: EdgeInsets.only(bottom: context.spacing.lg),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(
@@ -69,7 +69,7 @@ class _FaqPageState extends State<FaqPage> {
                       ),
                       for (int i = 0; i < 5; i++)
                         Container(
-                          margin: EdgeInsets.only(bottom: context.spacing.sm),
+                          margin: EdgeInsets.only(bottom: context.spacing.md),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(
@@ -78,6 +78,9 @@ class _FaqPageState extends State<FaqPage> {
                             boxShadow: [context.shadow.small],
                           ),
                           child: ExpansionTile(
+                            tilePadding: EdgeInsets.symmetric(
+                              horizontal: context.spacing.md,
+                            ),
                             title: Text(
                               'Apakah aplikasi ini gratis?',
                               style: context.textStyles.body.copyWith(

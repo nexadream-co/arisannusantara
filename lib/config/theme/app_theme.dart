@@ -15,6 +15,13 @@ class AppTheme {
       secondary: AppColors().secondary,
       error: AppColors().error,
     ),
+    listTileTheme: ListTileThemeData(
+      contentPadding: EdgeInsets.zero,
+      titleTextStyle: AppTextStyles().body.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
+      subtitleTextStyle: AppTextStyles().body,
+    ),
     textTheme: GoogleFonts.latoTextTheme(
       TextTheme(
         displayLarge: AppTextStyles().headline1,
