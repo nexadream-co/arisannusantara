@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/home/presentations/pages/home_page.dart';
 import '../../features/invitations/presentations/pages/invitation_page.dart';
+import '../../features/notifications/presentations/pages/notification_page.dart';
 import '../../shared/widgets/bottom_navbar.dart';
 
 class UserLayout extends StatefulWidget {
@@ -18,7 +19,7 @@ class _UserLayoutState extends State<UserLayout> {
   final List<Widget> _pages = [
     HomePage(),
     InvitationPage(),
-    SizedBox(),
+    NotificationPage(),
     SizedBox(),
   ];
 

@@ -164,7 +164,7 @@ class _InvitationPageState extends State<InvitationPage> {
                                 boxShadow: [context.shadow.small],
                               ),
                               child: CircleAvatar(
-                                backgroundColor: context.colors.background,
+                                backgroundColor: Colors.white,
                                 child: Text(
                                   'AS',
                                   style: context.textStyles.body.copyWith(
