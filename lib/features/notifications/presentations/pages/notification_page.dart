@@ -98,7 +98,10 @@ class _NotificationPageState extends State<NotificationPage> {
                     enabledBorder: border,
                     focusedBorder: border,
                     border: border,
-                    suffixIcon: Icon(Icons.search),
+                    suffixIcon: Icon(
+                      Icons.search,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
                 ),
               ),

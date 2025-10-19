@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../groups/presentations/pages/search_group_page.dart';
 
 class HomePage extends StatefulWidget {
   static const String path = '/home';
@@ -78,33 +80,40 @@ class _HomePageState extends State<HomePage> {
                         ),
                         SafeArea(
                           bottom: false,
-                          child: Container(
-                            margin: EdgeInsets.only(right: context.spacing.lg),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: context.spacing.md,
-                              vertical: context.spacing.xs,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.colors.secondary.withValues(
-                                alpha: 0.8,
+                          child: GestureDetector(
+                            onTap: () {
+                              context.push(SearchGroupPage.path);
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(
+                                right: context.spacing.lg,
                               ),
-                              borderRadius: BorderRadius.circular(
-                                context.radius.medium,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.spacing.md,
+                                vertical: context.spacing.xs,
                               ),
-                            ),
-                            child: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  'Cari grup...',
-                                  style: context.textStyles.body.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              decoration: BoxDecoration(
+                                color: context.colors.secondary.withValues(
+                                  alpha: 0.8,
                                 ),
-                                SizedBox(width: context.appSize.s16),
-                                Icon(Icons.search, color: Colors.white),
-                              ],
+                                borderRadius: BorderRadius.circular(
+                                  context.radius.medium,
+                                ),
+                              ),
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Text(
+                                    'Cari grup...',
+                                    style: context.textStyles.body.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(width: context.appSize.s16),
+                                  Icon(Icons.search, color: Colors.white),
+                                ],
+                              ),
                             ),
                           ),
                         ),

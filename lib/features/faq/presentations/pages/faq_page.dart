@@ -63,7 +63,10 @@ class _FaqPageState extends State<FaqPage> {
                             enabledBorder: border,
                             focusedBorder: border,
                             border: border,
-                            suffixIcon: Icon(Icons.search),
+                            suffixIcon: Icon(
+                              Icons.search,
+                              color: context.colors.textPrimary,
+                            ),
                           ),
                         ),
                       ),
