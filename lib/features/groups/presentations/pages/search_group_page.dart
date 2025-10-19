@@ -30,7 +30,6 @@ class _SearchGroupPageState extends State<SearchGroupPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(context.radius.medium),
-            boxShadow: [context.shadow.small],
           ),
           child: TextFormField(
             autofocus: true,

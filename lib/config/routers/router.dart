@@ -5,6 +5,7 @@ import '../../features/auth/presentations/pages/forgot_password_page.dart';
 import '../../features/auth/presentations/pages/login_page.dart';
 import '../../features/auth/presentations/pages/register_page.dart';
 import '../../features/faq/presentations/pages/faq_page.dart';
+import '../../features/groups/presentations/pages/group_history_detail_page.dart';
 import '../../features/groups/presentations/pages/group_page.dart';
 import '../../features/groups/presentations/pages/search_group_page.dart';
 import '../../features/home/presentations/pages/home_page.dart';
@@ -49,6 +50,10 @@ final router = GoRouter(
     GoRoute(
       path: SearchGroupPage.path,
       builder: (context, state) => SearchGroupPage(),
+    ),
+    GoRoute(
+      path: GroupHistoryDetailPage.path,
+      builder: (context, state) => GroupHistoryDetailPage(),
     ),
   ],
 );

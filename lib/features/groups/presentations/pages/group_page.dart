@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import 'group_detail_page.dart';
+import 'group_history_page.dart';
+import 'group_member_page.dart';
 
 class GroupPage extends StatefulWidget {
   static const String path = '/group';
@@ -46,25 +49,12 @@ class _GroupPageState extends State<GroupPage> {
 
             body: const TabBarView(
               children: [
-                _TabContent(title: 'Overview Content'),
-                _TabContent(title: 'Gallery Content'),
-                _TabContent(title: 'Reviews Content'),
+                GroupDetailPage(),
+                GroupMemberPage(),
+                GroupHistoryPage(),
               ],
             ),
           ),
-        ),
-        floatingActionButton: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.end,
-          spacing: context.spacing.md,
-          children: [
-            FloatingActionButton(
-              heroTag: "shuffle",
-              backgroundColor: context.colors.primary,
-              child: const Icon(Icons.shuffle),
-              onPressed: () {},
-            ),
-          ],
         ),
       ),
     );
@@ -136,14 +126,14 @@ class _GroupPageState extends State<GroupPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        'Hai, John Doe',
+                        'Arisan Ceria',
                         maxLines: 1,
                         style: context.textStyles.header.copyWith(
                           color: context.colors.primary,
                         ),
                       ),
                       Text(
-                        'johndoe@gmail.com',
+                        '#Kode grup',
                         maxLines: 1,
                         style: context.textStyles.body,
                       ),
@@ -250,27 +240,6 @@ class _GroupPageState extends State<GroupPage> {
   }
 }
 
-class _TabContent extends StatelessWidget {
-  final String title;
-  const _TabContent({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: 30,
-      itemBuilder: (context, index) => Card(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: context.spacing.md),
-          title: Text('$title #$index'),
-        ),
-      ),
-    );
-  }
-}
-
-/// 👇 This delegate makes the TabBar "stick" to the top
 class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar _tabBar;
   _StickyTabBarDelegate(this._tabBar);
