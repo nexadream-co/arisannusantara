@@ -6,6 +6,7 @@ import '../../../auth/presentations/pages/login_page.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../../term_conditions/presentations/pages/term_condition_page.dart';
+import 'change_password_page.dart';
 import 'profile_edit_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -171,6 +172,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     ListTile(
+                      onTap: () {
+                        context.push(ChangePasswordPage.path);
+                      },
                       title: Text('Ubah Password'),
                       subtitle: Text(
                         'Perbarui password anda',

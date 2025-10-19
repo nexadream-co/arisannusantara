@@ -7,6 +7,7 @@ import '../../features/auth/presentations/pages/register_page.dart';
 import '../../features/faq/presentations/pages/faq_page.dart';
 import '../../features/home/presentations/pages/home_page.dart';
 import '../../features/privacy_policy/presentations/pages/privacy_policy_page.dart';
+import '../../features/profile/presentations/pages/change_password_page.dart';
 import '../../features/profile/presentations/pages/profile_edit_page.dart';
 import '../../features/term_conditions/presentations/pages/term_condition_page.dart';
 
@@ -37,6 +38,10 @@ final router = GoRouter(
     GoRoute(
       path: ProfileEditPage.path,
       builder: (context, state) => ProfileEditPage(),
+    ),
+    GoRoute(
+      path: ChangePasswordPage.path,
+      builder: (context, state) => ChangePasswordPage(),
     ),
   ],
 );
