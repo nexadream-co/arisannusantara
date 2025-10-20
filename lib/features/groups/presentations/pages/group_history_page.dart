@@ -106,7 +106,10 @@ class _GroupHistoryPageState extends State<GroupHistoryPage> {
                         OutlinedButton(
                           onPressed: () {},
                           style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.zero,
+                            padding: EdgeInsets.symmetric(
+                              vertical: context.spacing.sm,
+                            ),
+                            minimumSize: Size(0, 0),
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(

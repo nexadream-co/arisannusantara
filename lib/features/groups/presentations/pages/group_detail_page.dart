@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import 'group_manager_create_page.dart';
+import 'group_shuffle_winner_page.dart';
 
 class GroupDetailPage extends StatefulWidget {
   const GroupDetailPage({super.key});
@@ -62,7 +65,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 Text('Pengelola', style: context.textStyles.title),
                 Spacer(),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push(GroupManagerCreatePage.path);
+                  },
                   style: TextButton.styleFrom(padding: EdgeInsets.zero),
                   child: Wrap(
                     children: [
@@ -98,7 +103,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             heroTag: "shuffle",
             backgroundColor: context.colors.primary,
             child: const Icon(Icons.shuffle),
-            onPressed: () {},
+            onPressed: () {
+              context.push(GroupShuffleWinnerPage.path);
+            },
           ),
         ],
       ),
@@ -196,7 +203,12 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   ),
                   OutlinedButton(
                     onPressed: () {},
-                    style: OutlinedButton.styleFrom(padding: EdgeInsets.zero),
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.sm,
+                      ),
+                      minimumSize: Size(0, 0),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: context.spacing.md,
@@ -297,7 +309,12 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   ),
                   OutlinedButton(
                     onPressed: () {},
-                    style: OutlinedButton.styleFrom(padding: EdgeInsets.zero),
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.sm,
+                      ),
+                      minimumSize: Size(0, 0),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: context.spacing.md,

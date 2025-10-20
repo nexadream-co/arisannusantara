@@ -12,6 +12,7 @@ class App extends StatelessWidget {
       title: 'Arisan Nusantara',
       theme: AppTheme.light,
       routerConfig: router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -148,7 +148,12 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                   ),
                   OutlinedButton(
                     onPressed: () {},
-                    style: OutlinedButton.styleFrom(padding: EdgeInsets.zero),
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.sm,
+                      ),
+                      minimumSize: Size(0, 0),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: context.spacing.md,

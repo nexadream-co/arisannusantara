@@ -5,6 +5,7 @@ Aplikasi yang digunakan untuk mengelola data Arisan.
 ## Desain Aplikasi
 
 - DB Desain: [Lihat Disini](https://www.figma.com/board/GZvE06rcVsgZyZWYmk247C/Arisan-Nusantara-DB-Design?node-id=0-1&t=Q1OKqkObpxqxhwV7-1)
+- Design Prototype: [Lihat Disini](https://www.figma.com/proto/I7NQn3us4BCg7UkAAEZS5c/Arisan-Nusantara-UI-Design?node-id=0-1&t=IgV5iLtC5TcW17L8-1)
 - UI Desain: [Lihat Disini](https://www.figma.com/design/I7NQn3us4BCg7UkAAEZS5c/Arisan-Nusantara-UI-Design?node-id=0-1&t=WPjacpUwSbRfMBpW-1)
 
 ## Media / Dokumen

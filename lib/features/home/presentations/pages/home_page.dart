@@ -3,6 +3,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../groups/presentations/pages/group_create_page.dart';
 import '../../../groups/presentations/pages/group_page.dart';
 import '../../../groups/presentations/pages/search_group_page.dart';
 
@@ -387,7 +388,10 @@ class _HomePageState extends State<HomePage> {
                             width: double.infinity,
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.zero,
+                                padding: EdgeInsets.symmetric(
+                                  vertical: context.spacing.sm,
+                                ),
+                                minimumSize: Size(0, 0),
                               ),
                               onPressed: () {},
                               child: Text('Lihat Detail'),
@@ -417,7 +421,9 @@ class _HomePageState extends State<HomePage> {
             heroTag: "add-group",
             backgroundColor: context.colors.primary,
             child: const Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              context.push(GroupCreatePage.path);
+            },
           ),
         ],
       ),
