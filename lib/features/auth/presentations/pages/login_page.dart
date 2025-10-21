@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/layouts/superadmin_layout.dart';
 import '../../../../core/layouts/user_layout.dart';
 import '../../../../shared/widgets/divider_widget.dart';
 import '../../../../shared/widgets/textfield_primary_widget.dart';
@@ -80,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
-                      context.go(UserLayout.path);
+                      context.go(SuperadminLayout.path);
                     },
                     child: Text('Login Dengan Google'),
                   ),

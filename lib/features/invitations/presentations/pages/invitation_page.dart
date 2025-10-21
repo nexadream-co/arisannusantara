@@ -169,6 +169,7 @@ class _InvitationPageState extends State<InvitationPage> {
                                   'AS',
                                   style: context.textStyles.body.copyWith(
                                     color: context.colors.primary,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -201,7 +202,11 @@ class _InvitationPageState extends State<InvitationPage> {
                             OutlinedButton(
                               onPressed: () {},
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.zero,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.spacing.md,
+                                  vertical: context.spacing.sm,
+                                ),
+                                minimumSize: Size.zero,
                               ),
                               child: Text('Tolak'),
                             ),
@@ -209,7 +214,11 @@ class _InvitationPageState extends State<InvitationPage> {
                             FilledButton(
                               onPressed: () {},
                               style: FilledButton.styleFrom(
-                                padding: EdgeInsets.zero,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.spacing.md,
+                                  vertical: context.spacing.sm,
+                                ),
+                                minimumSize: Size.zero,
                               ),
                               child: Text('Terima'),
                             ),

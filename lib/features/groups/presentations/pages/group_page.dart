@@ -33,9 +33,12 @@ class _GroupPageState extends State<GroupPage> {
                     TabBar(
                       labelColor: context.colors.secondary,
                       unselectedLabelColor: context.colors.textSecondary,
+                      unselectedLabelStyle: context.textStyles.body,
                       indicatorColor: context.colors.secondary,
                       dividerColor: context.colors.divider,
-                      labelStyle: context.textStyles.body,
+                      labelStyle: context.textStyles.body.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                       tabs: [
                         Tab(text: 'Detail Grup'),
                         Tab(text: 'Peserta'),

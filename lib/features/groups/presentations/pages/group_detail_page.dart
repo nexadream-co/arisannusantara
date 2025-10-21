@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import 'group_manager_create_page.dart';
 import 'group_shuffle_winner_page.dart';
 
@@ -36,7 +38,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 Text('Pembayaran', style: context.textStyles.title),
                 Spacer(),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _addPayment();
+                  },
                   style: TextButton.styleFrom(padding: EdgeInsets.zero),
                   child: Wrap(
                     children: [
@@ -167,6 +171,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                       'AC',
                       style: context.textStyles.body.copyWith(
                         color: context.colors.primary,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -273,6 +278,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                       'AC',
                       style: context.textStyles.body.copyWith(
                         color: context.colors.primary,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -325,6 +331,128 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _addPayment() {
+    showAppModalBottomSheet(
+      context: context,
+      child: Container(
+        padding: EdgeInsets.all(context.spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Tambah Metode Pembayaran',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.title.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Text(
+                  'Masukkan informasi pembayaran grup arisan anda',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.body,
+                ),
+              ],
+            ),
+            SizedBox(height: context.appSize.s16),
+            Container(
+              padding: EdgeInsets.symmetric(
+                vertical: context.spacing.sm,
+                horizontal: context.spacing.md,
+              ),
+              decoration: BoxDecoration(
+                color: context.colors.accent,
+                borderRadius: BorderRadius.circular(context.radius.medium),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.info_outline),
+                  SizedBox(width: context.spacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                      style: context.textStyles.body,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: context.appSize.s16),
+            _textField(label: 'Nama', hintText: 'Masukkan nama rekening...'),
+            _textField(
+              label: 'Nomor Rekening',
+              hintText: 'Masukkan nomor rekening...',
+            ),
+            _textField(label: 'Bank', hintText: 'Masukkan nama bank...'),
+
+            Container(
+              margin: EdgeInsets.only(
+                top: context.spacing.lg,
+                bottom: context.spacing.sm,
+              ),
+              child: Row(
+                spacing: context.spacing.sm,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.md,
+                        horizontal: context.spacing.xl,
+                      ),
+                      foregroundColor: context.colors.error,
+                      side: BorderSide(color: context.colors.error, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.radius.medium,
+                        ),
+                      ),
+                    ),
+                    child: Text('Hapus'),
+                  ),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {},
+                      child: Text('Simpan'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _textField({required String label, required String hintText}) {
+    return Container(
+      padding: EdgeInsets.only(bottom: context.spacing.sm),
+      margin: EdgeInsets.only(bottom: context.spacing.xs),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
+      ),
+      child: Row(
+        spacing: context.spacing.md,
+        children: [
+          Text(label, style: context.textStyles.body),
+          Expanded(
+            child: TextfieldWithoutBorderWidget(
+              hintText: hintText,
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
       ),
     );

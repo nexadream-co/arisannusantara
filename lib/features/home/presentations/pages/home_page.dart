@@ -288,12 +288,17 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              backgroundColor: context.colors.surface,
-                              child: Text(
-                                'AC',
-                                style: context.textStyles.body.copyWith(
-                                  color: context.colors.primary,
+                            SizedBox(
+                              width: context.appSize.s32,
+                              height: context.appSize.s32,
+                              child: CircleAvatar(
+                                backgroundColor: context.colors.surface,
+                                child: Text(
+                                  'AC',
+                                  style: context.textStyles.body.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
@@ -310,7 +315,6 @@ class _HomePageState extends State<HomePage> {
                                     style: context.textStyles.bodySmall
                                         .copyWith(fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(height: context.spacing.xs),
                                   Text(
                                     'KODE GRUP',
                                     maxLines: 1,
@@ -343,7 +347,8 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Iuran',
                                       overflow: TextOverflow.ellipsis,
-                                      style: context.textStyles.bodySmall,
+                                      style: context.textStyles.bodySmall
+                                          .copyWith(fontSize: 8),
                                     ),
                                     Text(
                                       'Rp12.000',
@@ -351,6 +356,7 @@ class _HomePageState extends State<HomePage> {
                                       style: context.textStyles.bodySmall
                                           .copyWith(
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 8,
                                             color: context.colors.primary,
                                           ),
                                     ),
@@ -365,7 +371,8 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Tanggal Kocok',
                                       overflow: TextOverflow.ellipsis,
-                                      style: context.textStyles.bodySmall,
+                                      style: context.textStyles.bodySmall
+                                          .copyWith(fontSize: 8),
                                     ),
                                     Text(
                                       '12 Oktober 2025',
@@ -373,6 +380,7 @@ class _HomePageState extends State<HomePage> {
                                       style: context.textStyles.bodySmall
                                           .copyWith(
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 8,
                                             color: context.colors.primary,
                                           ),
                                     ),

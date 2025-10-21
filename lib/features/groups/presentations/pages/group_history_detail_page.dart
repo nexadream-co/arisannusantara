@@ -111,7 +111,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                   CircleAvatar(
                                     backgroundColor: context.colors.accent,
                                     child: Icon(
-                                      Icons.check,
+                                      Icons.emoji_events_outlined,
                                       color: context.colors.secondary,
                                     ),
                                   ),
@@ -329,6 +329,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                             'AC',
                             style: context.textStyles.body.copyWith(
                               color: context.colors.primary,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

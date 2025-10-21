@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../core/layouts/superadmin_layout.dart';
 import '../../core/layouts/user_layout.dart';
 import '../../features/auth/presentations/pages/forgot_password_page.dart';
 import '../../features/auth/presentations/pages/login_page.dart';
@@ -23,6 +24,10 @@ final router = GoRouter(
   initialLocation: LoginPage.path,
   routes: [
     GoRoute(path: UserLayout.path, builder: (context, state) => UserLayout()),
+    GoRoute(
+      path: SuperadminLayout.path,
+      builder: (context, state) => SuperadminLayout(),
+    ),
     GoRoute(path: HomePage.path, builder: (context, state) => HomePage()),
     GoRoute(path: LoginPage.path, builder: (context, state) => LoginPage()),
     GoRoute(

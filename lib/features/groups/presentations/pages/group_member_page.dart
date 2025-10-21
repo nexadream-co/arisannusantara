@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../shared/widgets/textfield_without_border_widget.dart';
 
 class GroupMemberPage extends StatefulWidget {
   const GroupMemberPage({super.key});
@@ -112,6 +114,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                       'AC',
                       style: context.textStyles.body.copyWith(
                         color: context.colors.primary,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -140,7 +143,9 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _editMember();
+                    },
                     icon: Icon(
                       Icons.edit_outlined,
                       color: context.colors.primary,
@@ -164,6 +169,211 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _editMember() {
+    showAppModalBottomSheet(
+      context: context,
+      child: Container(
+        padding: EdgeInsets.all(context.spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ardi Sanjaya',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textStyles.title.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Text(
+                        'ardisanjaya@gmail.com',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textStyles.body,
+                      ),
+                    ],
+                  ),
+                ),
+                Text('Status', style: context.textStyles.body),
+                StatefulBuilder(
+                  builder: (context, setState) {
+                    String? selectedStatus = 'Aktif';
+
+                    return SizedBox(
+                      width: context.appSize.s100,
+                      child: DropdownButtonFormField<String>(
+                        initialValue: selectedStatus,
+                        isExpanded: false,
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'Aktif',
+                            child: Text(
+                              'Aktif',
+                              style: context.textStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.colors.success,
+                              ),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Tidak Aktif',
+                            child: Text(
+                              'Tidak Aktif',
+                              style: context.textStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.colors.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() => selectedStatus = value);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: context.spacing.md),
+              child: Text(
+                'Infomasi Peserta',
+                style: context.textStyles.body.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            _textField(label: 'Nama', hintText: 'Masukkan nama anda...'),
+            _textField(
+              label: 'Jenis Kelamin',
+              hintText: 'Masukkan jenis kelamin...',
+            ),
+            _textField(label: 'No Telp', hintText: 'No telp anda...'),
+
+            Container(
+              margin: EdgeInsets.only(
+                top: context.spacing.lg,
+                bottom: context.spacing.sm,
+              ),
+              child: Text(
+                'Status Pembayaran',
+                style: context.textStyles.body.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 5,
+              ),
+              children: [
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: true,
+                  onChanged: (value) {},
+                  title: Text('Belum Bayar'),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: false,
+                  onChanged: (value) {},
+                  title: Text('Lunas'),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: false,
+                  onChanged: (value) {},
+                  title: Text('Sudah bayar'),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: false,
+                  onChanged: (value) {},
+                  title: Text('Lewati'),
+                ),
+              ],
+            ),
+            Container(
+              margin: EdgeInsets.only(
+                top: context.spacing.xxl,
+                bottom: context.spacing.sm,
+              ),
+              child: Row(
+                spacing: context.spacing.sm,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.md,
+                        horizontal: context.spacing.xl,
+                      ),
+                      foregroundColor: context.colors.error,
+                      side: BorderSide(color: context.colors.error, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.radius.medium,
+                        ),
+                      ),
+                    ),
+                    child: Text('Hapus'),
+                  ),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {},
+                      child: Text('Simpan'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _textField({required String label, required String hintText}) {
+    return Container(
+      padding: EdgeInsets.only(bottom: context.spacing.sm),
+      margin: EdgeInsets.only(bottom: context.spacing.xs),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
+      ),
+      child: Row(
+        spacing: context.spacing.md,
+        children: [
+          Text(label, style: context.textStyles.body),
+          Expanded(
+            child: TextfieldWithoutBorderWidget(
+              hintText: hintText,
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
       ),
     );

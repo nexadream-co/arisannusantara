@@ -75,7 +75,7 @@ class _GroupHistoryPageState extends State<GroupHistoryPage> {
                         CircleAvatar(
                           backgroundColor: context.colors.accent,
                           child: Icon(
-                            Icons.check,
+                            Icons.emoji_events_outlined,
                             color: context.colors.secondary,
                           ),
                         ),

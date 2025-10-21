@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import '../../../auth/presentations/pages/login_page.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
@@ -292,6 +294,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       child: ListTile(
+                        onTap: () {
+                          _addFeedback();
+                        },
                         title: Text('Feedback'),
                         subtitle: Text(
                           'Kritik dan masukan anda',
@@ -358,6 +363,109 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _addFeedback() {
+    showAppModalBottomSheet(
+      context: context,
+      child: Container(
+        padding: EdgeInsets.all(context.spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Feedback',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.title.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Text(
+                  'Kritik dan masukkan anda',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.body,
+                ),
+              ],
+            ),
+            SizedBox(height: context.appSize.s16),
+            Container(
+              padding: EdgeInsets.symmetric(
+                vertical: context.spacing.sm,
+                horizontal: context.spacing.md,
+              ),
+              decoration: BoxDecoration(
+                color: context.colors.accent,
+                borderRadius: BorderRadius.circular(context.radius.medium),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.info_outline),
+                  SizedBox(width: context.spacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                      style: context.textStyles.body,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: context.appSize.s16),
+            _textField(label: 'Judul', hintText: 'Masukkan judul disini...'),
+            SizedBox(height: context.appSize.s8),
+            _textField(
+              label: 'Feedback',
+              minLines: 2,
+              hintText: 'Masukkan dan kritik anda...',
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(
+                top: context.spacing.lg,
+                bottom: context.spacing.sm,
+              ),
+              child: FilledButton(onPressed: () {}, child: Text('Kirim')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _textField({
+    required String label,
+    required String hintText,
+    int? minLines,
+  }) {
+    return Container(
+      padding: EdgeInsets.only(bottom: context.spacing.sm),
+      margin: EdgeInsets.only(bottom: context.spacing.xs),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: context.spacing.md,
+        children: [
+          Text(label, style: context.textStyles.body),
+          Expanded(
+            child: TextfieldWithoutBorderWidget(
+              hintText: hintText,
+              minLines: minLines,
+              maxLines: null,
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
       ),
     );
   }
