@@ -18,63 +18,91 @@ class _NotificationPageState extends State<NotificationPage> {
       borderSide: BorderSide.none,
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(context.assets.textureBg),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              SafeArea(
-                bottom: false,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
+              Container(
+                padding: EdgeInsets.all(context.spacing.lg),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(context.assets.textureBg),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(left: context.spacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Notifikasi',
-                              maxLines: 1,
-                              style: context.textStyles.header,
-                            ),
-                            Text(
-                              'Semua notifikasi anda',
-                              maxLines: 1,
-                              style: context.textStyles.body,
-                            ),
-                          ],
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Notifikasi',
+                                maxLines: 1,
+                                style: context.textStyles.header,
+                              ),
+                              Text(
+                                'Semua notifikasi anda',
+                                maxLines: 1,
+                                style: context.textStyles.body,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                        Container(
+                          margin: EdgeInsets.only(right: context.spacing.lg),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.spacing.md,
+                            vertical: context.spacing.sm,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.colors.secondary,
+                            borderRadius: BorderRadius.circular(
+                              context.radius.medium,
+                            ),
+                          ),
+                          child: Text(
+                            'Tandai Dibaca',
+                            style: context.textStyles.body.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Container(
-                      margin: EdgeInsets.only(right: context.spacing.lg),
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.spacing.md,
-                        vertical: context.spacing.sm,
-                      ),
+                      margin: EdgeInsets.only(top: context.spacing.lg),
                       decoration: BoxDecoration(
-                        color: context.colors.secondary,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(
                           context.radius.medium,
                         ),
+                        boxShadow: [context.shadow.small],
                       ),
-                      child: Text(
-                        'Tandai Dibaca',
-                        style: context.textStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          hintText: "Cari notifikasi...",
+                          hintStyle: context.textStyles.subtitle,
+                          fillColor: Colors.white,
+                          filled: true,
+                          enabledBorder: border,
+                          focusedBorder: border,
+                          border: border,
+                          suffixIcon: Icon(
+                            Icons.search,
+                            color: context.colors.textPrimary,
+                          ),
                         ),
                       ),
                     ),
@@ -82,37 +110,9 @@ class _NotificationPageState extends State<NotificationPage> {
                 ),
               ),
 
-              Container(
-                margin: EdgeInsets.all(context.spacing.lg),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(context.radius.medium),
-                  boxShadow: [context.shadow.small],
-                ),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: "Cari notifikasi...",
-                    hintStyle: context.textStyles.subtitle,
-                    fillColor: Colors.white,
-                    filled: true,
-                    enabledBorder: border,
-                    focusedBorder: border,
-                    border: border,
-                    suffixIcon: Icon(
-                      Icons.search,
-                      color: context.colors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-
               ListView.builder(
                 physics: NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.only(
-                  left: context.spacing.lg,
-                  right: context.spacing.lg,
-                  bottom: context.spacing.lg,
-                ),
+                padding: EdgeInsets.all(context.spacing.lg),
                 shrinkWrap: true,
                 itemCount: 10,
                 itemBuilder: (context, index) {
@@ -121,7 +121,8 @@ class _NotificationPageState extends State<NotificationPage> {
                     margin: EdgeInsets.only(bottom: context.spacing.md),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      boxShadow: [context.shadow.medium],
+                      // boxShadow: [context.shadow.medium],
+                      border: Border.all(color: context.colors.divider),
                       borderRadius: BorderRadius.circular(
                         context.radius.medium,
                       ),
@@ -170,16 +171,17 @@ class _NotificationPageState extends State<NotificationPage> {
                             OutlinedButton(
                               onPressed: () {},
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.zero,
+                                padding: EdgeInsets.symmetric(
+                                  vertical: context.spacing.sm,
+                                ),
+                                minimumSize: Size(0, 0),
                               ),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: context.spacing.lg,
                                 ),
-                                child: Text(
-                                  'Detail',
-                                  style: context.textStyles.bodySmall,
-                                ),
+
+                                child: Text('Detail'),
                               ),
                             ),
                           ],

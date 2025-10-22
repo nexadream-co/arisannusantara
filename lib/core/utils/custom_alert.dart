@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../extensions/context_extensions.dart';
+
 class CustomAlert {
   static Future<void> show(
     BuildContext context, {
@@ -15,14 +17,7 @@ class CustomAlert {
         return AlertDialog(
           backgroundColor: Colors.white,
           title: title != null
-              ? Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                )
+              ? Text(title, style: context.textStyles.title)
               : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
@@ -32,7 +27,7 @@ class CustomAlert {
               : SingleChildScrollView(
                   child: ListBody(
                     children: <Widget>[
-                      Text(description, style: TextStyle(fontSize: 12)),
+                      Text(description, style: context.textStyles.body),
                     ],
                   ),
                 ),

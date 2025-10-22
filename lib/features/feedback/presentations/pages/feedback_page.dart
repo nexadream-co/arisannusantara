@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/app_modal_bottom_sheet.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
@@ -53,10 +54,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: context.spacing.lg),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(context.radius.medium),
-                ),
                 child: TextFormField(
                   decoration: InputDecoration(
                     hintText: "Cari feedback...",
@@ -158,87 +155,96 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 shrinkWrap: true,
                 itemCount: 20,
                 itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(bottom: context.spacing.md),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.spacing.sm,
-                      vertical: context.spacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: context.colors.surface),
-                      borderRadius: BorderRadius.circular(
-                        context.radius.medium,
+                  return GestureDetector(
+                    onTap: () {
+                      _detailFeedback();
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: context.spacing.md),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.spacing.sm,
+                        vertical: context.spacing.md,
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: context.colors.surface,
-                              child: Icon(
-                                Icons.chat_outlined,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            SizedBox(width: context.spacing.sm),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Lorem Ipsum, dolor sit amet',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'agushermanto@gmail.com',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.body,
-                                  ),
-                                  SizedBox(height: context.spacing.sm),
-                                  Wrap(
-                                    children: [
-                                      Text(
-                                        'Agus Hermanto',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: context.textStyles.subtitleSmall
-                                            .copyWith(
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                      ),
-                                      SizedBox(width: context.spacing.md),
-                                      Text(
-                                        '12 October 2025',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: context.textStyles.subtitleSmall
-                                            .copyWith(
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              'Selesai',
-                              style: context.textStyles.body.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: context.colors.success,
-                              ),
-                            ),
-                          ],
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.colors.surface),
+                        borderRadius: BorderRadius.circular(
+                          context.radius.medium,
                         ),
-                      ],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: context.colors.surface,
+                                child: Icon(
+                                  Icons.chat_outlined,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                              SizedBox(width: context.spacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Lorem Ipsum, dolor sit amet',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.body.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'agushermanto@gmail.com',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.body,
+                                    ),
+                                    SizedBox(height: context.spacing.sm),
+                                    Wrap(
+                                      children: [
+                                        Text(
+                                          'Agus Hermanto',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context
+                                              .textStyles
+                                              .subtitleSmall
+                                              .copyWith(
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                        ),
+                                        SizedBox(width: context.spacing.md),
+                                        Text(
+                                          '12 October 2025',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context
+                                              .textStyles
+                                              .subtitleSmall
+                                              .copyWith(
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                'Selesai',
+                                style: context.textStyles.body.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: context.colors.success,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -246,6 +252,174 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _detailFeedback() {
+    showAppModalBottomSheet(
+      context: context,
+      child: Container(
+        padding: EdgeInsets.all(context.spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Detail Feedback',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.title.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Text(
+                  'Masukkan dan kritik yang diberikan pengguna',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.body,
+                ),
+              ],
+            ),
+            SizedBox(height: context.appSize.s16),
+            Container(
+              padding: EdgeInsets.symmetric(
+                vertical: context.spacing.sm,
+                horizontal: context.spacing.md,
+              ),
+              decoration: BoxDecoration(
+                color: context.colors.accent,
+                borderRadius: BorderRadius.circular(context.radius.medium),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.info_outline),
+                  SizedBox(width: context.spacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                      style: context.textStyles.body,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: context.appSize.s16),
+            Text('Infomasi Feedback', style: context.textStyles.title),
+            SizedBox(height: context.spacing.md),
+            _groupInformationItem('Judul', 'Lorem ipsum dolor'),
+            _groupInformationItem('Feedback', 'Dolor ipsom lorem ipsum'),
+            Container(
+              margin: EdgeInsets.only(
+                top: context.spacing.lg,
+                bottom: context.spacing.sm,
+              ),
+              child: Text(
+                'Status',
+                style: context.textStyles.body.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 5,
+              ),
+              children: [
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: true,
+                  onChanged: (value) {},
+                  title: Text('Proses'),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: false,
+                  onChanged: (value) {},
+                  title: Text('Selesai'),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: true,
+                  onChanged: (value) {},
+                  title: Text('Abaikan'),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: false,
+                  onChanged: (value) {},
+                  title: Text('Batal'),
+                ),
+              ],
+            ),
+            SizedBox(height: context.appSize.s16),
+            Container(
+              margin: EdgeInsets.only(
+                top: context.spacing.lg,
+                bottom: context.spacing.sm,
+              ),
+              child: Row(
+                spacing: context.spacing.sm,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.md,
+                        horizontal: context.spacing.xl,
+                      ),
+                      foregroundColor: context.colors.error,
+                      side: BorderSide(color: context.colors.error, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.radius.medium,
+                        ),
+                      ),
+                    ),
+                    child: Text('Hapus'),
+                  ),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {},
+                      child: Text('Simpan'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _groupInformationItem(String label, String value) {
+    return Container(
+      padding: EdgeInsets.only(bottom: context.spacing.sm),
+      margin: EdgeInsets.only(bottom: context.spacing.sm),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.colors.divider)),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: context.textStyles.body)),
+          Text(
+            value,
+            style: context.textStyles.body.copyWith(
+              fontWeight: FontWeight.bold,
+              color: context.colors.primary,
+            ),
+          ),
+        ],
       ),
     );
   }

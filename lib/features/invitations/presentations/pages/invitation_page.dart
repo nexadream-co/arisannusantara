@@ -13,43 +13,42 @@ class InvitationPage extends StatefulWidget {
 class _InvitationPageState extends State<InvitationPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(context.assets.textureBg),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              SafeArea(
-                bottom: false,
+              Container(
+                padding: EdgeInsets.all(context.spacing.lg),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(context.assets.textureBg),
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(left: context.spacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Undangan',
-                              maxLines: 1,
-                              style: context.textStyles.header,
-                            ),
-                            Text(
-                              'Semua undangan peserta',
-                              maxLines: 1,
-                              style: context.textStyles.body,
-                            ),
-                          ],
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Undangan',
+                            maxLines: 1,
+                            style: context.textStyles.header,
+                          ),
+                          Text(
+                            'Semua undangan peserta',
+                            maxLines: 1,
+                            style: context.textStyles.body,
+                          ),
+                        ],
                       ),
                     ),
                     IconButton(
@@ -63,7 +62,7 @@ class _InvitationPageState extends State<InvitationPage> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(bottom: context.spacing.lg),
+                margin: EdgeInsets.symmetric(vertical: context.spacing.lg),
                 height: context.appSize.s32,
                 width: double.infinity,
                 child: ListView(
