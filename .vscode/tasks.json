@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Production APK",
+            "type": "shell",
+            "command": "flutter build apk --release --flavor production --target lib/main_prod.dart --split-per-abi"
+        }
+    ]
+}
