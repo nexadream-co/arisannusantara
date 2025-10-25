@@ -8,6 +8,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'Arisan Nusantara',
       theme: AppTheme.light,
