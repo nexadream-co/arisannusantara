@@ -9,18 +9,24 @@ part of 'auth_state_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(AuthState)
+@ProviderFor(authState)
 const authStateProvider = AuthStateProvider._();
 
 final class AuthStateProvider
-    extends $AsyncNotifierProvider<AuthState, UserEntity?> {
+    extends
+        $FunctionalProvider<
+          AsyncValue<UserEntity?>,
+          UserEntity?,
+          Stream<UserEntity?>
+        >
+    with $FutureModifier<UserEntity?>, $StreamProvider<UserEntity?> {
   const AuthStateProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'authStateProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -30,26 +36,14 @@ final class AuthStateProvider
 
   @$internal
   @override
-  AuthState create() => AuthState();
-}
+  $StreamProviderElement<UserEntity?> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
 
-String _$authStateHash() => r'56041faa31bc5f05c222f42292888f09da3e8d2f';
-
-abstract class _$AuthState extends $AsyncNotifier<UserEntity?> {
-  FutureOr<UserEntity?> build();
-  @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<AsyncValue<UserEntity?>, UserEntity?>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<AsyncValue<UserEntity?>, UserEntity?>,
-              AsyncValue<UserEntity?>,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
+  Stream<UserEntity?> create(Ref ref) {
+    return authState(ref);
   }
 }
+
+String _$authStateHash() => r'f929afb5de1f228ff81a08ffef6f056de3aa7f1b';

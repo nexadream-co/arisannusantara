@@ -1,33 +1,56 @@
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../config/constants/app_user_role.dart';
+import '../../features/auth/domain/entities/user_entity.dart';
+import '../../features/auth/presentations/pages/login_page.dart';
+import '../../features/auth/presentations/pages/verify_email_page.dart';
+import '../layouts/splash.dart';
+import '../layouts/superadmin_layout.dart';
+import '../layouts/user_layout.dart';
 
 /// Handles all route redirection (middleware) logic based on authentication and user role.
 ///
 /// [authState] - The AsyncValue (or similar) containing the current user data.
 /// [state] - The GoRouterState of the current navigation.
-String? middleware({required dynamic authState, required GoRouterState state}) {
-  final user = authState.valueOrNull;
-  final isLoggingIn = state.matchedLocation == '/login';
+String? middleware({
+  required AsyncValue<UserEntity?> authState,
+  required GoRouterState state,
+}) {
+  final user = authState.value;
+  final inLoginPage = state.matchedLocation == LoginPage.path;
+  final inEmailVerifyPage = state.matchedLocation == VerifyEmailPage.path;
 
   // While loading user state
-  if (authState.isLoading) return '/splash';
+  if (authState.isLoading) return Splash.path;
 
   // Not authenticated
   if (user == null) {
-    return isLoggingIn ? null : '/login';
+    return inLoginPage ? null : LoginPage.path;
+  }
+
+  // Email not verified
+  if (!user.emailVerified) {
+    // If already on login page, don't redirect again
+    return inEmailVerifyPage ? null : VerifyEmailPage.path;
   }
 
   // Authenticated: handle redirect after login
-  if (isLoggingIn) {
-    return user.role == 'superadmin' ? '/superadmin' : '/admin';
+  if (inLoginPage) {
+    return user.role == AppUserRole.superadmin
+        ? SuperadminLayout.path
+        : UserLayout.path;
   }
 
   // Prevent cross-role access
-  if (user.role == 'admin' && state.matchedLocation == '/superadmin') {
-    return '/admin';
+  if (user.role == AppUserRole.user &&
+      state.matchedLocation == SuperadminLayout.path) {
+    return UserLayout.path;
   }
 
-  if (user.role == 'superadmin' && state.matchedLocation == '/admin') {
-    return '/superadmin';
+  if (user.role == AppUserRole.superadmin &&
+      state.matchedLocation == UserLayout.path) {
+    return SuperadminLayout.path;
   }
 
   return null;

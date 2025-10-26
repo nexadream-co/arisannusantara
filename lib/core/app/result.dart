@@ -1,3 +1,5 @@
+import '../../config/constants/app_message.dart';
+
 sealed class Result<T> {
   const Result({this.statusCode});
 
@@ -5,6 +7,7 @@ sealed class Result<T> {
 
   const factory Result.success(T value, {int? statusCode}) = Success;
   const factory Result.failed(String? message, {int? statusCode}) = Failed;
+  factory Result.systemError() => Failed<T>(AppMessage.systemError);
 
   bool get isSuccess => this is Success<T>;
   bool get isFailed => this is Failed<T>;
