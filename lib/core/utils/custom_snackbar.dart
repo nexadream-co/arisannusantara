@@ -1,15 +1,65 @@
 import 'package:flutter/material.dart';
 
-enum SnackbarType { success, warning, failure }
+enum SnackbarType { success, warning, error }
 
 class CustomSnackbar {
+  static success(
+    BuildContext context, {
+    String? title,
+    String? message,
+    SnackbarType? type,
+    Duration? duration,
+    bool mounted = true,
+  }) => show(
+    context,
+    title: title,
+    message: message,
+    type: SnackbarType.success,
+    duration: duration,
+    mounted: mounted,
+  );
+
+  static warning(
+    BuildContext context, {
+    String? title,
+    String? message,
+    SnackbarType? type,
+    Duration? duration,
+    bool mounted = true,
+  }) => show(
+    context,
+    title: title,
+    message: message,
+    type: SnackbarType.warning,
+    duration: duration,
+    mounted: mounted,
+  );
+
+  static error(
+    BuildContext context, {
+    String? title,
+    String? message,
+    SnackbarType? type,
+    Duration? duration,
+    bool mounted = true,
+  }) => show(
+    context,
+    title: title,
+    message: message,
+    type: SnackbarType.error,
+    duration: duration,
+    mounted: mounted,
+  );
+
   static show(
     BuildContext context, {
     String? title,
     String? message,
     SnackbarType? type,
     Duration? duration,
+    bool mounted = true,
   }) {
+    if (!mounted) return;
     final snackBar = SnackBar(
       behavior: SnackBarBehavior.fixed,
       backgroundColor: Colors.transparent,

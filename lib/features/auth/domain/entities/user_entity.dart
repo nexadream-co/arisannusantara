@@ -6,8 +6,10 @@ part 'user_entity.freezed.dart';
 abstract class UserEntity with _$UserEntity {
   const factory UserEntity({
     required String id,
+    String? name,
     required String email,
-    required String role, // 'user' or 'superadmin'
+    String? photoUrl,
+    String? role, // 'user' or 'superadmin'
     @Default(true) bool emailVerified,
   }) = _UserEntity;
 }

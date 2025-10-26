@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -5,23 +7,25 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
 import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
-import '../../../auth/presentations/pages/login_page.dart';
+import '../../../auth/presentations/provider/auth_providers.dart';
+import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../../term_conditions/presentations/pages/term_condition_page.dart';
 import 'change_password_page.dart';
 import 'profile_edit_page.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   static const String path = '/profile';
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -78,56 +82,83 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 SizedBox(height: context.appSize.s24),
-                SizedBox(
-                  width: context.appSize.s124,
-                  height: context.appSize.s124,
-                  child: Stack(
-                    children: [
-                      SizedBox(
-                        width: context.appSize.s124,
-                        height: context.appSize.s124,
-                        child: CircleAvatar(
-                          backgroundColor: context.colors.accent,
-                          child: Icon(
-                            Icons.person_outline,
-                            size: context.appSize.s64,
-                            color: context.colors.secondary,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.spacing.md,
-                            vertical: context.spacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: context.colors.secondary,
-                            borderRadius: BorderRadius.circular(
-                              context.radius.medium,
+
+                Consumer(
+                  builder: (context, ref, child) {
+                    final authStateAsync = ref.watch(authStateProvider);
+                    return authStateAsync.when(
+                      data: (user) {
+                        if (user == null) return const SizedBox();
+
+                        return Column(
+                          children: [
+                            SizedBox(
+                              width: context.appSize.s124,
+                              height: context.appSize.s124,
+                              child: Stack(
+                                children: [
+                                  SizedBox(
+                                    width: context.appSize.s124,
+                                    height: context.appSize.s124,
+                                    child: CircleAvatar(
+                                      backgroundColor: context.colors.accent,
+                                      backgroundImage: user.photoUrl != null
+                                          ? CachedNetworkImageProvider(
+                                              user.photoUrl!,
+                                            )
+                                          : null,
+                                      child: user.photoUrl == null
+                                          ? Icon(
+                                              Icons.person_outline,
+                                              size: context.appSize.s64,
+                                              color: context.colors.secondary,
+                                            )
+                                          : null,
+                                    ),
+                                  ),
+                                  Container(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: context.spacing.md,
+                                        vertical: context.spacing.xs,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: context.colors.secondary,
+                                        borderRadius: BorderRadius.circular(
+                                          context.radius.medium,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        user.role == 'superadmin'
+                                            ? 'Superadmin'
+                                            : 'Pengguna',
+                                        style: context.textStyles.body.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            'Pengguna',
-                            style: context.textStyles.body.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            SizedBox(height: context.appSize.s16),
+                            Text(
+                              user.name ?? '',
+                              style: context.textStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                            Text(user.email, style: context.textStyles.body),
+                          ],
+                        );
+                      },
+                      loading: () => const CircularProgressIndicator(),
+                      error: (e, _) => Text('Error: $e'),
+                    );
+                  },
                 ),
-                SizedBox(height: context.appSize.s16),
-                Text(
-                  'Rudi Aldo',
-                  style: context.textStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text('rudialdo@gmail.com', style: context.textStyles.body),
                 SizedBox(height: context.appSize.s24),
                 Container(
                   margin: EdgeInsets.only(
@@ -375,9 +406,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () {
-                      context.go(LoginPage.path);
-                    },
+                    onPressed: _logout,
                     child: Text('Keluar'),
                   ),
                 ),
@@ -387,6 +416,31 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _logout() async {
+    final usecase = ref.read(logoutUsecaseProvider);
+
+    LoadingOverlay.show(context);
+    await usecase.call().then((result) {
+      LoadingOverlay.hide();
+      if (result.isSuccess) {
+        CustomSnackbar.success(
+          context,
+          message: result.resultValue,
+          mounted: mounted,
+        );
+
+        // Redirect after logout handled by middleware,
+        // See `middleware()` in `router.dart`
+      } else {
+        CustomSnackbar.error(
+          context,
+          message: result.errorMessage,
+          mounted: mounted,
+        );
+      }
+    });
   }
 
   void _addFeedback() {

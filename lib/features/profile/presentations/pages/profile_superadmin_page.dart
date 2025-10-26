@@ -1,25 +1,29 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
-import '../../../auth/presentations/pages/login_page.dart';
+import '../../../auth/presentations/provider/auth_providers.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../../term_conditions/presentations/pages/term_condition_page.dart';
 import 'change_password_page.dart';
 import 'profile_edit_page.dart';
 
-class ProfileSuperadminPage extends StatefulWidget {
+class ProfileSuperadminPage extends ConsumerStatefulWidget {
   static const String path = '/superadmin/profile';
   const ProfileSuperadminPage({super.key});
 
   @override
-  State<ProfileSuperadminPage> createState() => _ProfileSuperadminPageState();
+  ConsumerState<ProfileSuperadminPage> createState() =>
+      _ProfileSuperadminPageState();
 }
 
-class _ProfileSuperadminPageState extends State<ProfileSuperadminPage> {
+class _ProfileSuperadminPageState extends ConsumerState<ProfileSuperadminPage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -357,9 +361,7 @@ class _ProfileSuperadminPageState extends State<ProfileSuperadminPage> {
                   ),
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () {
-                      context.go(LoginPage.path);
-                    },
+                    onPressed: _logout,
                     child: Text('Keluar'),
                   ),
                 ),
@@ -369,6 +371,31 @@ class _ProfileSuperadminPageState extends State<ProfileSuperadminPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _logout() async {
+    final usecase = ref.read(logoutUsecaseProvider);
+
+    LoadingOverlay.show(context);
+    await usecase.call().then((result) {
+      LoadingOverlay.hide();
+      if (result.isSuccess) {
+        CustomSnackbar.success(
+          context,
+          message: result.resultValue,
+          mounted: mounted,
+        );
+
+        // Redirect after logout handled by middleware,
+        // See `middleware()` in `router.dart`
+      } else {
+        CustomSnackbar.error(
+          context,
+          message: result.errorMessage,
+          mounted: mounted,
+        );
+      }
+    });
   }
 
   void _addFeedback() {

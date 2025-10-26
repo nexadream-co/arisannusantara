@@ -12,7 +12,9 @@ Stream<UserEntity?> authState(Ref ref) {
 
     return UserEntity(
       id: firebaseUser.uid,
+      name: firebaseUser.displayName ?? '',
       email: firebaseUser.email ?? '',
+      photoUrl: firebaseUser.photoURL,
       emailVerified: firebaseUser.emailVerified,
       role: 'admin',
     );
