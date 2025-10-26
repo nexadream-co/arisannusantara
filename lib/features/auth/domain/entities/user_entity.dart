@@ -1,21 +1,13 @@
-class UserEntity {
-  final String id;
-  final String email;
-  final bool emailVerified;
-  final String role; // 'admin' or 'superadmin'
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const UserEntity({
-    required this.id,
-    required this.email,
-    required this.role,
-    this.emailVerified = true,
-  });
+part 'user_entity.freezed.dart';
 
-  factory UserEntity.fromJson(Map<String, dynamic> json) => UserEntity(
-    id: json['id'] as String,
-    email: json['email'] as String,
-    role: json['role'] as String,
-  );
-
-  Map<String, dynamic> toJson() => {'id': id, 'email': email, 'role': role};
+@freezed
+abstract class UserEntity with _$UserEntity {
+  const factory UserEntity({
+    required String id,
+    required String email,
+    required String role, // 'user' or 'superadmin'
+    @Default(true) bool emailVerified,
+  }) = _UserEntity;
 }

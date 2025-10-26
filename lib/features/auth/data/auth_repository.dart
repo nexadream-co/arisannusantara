@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
+import '../../../core/errors/firebase_auth_exception.dart';
 import '../domain/entities/user_entity.dart';
 
 class AuthRepository {
@@ -21,27 +22,67 @@ class AuthRepository {
 
       final user = userCredential.user;
       if (user == null) {
-        return const Result.failed('Pengguna tidak ditemukan', statusCode: 404);
+        return const Result.failed('Pengguna tidak ditemukan');
       }
 
       // Check if email is verified
       if (!user.emailVerified) {
         // await _auth.signOut();
         return const Result.failed(
-          'Email belum diverifikasi. Silakan periksa email Anda untuk verifikasi.',
-          statusCode: 403, // Forbidden
+          'Email belum diverifikasi. Silakan periksa email Anda untuk verifikasi',
         );
       }
 
       final token = await user.getIdToken();
       if (token == null) {
-        return const Result.failed('Token tidak ditemukan', statusCode: 500);
+        return const Result.failed('Token tidak ditemukan');
       }
 
       return const Result.success('Login berhasil');
-    } on FirebaseAuthException catch (e, s) {
+    } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
+    } catch (e, s) {
       handleException(e, stackTrace: s);
-      return Result.failed(e.message ?? 'Login gagal silahkan coba kembali');
+      return Result.systemError();
+    }
+  }
+
+  /// Register using name, email, and password
+  Future<Result<String>> registerUserWithEmailAndPassword({
+    required String name,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      // Check password confirmation
+      if (password != confirmPassword) {
+        return const Result.failed('Konfirmasi kata sandi tidak cocok');
+      }
+
+      // Create user with email and password
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = userCredential.user;
+      if (user == null) {
+        return const Result.failed('Gagal membuat akun pengguna');
+      }
+
+      // Update display name
+      await user.updateDisplayName(name);
+      await user.reload();
+
+      // Send email verification
+      await user.sendEmailVerification();
+
+      return const Result.success(
+        'Registrasi berhasil. Silakan periksa email Anda untuk verifikasi',
+      );
+    } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();
@@ -78,15 +119,14 @@ class AuthRepository {
 
       final user = userCredential.user;
       if (user == null) {
-        return const Result.failed('Pengguna tidak ditemukan', statusCode: 404);
+        return const Result.failed('Pengguna tidak ditemukan');
       }
 
       // Check if email is verified
       if (!user.emailVerified) {
         // await _auth.signOut();
         return const Result.failed(
-          'Email belum diverifikasi. Silakan periksa email Anda untuk verifikasi.',
-          statusCode: 403, // Forbidden
+          'Email belum diverifikasi. Silakan periksa email Anda untuk verifikasi',
         );
       }
 
@@ -96,9 +136,43 @@ class AuthRepository {
       }
 
       return Result.success(token);
-    } on FirebaseAuthException catch (e, s) {
+    } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
+    } catch (e, s) {
       handleException(e, stackTrace: s);
-      return Result.failed(e.message ?? 'Login gagal silahkan coba kembali');
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<String>> sendEmailVerification() async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      if (user.emailVerified) {
+        return const Result.failed('Email sudah terverifikasi');
+      }
+
+      await user.sendEmailVerification();
+
+      return const Result.success('Email verifikasi telah dikirim');
+    } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<String>> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return const Result.failed('Email reset password telah dikirim');
+    } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();
@@ -140,6 +214,8 @@ class AuthRepository {
           // photoUrl: user.photoURL,
         ),
       );
+    } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();
