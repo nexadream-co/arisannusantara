@@ -12,7 +12,28 @@
           "package_name": "com.arisannusantara.mobile"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "403138020907-3ru1djrqbv07hq9t0r97fvu75oggco8u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arisannusantara.mobile",
+            "certificate_hash": "b77cb3398d223b105f612422b6d2a842d7c1dd3b"
+          }
+        },
+        {
+          "client_id": "403138020907-vc5jgjgaqnv32pmjdmk20p8dtgati5hr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arisannusantara.mobile",
+            "certificate_hash": "60d74f5851a934bb6bb9377d3d9ae0f8374a09e9"
+          }
+        },
+        {
+          "client_id": "403138020907-iq7k4agqt2ljcmbelhvovdhgth0h21oa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC0U_h0vYQVFgJNg-2rIAAxDmIodFZUCXE"
@@ -20,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "403138020907-iq7k4agqt2ljcmbelhvovdhgth0h21oa.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "403138020907-p9s7ns2bd1hhopc2fq62nf1b9dmko348.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.arisannusantara.mobile"
+              }
+            }
+          ]
         }
       }
     }

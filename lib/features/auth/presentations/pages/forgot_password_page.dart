@@ -106,17 +106,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     await usecase.call(_emailController.text).then((result) {
       LoadingOverlay.hide();
       if (result.isSuccess) {
-        CustomSnackbar.success(
-          context,
-          message: result.resultValue,
-          mounted: mounted,
-        );
+        CustomSnackbar.success(message: result.resultValue);
       } else {
-        CustomSnackbar.error(
-          context,
-          message: result.errorMessage,
-          mounted: mounted,
-        );
+        CustomSnackbar.error(message: result.errorMessage, mounted: mounted);
       }
     });
   }

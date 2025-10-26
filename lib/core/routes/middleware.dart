@@ -8,6 +8,7 @@ import '../../features/auth/presentations/pages/verify_email_page.dart';
 import '../layouts/splash.dart';
 import '../layouts/superadmin_layout.dart';
 import '../layouts/user_layout.dart';
+import 'public_path.dart';
 
 /// Handles all route redirection (middleware) logic based on authentication and user role.
 ///
@@ -26,7 +27,7 @@ String? middleware({
 
   // Not authenticated
   if (user == null) {
-    return inLoginPage ? null : LoginPage.path;
+    return isPublicPage(state.matchedLocation) ? null : LoginPage.path;
   }
 
   // Email not verified
@@ -44,12 +45,16 @@ String? middleware({
 
   // Prevent cross-role access
   if (user.role == AppUserRole.user &&
-      state.matchedLocation == SuperadminLayout.path) {
+      (state.matchedLocation == Splash.path ||
+          state.matchedLocation == SuperadminLayout.path ||
+          state.matchedLocation == LoginPage.path)) {
     return UserLayout.path;
   }
 
   if (user.role == AppUserRole.superadmin &&
-      state.matchedLocation == UserLayout.path) {
+      (state.matchedLocation == Splash.path ||
+          state.matchedLocation == UserLayout.path ||
+          state.matchedLocation == LoginPage.path)) {
     return SuperadminLayout.path;
   }
 

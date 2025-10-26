@@ -1,65 +1,56 @@
 import 'package:flutter/material.dart';
 
+import '../../app.dart';
+
 enum SnackbarType { success, warning, error }
 
 class CustomSnackbar {
-  static success(
-    BuildContext context, {
+  static success({
     String? title,
     String? message,
     SnackbarType? type,
     Duration? duration,
-    bool mounted = true,
   }) => show(
-    context,
     title: title,
     message: message,
     type: SnackbarType.success,
     duration: duration,
-    mounted: mounted,
   );
 
-  static warning(
-    BuildContext context, {
+  static warning({
     String? title,
     String? message,
     SnackbarType? type,
     Duration? duration,
-    bool mounted = true,
   }) => show(
-    context,
     title: title,
     message: message,
     type: SnackbarType.warning,
     duration: duration,
-    mounted: mounted,
   );
 
-  static error(
-    BuildContext context, {
+  static error({
     String? title,
     String? message,
     SnackbarType? type,
     Duration? duration,
     bool mounted = true,
   }) => show(
-    context,
     title: title,
     message: message,
     type: SnackbarType.error,
     duration: duration,
-    mounted: mounted,
   );
 
-  static show(
-    BuildContext context, {
+  static show({
     String? title,
     String? message,
     SnackbarType? type,
     Duration? duration,
-    bool mounted = true,
   }) {
-    if (!mounted) return;
+    final messenger = scaffoldMessengerKey.currentState;
+    if (messenger == null) return;
+
     final snackBar = SnackBar(
       behavior: SnackBarBehavior.fixed,
       backgroundColor: Colors.transparent,
@@ -120,7 +111,7 @@ class CustomSnackbar {
       duration: duration ?? const Duration(seconds: 3),
     );
 
-    ScaffoldMessenger.of(context)
+    messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(snackBar);
   }

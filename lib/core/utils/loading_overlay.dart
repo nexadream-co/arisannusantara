@@ -63,7 +63,7 @@ class _LoadingContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const _LoadingIconAnimation(),
+          const LoadingIconAnimation(),
           Text(
             message,
             style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
@@ -75,14 +75,16 @@ class _LoadingContent extends StatelessWidget {
   }
 }
 
-class _LoadingIconAnimation extends StatefulWidget {
-  const _LoadingIconAnimation();
+class LoadingIconAnimation extends StatefulWidget {
+  final double width;
+  final double height;
+  const LoadingIconAnimation({super.key, this.width = 64, this.height = 64});
 
   @override
-  _LoadingIconAnimationState createState() => _LoadingIconAnimationState();
+  LoadingIconAnimationState createState() => LoadingIconAnimationState();
 }
 
-class _LoadingIconAnimationState extends State<_LoadingIconAnimation>
+class LoadingIconAnimationState extends State<LoadingIconAnimation>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -108,13 +110,21 @@ class _LoadingIconAnimationState extends State<_LoadingIconAnimation>
     return Stack(
       alignment: Alignment.center,
       children: [
-        Image.asset(context.assets.logoSMOverlayGrey, height: 64, width: 64),
+        Image.asset(
+          context.assets.logoSMOverlayGrey,
+          height: widget.height,
+          width: widget.width,
+        ),
         AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
             return ClipPath(
               clipper: _LoadingIconClipper(animationValue: _animation.value),
-              child: Image.asset(context.assets.logoSM, height: 64, width: 64),
+              child: Image.asset(
+                context.assets.logoSM,
+                height: widget.height,
+                width: widget.width,
+              ),
             );
           },
         ),

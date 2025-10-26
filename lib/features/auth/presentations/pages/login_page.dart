@@ -158,25 +158,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> _handleLoginEmailPassword() async {
     if (!_formKey.currentState!.validate()) return;
-    final loginUsecase = ref.read(loginEmailPasswordUsecaseProvider);
+    final usecase = ref.read(loginEmailPasswordUsecaseProvider);
 
     LoadingOverlay.show(context);
-    await loginUsecase
+    await usecase
         .call(email: _emailController.text, password: _passwordController.text)
         .then((result) {
           LoadingOverlay.hide();
           if (result.isSuccess) {
-            CustomSnackbar.success(
-              context,
-              message: result.resultValue,
-              mounted: mounted,
-            );
+            CustomSnackbar.success(message: result.resultValue);
 
             // Redirect after login handled by middleware,
             // See `middleware()` in `router.dart`
           } else {
             CustomSnackbar.error(
-              context,
               message: result.errorMessage,
               mounted: mounted,
             );
@@ -185,27 +180,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _handleLoginByGoogle() async {
-    if (!_formKey.currentState!.validate()) return;
-    final loginUsecase = ref.read(loginGoogleUsecaseProvider);
+    final usecase = ref.read(loginGoogleUsecaseProvider);
 
     LoadingOverlay.show(context);
-    await loginUsecase.call().then((result) {
+    await usecase.call().then((result) {
       LoadingOverlay.hide();
       if (result.isSuccess) {
-        CustomSnackbar.success(
-          context,
-          message: result.resultValue,
-          mounted: mounted,
-        );
+        CustomSnackbar.success(message: result.resultValue);
 
         // Redirect after login handled by middleware,
         // See `middleware()` in `router.dart`
       } else {
-        CustomSnackbar.error(
-          context,
-          message: result.errorMessage,
-          mounted: mounted,
-        );
+        CustomSnackbar.error(message: result.errorMessage, mounted: mounted);
       }
     });
   }

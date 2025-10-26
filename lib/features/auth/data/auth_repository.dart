@@ -139,6 +139,14 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {
+      if (e.toString().contains(
+        'getCredentialAsync no provider dependencies found',
+      )) {
+        return const Result.failed(
+          'Google Play Services pada perangkat Anda perlu diperbarui agar bisa login dengan Google',
+        );
+      }
+
       handleException(e, stackTrace: s);
       return Result.systemError();
     }
@@ -170,7 +178,7 @@ class AuthRepository {
   Future<Result<String>> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      return const Result.failed('Email reset password telah dikirim');
+      return const Result.success('Email reset password telah dikirim');
     } on FirebaseAuthException catch (e) {
       return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {
@@ -182,13 +190,16 @@ class AuthRepository {
   /// Logout from Firebase
   Future<Result<String>> logout() async {
     try {
-      final googleSignIn = GoogleSignIn.instance;
+      /// Disconnect Google Sign-In only if the current user logged in with Google.
+      /// Skips this step for email/password or other auth methods.
+      final user = _auth.currentUser;
+      final providers =
+          user?.providerData.map((e) => e.providerId).toList() ?? [];
 
-      // Important: ensure initialized before use
-      await googleSignIn.initialize();
-
-      // Disconnect user from Google (revoke tokens)
-      await googleSignIn.disconnect();
+      if (providers.contains('google.com')) {
+        final googleSignIn = GoogleSignIn.instance;
+        await googleSignIn.disconnect();
+      }
 
       // Sign out from Firebase
       await _auth.signOut();

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
@@ -361,7 +362,14 @@ class _ProfileSuperadminPageState extends ConsumerState<ProfileSuperadminPage> {
                   ),
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _logout,
+                    onPressed: () {
+                      CustomAlert.show(
+                        context,
+                        title: "Peringatan",
+                        description: "Apakah anda yakin ingin keluar?",
+                        onYes: _logout,
+                      );
+                    },
                     child: Text('Keluar'),
                   ),
                 ),
@@ -380,20 +388,12 @@ class _ProfileSuperadminPageState extends ConsumerState<ProfileSuperadminPage> {
     await usecase.call().then((result) {
       LoadingOverlay.hide();
       if (result.isSuccess) {
-        CustomSnackbar.success(
-          context,
-          message: result.resultValue,
-          mounted: mounted,
-        );
+        CustomSnackbar.success(message: result.resultValue);
 
         // Redirect after logout handled by middleware,
         // See `middleware()` in `router.dart`
       } else {
-        CustomSnackbar.error(
-          context,
-          message: result.errorMessage,
-          mounted: mounted,
-        );
+        CustomSnackbar.error(message: result.errorMessage, mounted: mounted);
       }
     });
   }

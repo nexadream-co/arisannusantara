@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/title_widget.dart';
@@ -51,7 +52,7 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                 TitleWidget(
                   title: "Verifikasi\nEmail Anda",
                   subtitle:
-                      "Kami telah mengirimkan email verifikasi ke email anda,\nLihat di folder spam jika tidak ada di inbox",
+                      "Kami telah mengirimkan email verifikasi ke email anda, mohon periksa di folder spam jika tidak ada di email masuk",
                 ),
                 SizedBox(height: context.appSize.s40),
                 SizedBox(
@@ -65,7 +66,14 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: _logout,
+                    onPressed: () {
+                      CustomAlert.show(
+                        context,
+                        title: "Peringatan",
+                        description: "Apakah anda yakin ingin keluar?",
+                        onYes: _logout,
+                      );
+                    },
                     child: Text('Keluar'),
                   ),
                 ),
@@ -84,20 +92,12 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
     await usecase.call().then((result) {
       LoadingOverlay.hide();
       if (result.isSuccess) {
-        CustomSnackbar.success(
-          context,
-          message: result.resultValue,
-          mounted: mounted,
-        );
+        CustomSnackbar.success(message: result.resultValue);
 
         // Redirect after logout handled by middleware,
         // See `middleware()` in `router.dart`
       } else {
-        CustomSnackbar.error(
-          context,
-          message: result.errorMessage,
-          mounted: mounted,
-        );
+        CustomSnackbar.error(message: result.errorMessage, mounted: mounted);
       }
     });
   }
@@ -109,17 +109,9 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
     await usecase.call().then((result) {
       LoadingOverlay.hide();
       if (result.isSuccess) {
-        CustomSnackbar.success(
-          context,
-          message: result.resultValue,
-          mounted: mounted,
-        );
+        CustomSnackbar.success(message: result.resultValue);
       } else {
-        CustomSnackbar.error(
-          context,
-          message: result.errorMessage,
-          mounted: mounted,
-        );
+        CustomSnackbar.error(message: result.errorMessage, mounted: mounted);
       }
     });
   }

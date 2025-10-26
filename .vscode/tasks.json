@@ -4,7 +4,7 @@
         {
             "label": "Build Production APK",
             "type": "shell",
-            "command": "flutter build apk --release --flavor production --target lib/main_prod.dart --split-per-abi"
+            "command": "flutter build apk --release --split-per-abi"
         },
         {
             "label": "Build Runner: Watch",

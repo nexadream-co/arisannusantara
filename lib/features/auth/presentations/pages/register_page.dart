@@ -81,6 +81,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         label: 'Password',
                         hintText: 'Masukkan password kamu',
                         required: true,
+                        obscureText: _obscurePassword,
                         suffixIcon: GestureDetector(
                           onTap: () {
                             setState(() {
@@ -103,6 +104,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         controller: _confirmPasswordController,
                         label: 'Konfirmasi Password',
                         hintText: 'Masukkan konfirmasi password kamu',
+                        obscureText: _obscureConfirmPassword,
                         validator: (value) {
                           if ((value ?? '').isEmpty) {
                             return 'Konfirmasi password tidak boleh kosong';
@@ -138,17 +140,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         controlAffinity: ListTileControlAffinity.leading,
                         value: _termConditionChecked,
                         onChanged: (value) {
-                          setState(() {
-                            _termConditionChecked = !_termConditionChecked;
-                          });
-
                           if (!_termConditionChecked) {
                             context.push(TermConditionPage.path);
                           }
+                          setState(() {
+                            _termConditionChecked = !_termConditionChecked;
+                          });
                         },
                         title: Text(
                           'Saya menyetujui syarat dan ketentuan aplikasi',
-                          style: context.textStyles.body,
+                          style: context.textStyles.body.copyWith(
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       );
                     },
@@ -207,10 +210,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     if (!_formKey.currentState!.validate()) return;
     if (!_termConditionChecked) {
       CustomSnackbar.error(
-        context,
         message: 'Anda harus menyetujui syarat dan ketentuan aplikasi',
         mounted: mounted,
       );
+      return;
     }
 
     final usecase = ref.read(registerUserWithEmailPasswordUsecaseProvider);
@@ -226,17 +229,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         .then((result) {
           LoadingOverlay.hide();
           if (result.isSuccess) {
-            CustomSnackbar.success(
-              context,
-              message: result.resultValue,
-              mounted: mounted,
-            );
+            CustomSnackbar.success(message: result.resultValue);
 
             // Redirect after register handled by middleware,
             // See `middleware()` in `router.dart`
           } else {
             CustomSnackbar.error(
-              context,
               message: result.errorMessage,
               mounted: mounted,
             );

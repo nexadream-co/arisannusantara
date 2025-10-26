@@ -361,7 +361,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   "Apakah anda yakin ingin menghapus akun?",
                               onYes: () {
                                 CustomSnackbar.show(
-                                  context,
                                   title: "Berhasil",
                                   message: "Akun anda berhasil dihapus",
                                   type: SnackbarType.success,
@@ -406,7 +405,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _logout,
+                    onPressed: () {
+                      CustomAlert.show(
+                        context,
+                        title: "Peringatan",
+                        description: "Apakah anda yakin ingin keluar?",
+                        onYes: _logout,
+                      );
+                    },
                     child: Text('Keluar'),
                   ),
                 ),
@@ -425,20 +431,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     await usecase.call().then((result) {
       LoadingOverlay.hide();
       if (result.isSuccess) {
-        CustomSnackbar.success(
-          context,
-          message: result.resultValue,
-          mounted: mounted,
-        );
+        CustomSnackbar.success(message: result.resultValue);
 
         // Redirect after logout handled by middleware,
         // See `middleware()` in `router.dart`
       } else {
-        CustomSnackbar.error(
-          context,
-          message: result.errorMessage,
-          mounted: mounted,
-        );
+        CustomSnackbar.error(message: result.errorMessage, mounted: mounted);
       }
     });
   }
