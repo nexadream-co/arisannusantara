@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../config/constants/app_user_role.dart';
+import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_auth_exception.dart';
@@ -8,6 +11,7 @@ import '../domain/entities/user_entity.dart';
 
 class AuthRepository {
   final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
   /// Login using email and password
   Future<Result<String>> loginByEmailPassword(
@@ -36,6 +40,28 @@ class AuthRepository {
       final token = await user.getIdToken();
       if (token == null) {
         return const Result.failed('Token tidak ditemukan');
+      }
+
+      // Firestore
+      final usersRef = FirebaseFirestore.instance.collection(
+        DBCollections.users,
+      );
+      final docRef = usersRef.doc(user.uid);
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        // Create new user document if not exists
+        await docRef.set({
+          'id': user.uid,
+          'name': user.displayName ?? '',
+          'email': user.email ?? email,
+          'created_at': FieldValue.serverTimestamp(),
+          'updated_at': FieldValue.serverTimestamp(),
+          'role': AppUserRole.user,
+        });
+      } else {
+        // Optionally, update last login or refresh info
+        await docRef.update({'last_login_at': FieldValue.serverTimestamp()});
       }
 
       return const Result.success('Login berhasil');
@@ -77,6 +103,36 @@ class AuthRepository {
 
       // Send email verification
       await user.sendEmailVerification();
+
+      // Firestore reference
+      final usersRef = _firestore.collection(DBCollections.users);
+
+      // Check if user data already exists
+      final existingUser = await usersRef
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (existingUser.docs.isNotEmpty) {
+        // Update existing document
+        await usersRef.doc(existingUser.docs.first.id).update({
+          'id': user.uid,
+          'name': name,
+          'photo_url': user.photoURL,
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+      } else {
+        // Create new document
+        await usersRef.doc(user.uid).set({
+          'id': user.uid,
+          'name': name,
+          'email': email,
+          'role': AppUserRole.user,
+          'photo_url': user.photoURL,
+          'created_at': FieldValue.serverTimestamp(),
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+      }
 
       return const Result.success(
         'Registrasi berhasil. Silakan periksa email Anda untuk verifikasi',
@@ -133,6 +189,29 @@ class AuthRepository {
       final token = await _auth.currentUser?.getIdToken();
       if (token == null) {
         return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      // Firestore
+      final usersRef = FirebaseFirestore.instance.collection(
+        DBCollections.users,
+      );
+      final docRef = usersRef.doc(user.uid);
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        // Create new user document if not exists
+        await docRef.set({
+          'id': user.uid,
+          'name': user.displayName,
+          'email': user.email,
+          'photo_url': user.photoURL,
+          'created_at': FieldValue.serverTimestamp(),
+          'updated_at': FieldValue.serverTimestamp(),
+          'role': AppUserRole.user,
+        });
+      } else {
+        // Optionally, update last login or refresh info
+        await docRef.update({'last_login_at': FieldValue.serverTimestamp()});
       }
 
       return Result.success(token);
@@ -214,18 +293,75 @@ class AuthRepository {
   Future<Result<UserEntity>> getUser() async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return Result.failed('Anda belum login');
+      if (user == null) {
+        return const Result.failed('Anda belum login');
+      }
 
-      return Result.success(
-        UserEntity(
-          id: user.uid,
-          email: user.email ?? '',
-          role: 'admin',
-          // name: user.displayName,
-          // photoUrl: user.photoURL,
-        ),
+      // Reference to users collection
+      final userRef = FirebaseFirestore.instance
+          .collection(DBCollections.users)
+          .doc(user.uid);
+      final userDoc = await userRef.get();
+
+      if (!userDoc.exists) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      final data = userDoc.data() ?? {};
+
+      // Build UserEntity from Firestore data
+      final userEntity = UserEntity(
+        id: user.uid,
+        name: data['name'] ?? user.displayName ?? '',
+        email: data['email'] ?? user.email ?? '',
+        role: data['role'] ?? AppUserRole.user,
+        photoUrl: data['photo_url'] ?? user.photoURL,
       );
+
+      return Result.success(userEntity);
     } on FirebaseAuthException catch (e) {
+      return Result.failed(getFirebaseAuthExceptionMessage(e));
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<String>> deleteAccount() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Result.failed('Tidak ada pengguna yang sedang login');
+      }
+
+      final userId = user.uid;
+
+      // Delete Firestore user document
+      final userDocRef = FirebaseFirestore.instance
+          .collection(DBCollections.users)
+          .doc(userId);
+      await userDocRef.delete();
+
+      // Delete user auth account
+      await user.delete();
+
+      // (Optional) Clean up any third-party session like Google Sign-In
+      final providers = user.providerData.map((e) => e.providerId).toList();
+      if (providers.contains('google.com')) {
+        final googleSignIn = GoogleSignIn.instance;
+        await googleSignIn.disconnect();
+      }
+
+      // No need to manually signOut — user.delete() automatically logs them out
+
+      return const Result.success('Akun Anda telah berhasil dihapus');
+    } on FirebaseAuthException catch (e) {
+      // Firebase may require recent login for sensitive actions
+      if (e.code == 'requires-recent-login') {
+        return const Result.failed(
+          'Untuk alasan keamanan, silakan login kembali sebelum menghapus akun Anda',
+        );
+      }
       return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {
       handleException(e, stackTrace: s);

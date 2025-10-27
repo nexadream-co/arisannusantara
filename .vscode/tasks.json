@@ -4,7 +4,11 @@
         {
             "label": "Build Production APK",
             "type": "shell",
-            "command": "flutter build apk --release --split-per-abi"
+            "command": "flutter build apk --release --split-per-abi",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
         },
         {
             "label": "Build Runner: Watch",
