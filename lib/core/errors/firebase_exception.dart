@@ -38,3 +38,42 @@ String getFirebaseAuthExceptionMessage(FirebaseAuthException e) {
       throw e;
   }
 }
+
+String getFirebaseFirestoreExceptionMessage(FirebaseException e) {
+  switch (e.code) {
+    case 'cancelled':
+      return 'Operasi dibatalkan. Silakan coba lagi.';
+    case 'unknown':
+      return 'Terjadi kesalahan yang tidak diketahui.';
+    case 'invalid-argument':
+      return 'Argumen yang diberikan tidak valid.';
+    case 'deadline-exceeded':
+      return 'Permintaan memakan waktu terlalu lama, silakan coba lagi.';
+    case 'not-found':
+      return 'Data yang diminta tidak ditemukan.';
+    case 'already-exists':
+      return 'Data sudah ada di database.';
+    case 'permission-denied':
+      return 'Anda tidak memiliki izin untuk melakukan tindakan ini.';
+    case 'resource-exhausted':
+      return 'Sumber daya Firebase sudah mencapai batas, coba lagi nanti.';
+    case 'failed-precondition':
+      return 'Kondisi tidak terpenuhi untuk operasi ini.';
+    case 'aborted':
+      return 'Operasi dibatalkan karena konflik.';
+    case 'out-of-range':
+      return 'Nilai di luar jangkauan yang diizinkan.';
+    case 'unimplemented':
+      return 'Operasi ini tidak didukung.';
+    case 'internal':
+      return 'Terjadi kesalahan internal di server.';
+    case 'unavailable':
+      return 'Layanan tidak tersedia. Periksa koneksi internet Anda.';
+    case 'data-loss':
+      return 'Data hilang atau rusak.';
+    case 'unauthenticated':
+      return 'Sesi Anda telah berakhir, silakan login kembali.';
+    default:
+      throw e;
+  }
+}

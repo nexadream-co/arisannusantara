@@ -6,7 +6,7 @@ import '../../../config/constants/app_user_role.dart';
 import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
-import '../../../core/errors/firebase_auth_exception.dart';
+import '../../../core/errors/firebase_exception.dart';
 import '../domain/entities/user_entity.dart';
 
 class AuthRepository {
