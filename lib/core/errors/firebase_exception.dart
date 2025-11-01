@@ -34,6 +34,8 @@ String getFirebaseAuthExceptionMessage(FirebaseAuthException e) {
       return 'Kode verifikasi sudah kedaluwarsa.';
     case 'invalid-action-code':
       return 'Kode verifikasi tidak valid.';
+    case 'requires-recent-login':
+      return 'Silakan login ulang untuk memperbarui kata sandi';
     default:
       throw e;
   }

@@ -223,13 +223,11 @@ mixin MemberRepository {
       return Result.failed(message);
     } catch (e, s) {
       handleException(e, stackTrace: s);
-      return const Result.failed(
-        'Terjadi kesalahan saat memperbarui data member',
-      );
+      return const Result.failed('Terjadi kesalahan saat memperbarui member');
     }
   }
 
-  Future<Result<String>> deleteMemberData(String memberId) async {
+  Future<Result<String>> deleteMember(String memberId) async {
     try {
       final memberRef = _firestore.collection('members').doc(memberId);
 
@@ -248,9 +246,7 @@ mixin MemberRepository {
       return Result.failed(message);
     } catch (e, s) {
       handleException(e, stackTrace: s);
-      return const Result.failed(
-        'Terjadi kesalahan saat menghapus data member',
-      );
+      return const Result.failed('Terjadi kesalahan saat menghapus member');
     }
   }
 

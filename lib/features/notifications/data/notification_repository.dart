@@ -68,4 +68,44 @@ class NotificationRepository {
       return Result.systemError();
     }
   }
+
+  Future<Result<String>> markAllAsRead() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      final querySnapshot = await _firestore
+          .collection(DBCollections.notifications)
+          .where('userId', isEqualTo: currentUser.uid)
+          .where('isRead', isEqualTo: false)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return const Result.failed('Tidak ada notifikasi yang belum dibaca');
+      }
+
+      final batch = _firestore.batch();
+
+      for (final doc in querySnapshot.docs) {
+        batch.update(doc.reference, {
+          'isRead': true,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
+
+      return const Result.success(
+        'Semua notifikasi telah ditandai sebagai dibaca',
+      );
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
 }

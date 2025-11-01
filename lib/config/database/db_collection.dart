@@ -6,4 +6,7 @@ class DBCollections {
   static const String paymentAccounts = 'payment_accounts';
   static const String invitations = 'invitations';
   static const String notifications = 'notifications';
+  static const String feedback = 'feedback';
+  static const String faqs = 'faqs';
+  static const String settings = 'settings';
 }
