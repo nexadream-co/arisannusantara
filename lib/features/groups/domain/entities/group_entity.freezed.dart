@@ -11,6 +11,7 @@ part of 'group_entity.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$GroupEntity {
 
@@ -22,6 +23,8 @@ mixin _$GroupEntity {
 @pragma('vm:prefer-inline')
 $GroupEntityCopyWith<GroupEntity> get copyWith => _$GroupEntityCopyWithImpl<GroupEntity>(this as GroupEntity, _$identity);
 
+  /// Serializes this GroupEntity to a JSON map.
+  Map<String, dynamic> toJson();
 
 
 @override
@@ -29,7 +32,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.code, code) || other.code == code)&&(identical(other.reward, reward) || other.reward == reward)&&(identical(other.status, status) || other.status == status)&&(identical(other.periodsType, periodsType) || other.periodsType == periodsType)&&(identical(other.periodsDate, periodsDate) || other.periodsDate == periodsDate)&&(identical(other.dues, dues) || other.dues == dues)&&(identical(other.target, target) || other.target == target)&&(identical(other.maxWinner, maxWinner) || other.maxWinner == maxWinner)&&const DeepCollectionEquality().equals(other.owners, owners)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.paymentAccounts, paymentAccounts));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,id,name,description,code,reward,status,periodsType,periodsDate,dues,target,maxWinner,const DeepCollectionEquality().hash(owners),createdAt,updatedAt,const DeepCollectionEquality().hash(paymentAccounts));
 
@@ -218,11 +221,11 @@ return $default(_that.id,_that.name,_that.description,_that.code,_that.reward,_t
 }
 
 /// @nodoc
-
+@JsonSerializable()
 
 class _GroupEntity implements GroupEntity {
   const _GroupEntity({this.id, this.name, this.description, this.code, this.reward, this.status, this.periodsType, this.periodsDate, this.dues, this.target, this.maxWinner, final  List<String>? owners, this.createdAt, this.updatedAt, final  List<PaymentAccountEntity>? paymentAccounts}): _owners = owners,_paymentAccounts = paymentAccounts;
-  
+  factory _GroupEntity.fromJson(Map<String, dynamic> json) => _$GroupEntityFromJson(json);
 
 @override final  String? id;
 @override final  String? name;
@@ -263,14 +266,17 @@ class _GroupEntity implements GroupEntity {
 @pragma('vm:prefer-inline')
 _$GroupEntityCopyWith<_GroupEntity> get copyWith => __$GroupEntityCopyWithImpl<_GroupEntity>(this, _$identity);
 
-
+@override
+Map<String, dynamic> toJson() {
+  return _$GroupEntityToJson(this, );
+}
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.code, code) || other.code == code)&&(identical(other.reward, reward) || other.reward == reward)&&(identical(other.status, status) || other.status == status)&&(identical(other.periodsType, periodsType) || other.periodsType == periodsType)&&(identical(other.periodsDate, periodsDate) || other.periodsDate == periodsDate)&&(identical(other.dues, dues) || other.dues == dues)&&(identical(other.target, target) || other.target == target)&&(identical(other.maxWinner, maxWinner) || other.maxWinner == maxWinner)&&const DeepCollectionEquality().equals(other._owners, _owners)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._paymentAccounts, _paymentAccounts));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,id,name,description,code,reward,status,periodsType,periodsDate,dues,target,maxWinner,const DeepCollectionEquality().hash(_owners),createdAt,updatedAt,const DeepCollectionEquality().hash(_paymentAccounts));
 

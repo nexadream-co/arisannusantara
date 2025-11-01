@@ -6,17 +6,19 @@ import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
 import '../../../core/utils/generate_search_index.dart';
+import '../../auth/domain/entities/user_entity.dart';
 import '../domain/entities/member_entity.dart';
 
 mixin MemberRepository {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  /// Fetch list of members by [groupId].
-  /// You can optionally search by [query] that matches `search_index` array.
   Future<Result<List<MemberEntity>>> getMembers({
     required String groupId,
     String? query,
+    bool? isActive,
+    bool? skip,
+    bool? hasReward,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -30,6 +32,19 @@ mixin MemberRepository {
           .where('group_id', isEqualTo: groupId)
           .orderBy('created_at', descending: true);
 
+      // Apply optional filters if provided
+      if (isActive != null) {
+        memberQuery = memberQuery.where('is_active', isEqualTo: isActive);
+      }
+
+      if (skip != null) {
+        memberQuery = memberQuery.where('skip', isEqualTo: skip);
+      }
+
+      if (hasReward != null) {
+        memberQuery = memberQuery.where('has_reward', isEqualTo: hasReward);
+      }
+
       // Add search filter if query provided
       if (query != null && query.isNotEmpty) {
         memberQuery = memberQuery.where(
@@ -38,10 +53,14 @@ mixin MemberRepository {
         );
       }
 
+      // Execute query
       final snapshot = await memberQuery.get();
 
+      // Map documents to MemberEntity list
       final members = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
+        final userData = data['user'] as Map<String, dynamic>?;
+
         return MemberEntity(
           id: doc.id,
           groupId: data['group_id'] as String?,
@@ -53,7 +72,13 @@ mixin MemberRepository {
           createdAt: (data['created_at'] as Timestamp?)?.toDate(),
           updatedAt: (data['updated_at'] as Timestamp?)?.toDate(),
           group: null,
-          user: null,
+          user: userData != null
+              ? UserEntity(
+                  id: userData['id'],
+                  name: userData['name'],
+                  email: userData['email'],
+                )
+              : null,
         );
       }).toList();
 
@@ -63,7 +88,7 @@ mixin MemberRepository {
       return Result.failed(message);
     } catch (e, s) {
       handleException(e, stackTrace: s);
-      return Result.systemError();
+      return Result.failed('Terjadi kesalahan saat mengambil data member');
     }
   }
 
@@ -130,6 +155,149 @@ mixin MemberRepository {
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();
+    }
+  }
+
+  Future<Result<String>> updateMember(MemberEntity member) async {
+    try {
+      final memberRef = _firestore.collection('members').doc(member.id);
+
+      // Check if member exists
+      final memberSnap = await memberRef.get();
+      if (!memberSnap.exists) {
+        return const Result.failed('Member tidak ditemukan');
+      }
+
+      // Fetch latest user data from Firestore
+      final userEmail = member.user?.email;
+      if (userEmail == null || userEmail.isEmpty) {
+        return const Result.failed('Email pengguna diperlukan');
+      }
+
+      final userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: userEmail)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      final userDoc = userQuery.docs.first;
+      final userData = userDoc.data();
+
+      // Build simplified user object
+      final userObject = {
+        'id': userDoc.id,
+        'name': userData['name'],
+        'email': userData['email'],
+      };
+
+      // Generate search index from name & email
+      final searchIndex = generateSearchIndex([
+        userData['name'] ?? '',
+        userData['email'] ?? '',
+      ]);
+
+      // Prepare updated data
+      final now = DateTime.now();
+      final data = {
+        'group_id': member.groupId,
+        'user': userObject,
+        'status_payment': member.statusPayment,
+        'is_active': member.isActive,
+        'skip': member.skip,
+        'has_reward': member.hasReward,
+        'paid_at': member.paidAt,
+        'updated_at': now,
+        'search_index': searchIndex,
+      };
+
+      // Update Firestore document
+      await memberRef.update(data);
+
+      return const Result.success('Data member berhasil diperbarui');
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return const Result.failed(
+        'Terjadi kesalahan saat memperbarui data member',
+      );
+    }
+  }
+
+  Future<Result<String>> deleteMemberData(String memberId) async {
+    try {
+      final memberRef = _firestore.collection('members').doc(memberId);
+
+      // Check if member document exists
+      final memberSnap = await memberRef.get();
+      if (!memberSnap.exists) {
+        return const Result.failed('Member tidak ditemukan');
+      }
+
+      // Delete the document
+      await memberRef.delete();
+
+      return const Result.success('Member berhasil dihapus');
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return const Result.failed(
+        'Terjadi kesalahan saat menghapus data member',
+      );
+    }
+  }
+
+  Future<Result<MemberEntity>> getMemberDetail(String memberId) async {
+    try {
+      final memberRef = _firestore.collection('members').doc(memberId);
+
+      // Get member document
+      final memberSnap = await memberRef.get();
+      if (!memberSnap.exists) {
+        return const Result.failed('Member tidak ditemukan');
+      }
+
+      final data = memberSnap.data()!;
+
+      // Parse user object
+      final userData = data['user'] as Map<String, dynamic>?;
+
+      // Create MemberEntity from Firestore data
+      final member = MemberEntity(
+        id: data['id'],
+        groupId: data['group_id'],
+        statusPayment: data['status_payment'],
+        isActive: data['is_active'],
+        skip: data['skip'],
+        hasReward: data['has_reward'],
+        paidAt: (data['paid_at'] as Timestamp?)?.toDate(),
+        createdAt: (data['created_at'] as Timestamp?)?.toDate(),
+        updatedAt: (data['updated_at'] as Timestamp?)?.toDate(),
+        user: userData != null
+            ? UserEntity(
+                id: userData['id'],
+                name: userData['name'],
+                email: userData['email'],
+              )
+            : null,
+      );
+
+      return Result.success(member);
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return const Result.failed(
+        'Terjadi kesalahan saat mengambil detail member',
+      );
     }
   }
 }

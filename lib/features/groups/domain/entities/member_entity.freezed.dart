@@ -11,6 +11,7 @@ part of 'member_entity.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$MemberEntity {
 
@@ -21,6 +22,8 @@ mixin _$MemberEntity {
 @pragma('vm:prefer-inline')
 $MemberEntityCopyWith<MemberEntity> get copyWith => _$MemberEntityCopyWithImpl<MemberEntity>(this as MemberEntity, _$identity);
 
+  /// Serializes this MemberEntity to a JSON map.
+  Map<String, dynamic> toJson();
 
 
 @override
@@ -28,7 +31,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MemberEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.group, group) || other.group == group)&&(identical(other.user, user) || other.user == user)&&(identical(other.statusPayment, statusPayment) || other.statusPayment == statusPayment)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.skip, skip) || other.skip == skip)&&(identical(other.hasReward, hasReward) || other.hasReward == hasReward)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,id,groupId,group,user,statusPayment,isActive,skip,hasReward,paidAt,createdAt,updatedAt);
 
@@ -237,11 +240,11 @@ return $default(_that.id,_that.groupId,_that.group,_that.user,_that.statusPaymen
 }
 
 /// @nodoc
-
+@JsonSerializable()
 
 class _MemberEntity implements MemberEntity {
   const _MemberEntity({this.id, this.groupId, this.group, this.user, this.statusPayment, this.isActive, this.skip, this.hasReward, this.paidAt, this.createdAt, this.updatedAt});
-  
+  factory _MemberEntity.fromJson(Map<String, dynamic> json) => _$MemberEntityFromJson(json);
 
 @override final  String? id;
 @override final  String? groupId;
@@ -261,14 +264,17 @@ class _MemberEntity implements MemberEntity {
 @pragma('vm:prefer-inline')
 _$MemberEntityCopyWith<_MemberEntity> get copyWith => __$MemberEntityCopyWithImpl<_MemberEntity>(this, _$identity);
 
-
+@override
+Map<String, dynamic> toJson() {
+  return _$MemberEntityToJson(this, );
+}
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _MemberEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.group, group) || other.group == group)&&(identical(other.user, user) || other.user == user)&&(identical(other.statusPayment, statusPayment) || other.statusPayment == statusPayment)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.skip, skip) || other.skip == skip)&&(identical(other.hasReward, hasReward) || other.hasReward == hasReward)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,id,groupId,group,user,statusPayment,isActive,skip,hasReward,paidAt,createdAt,updatedAt);
 

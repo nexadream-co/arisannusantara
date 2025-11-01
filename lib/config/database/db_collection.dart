@@ -4,4 +4,6 @@ class DBCollections {
   static const String members = 'members';
   static const String histories = 'histories';
   static const String paymentAccounts = 'payment_accounts';
+  static const String invitations = 'invitations';
+  static const String notifications = 'notifications';
 }

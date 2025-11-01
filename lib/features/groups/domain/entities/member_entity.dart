@@ -4,6 +4,7 @@ import '../../../auth/domain/entities/user_entity.dart';
 import 'group_entity.dart';
 
 part 'member_entity.freezed.dart';
+part 'member_entity.g.dart';
 
 @freezed
 abstract class MemberEntity with _$MemberEntity {
@@ -20,4 +21,7 @@ abstract class MemberEntity with _$MemberEntity {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _MemberEntity;
+
+  factory MemberEntity.fromJson(Map<String, dynamic> json) =>
+      _$MemberEntityFromJson(json);
 }

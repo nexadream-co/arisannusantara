@@ -22,7 +22,7 @@ class GroupRepository
         HistoryRepository,
         MemberRepository,
         PaymentAccountRepository {
-  GroupRepository._();
+  GroupRepository();
 }
 
 mixin GroupDetailRepository {
