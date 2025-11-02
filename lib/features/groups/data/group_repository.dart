@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../config/database/db_collection.dart';
+import '../../../config/enums/group_filter.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
@@ -31,9 +32,7 @@ mixin GroupDetailRepository {
 
   Future<Result<List<GroupEntity>>> getGroups({
     String? search,
-    bool joined = false,
-    bool owned = false,
-    bool invited = false,
+    GroupFilter filter = GroupFilter.all,
     String? lastId,
     int limit = 10,
   }) async {
@@ -47,18 +46,23 @@ mixin GroupDetailRepository {
         DBCollections.groups,
       );
 
-      // Combine membership filters
-      final filters = <Filter>[];
-      if (joined) filters.add(Filter('member_ids', arrayContains: user.uid));
-      if (owned) filters.add(Filter('owner_ids', arrayContains: user.uid));
-      if (invited) {
-        filters.add(Filter('invited_user_ids', arrayContains: user.uid));
+      // Apply membership filter based on enum
+      switch (filter) {
+        case GroupFilter.joined:
+          query = query.where('member_ids', arrayContains: user.uid);
+          break;
+        case GroupFilter.owned:
+          query = query.where('owner_ids', arrayContains: user.uid);
+          break;
+        case GroupFilter.invited:
+          query = query.where('invited_user_ids', arrayContains: user.uid);
+          break;
+        case GroupFilter.all:
+          // no filter applied
+          break;
       }
 
-      if (filters.isNotEmpty) {
-        query = query.where(filters.first);
-      }
-
+      // Apply search filter
       if (search != null && search.isNotEmpty) {
         final lower = search.toLowerCase();
         query = query.where('search_index', arrayContains: lower);
@@ -67,7 +71,7 @@ mixin GroupDetailRepository {
       // Order & pagination
       query = query.orderBy('created_at', descending: true).limit(limit);
 
-      // If lastId is provided, use it as a cursor
+      // Apply pagination with lastId
       if (lastId != null && lastId.isNotEmpty) {
         final lastDoc = await _firestore
             .collection(DBCollections.groups)
@@ -81,8 +85,23 @@ mixin GroupDetailRepository {
 
       final snapshot = await query.get();
 
-      var groups = snapshot.docs.map((doc) {
+      final groups = snapshot.docs.map((doc) {
         final data = doc.data();
+
+        final ownerIds =
+            (data['owner_ids'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [];
+        final memberIds =
+            (data['member_ids'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [];
+
+        final isOwned = ownerIds.contains(user.uid);
+        final isJoined = memberIds.contains(user.uid);
+
         return GroupEntity(
           id: doc.id,
           name: data['name'] as String?,
@@ -91,6 +110,8 @@ mixin GroupDetailRepository {
           periodsDate: parseFirestoreDate(data['periods_date']),
           dues: (data['dues'] as num?)?.toDouble(),
           target: (data['target'] as num?)?.toDouble(),
+          isOwned: isOwned,
+          isJoined: isJoined,
         );
       }).toList();
 

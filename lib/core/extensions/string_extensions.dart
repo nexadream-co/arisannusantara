@@ -24,6 +24,16 @@ extension StringExtensions on String {
   /// Trim and then check if length is zero.
   bool get isBlank => trim().isEmpty;
 
+  String? get initials {
+    final trimmed = trim();
+    if (trimmed.isEmpty) return null;
+
+    final parts = trimmed.split(RegExp(r'\s+'));
+    final initials = parts.map((e) => e[0].toUpperCase()).join();
+
+    return initials;
+  }
+
   /// Returns the string with the first letter capitalized and the rest unchanged.
   /// Example: 'hello' -> 'Hello'
   String capitalize() {

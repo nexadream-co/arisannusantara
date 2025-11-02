@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/feedback/presentations/pages/feedback_page.dart';
-import '../../features/groups/group_and_user_page.dart';
+import '../../features/groups/presentations/pages/group_and_user_page.dart';
 import '../../features/home/presentations/pages/superadmin_home_page.dart';
 import '../../features/profile/presentations/pages/profile_superadmin_page.dart';
 import '../../shared/widgets/bottom_navbar.dart';

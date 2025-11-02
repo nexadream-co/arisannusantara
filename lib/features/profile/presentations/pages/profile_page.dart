@@ -87,6 +87,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   builder: (context, ref, child) {
                     final authStateAsync = ref.watch(authStateProvider);
                     return authStateAsync.when(
+                      loading: () => const CircularProgressIndicator(),
+                      error: (e, _) => const SizedBox(),
                       data: (user) {
                         if (user == null) return const SizedBox();
 
@@ -150,12 +152,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(user.email, style: context.textStyles.body),
+                            Text(
+                              user.email ?? '',
+                              style: context.textStyles.body,
+                            ),
                           ],
                         );
                       },
-                      loading: () => const CircularProgressIndicator(),
-                      error: (e, _) => Text('Error: $e'),
                     );
                   },
                 ),

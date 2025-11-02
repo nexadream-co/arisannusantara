@@ -6,12 +6,15 @@ part 'user_entity.g.dart';
 @freezed
 abstract class UserEntity with _$UserEntity {
   const factory UserEntity({
-    required String id,
+    String? id,
     String? name,
-    required String email,
+    String? email,
     String? photoUrl,
+    String? phoneNumber,
     String? role, // 'user' or 'superadmin'
     @Default(true) bool emailVerified,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _UserEntity;
 
   factory UserEntity.fromJson(Map<String, dynamic> json) =>

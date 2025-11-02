@@ -76,10 +76,11 @@ class NotificationRepository {
         return const Result.failed('Pengguna tidak ditemukan');
       }
 
+      // Get all unread notifications (where readAt == null)
       final querySnapshot = await _firestore
           .collection(DBCollections.notifications)
-          .where('userId', isEqualTo: currentUser.uid)
-          .where('isRead', isEqualTo: false)
+          .where('user_id', isEqualTo: currentUser.uid)
+          .where('read_at', isNull: true)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -90,8 +91,8 @@ class NotificationRepository {
 
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
-          'isRead': true,
-          'updatedAt': FieldValue.serverTimestamp(),
+          'read_at': FieldValue.serverTimestamp(),
+          'updated_at': FieldValue.serverTimestamp(),
         });
       }
 
@@ -100,6 +101,31 @@ class NotificationRepository {
       return const Result.success(
         'Semua notifikasi telah ditandai sebagai dibaca',
       );
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<int>> getUnreadCount() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      final snapshot = await _firestore
+          .collection(DBCollections.notifications)
+          .where('user_id', isEqualTo: currentUser.uid)
+          .where('read_at', isNull: true)
+          .get();
+
+      final count = snapshot.size;
+
+      return Result.success(count);
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);

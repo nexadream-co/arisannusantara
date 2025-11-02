@@ -19,6 +19,8 @@ abstract class GroupEntity with _$GroupEntity {
     double? dues,
     double? target,
     int? maxWinner,
+    bool? isOwned,
+    bool? isJoined,
     List<String>? owners,
     DateTime? createdAt,
     DateTime? updatedAt,

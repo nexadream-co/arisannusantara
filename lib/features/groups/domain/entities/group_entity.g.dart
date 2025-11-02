@@ -20,6 +20,8 @@ _GroupEntity _$GroupEntityFromJson(Map<String, dynamic> json) => _GroupEntity(
   dues: (json['dues'] as num?)?.toDouble(),
   target: (json['target'] as num?)?.toDouble(),
   maxWinner: (json['maxWinner'] as num?)?.toInt(),
+  isOwned: json['isOwned'] as bool?,
+  isJoined: json['isJoined'] as bool?,
   owners: (json['owners'] as List<dynamic>?)?.map((e) => e as String).toList(),
   createdAt: json['createdAt'] == null
       ? null
@@ -45,6 +47,8 @@ Map<String, dynamic> _$GroupEntityToJson(_GroupEntity instance) =>
       'dues': instance.dues,
       'target': instance.target,
       'maxWinner': instance.maxWinner,
+      'isOwned': instance.isOwned,
+      'isJoined': instance.isJoined,
       'owners': instance.owners,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
