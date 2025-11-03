@@ -10,6 +10,7 @@ abstract class UserEntity with _$UserEntity {
     String? name,
     String? email,
     String? photoUrl,
+    String? gender,
     String? phoneNumber,
     String? role, // 'user' or 'superadmin'
     @Default(true) bool emailVerified,

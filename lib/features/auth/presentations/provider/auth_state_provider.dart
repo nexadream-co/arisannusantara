@@ -34,6 +34,7 @@ Stream<UserEntity?> authState(Ref ref) {
         id: updatedUser.uid,
         name: data['name'] ?? updatedUser.displayName ?? '',
         email: data['email'] ?? updatedUser.email ?? '',
+        gender: data['gender'],
         photoUrl: data['photo_url'] ?? updatedUser.photoURL,
         emailVerified: updatedUser.emailVerified,
         role: data['role'] ?? AppUserRole.user,

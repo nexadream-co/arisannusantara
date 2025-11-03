@@ -12,7 +12,7 @@ class NotificationRepository {
   final _firestore = FirebaseFirestore.instance;
 
   Future<Result<List<NotificationEntity>>> getNotifications({
-    List<String>? search,
+    String? search,
     int limit = 10,
     String? lastId,
   }) async {
@@ -51,7 +51,7 @@ class NotificationRepository {
       final snapshot = await query.get();
 
       if (snapshot.docs.isEmpty) {
-        return const Result.failed('Tidak ada notifikasi ditemukan');
+        return const Result.success([]);
       }
 
       final notifications = snapshot.docs.map((doc) {

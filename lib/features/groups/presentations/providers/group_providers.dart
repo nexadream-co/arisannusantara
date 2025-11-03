@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/group_repository.dart';
 import '../../domain/usecases/get_groups_usecase.dart';
 
-part 'group_provider.g.dart';
+part 'group_providers.g.dart';
 
 @riverpod
 GroupRepository groupRepository(Ref ref) {

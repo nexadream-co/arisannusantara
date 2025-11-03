@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../config/constants/app_invitation_status.dart';
 import '../../../config/database/db_collection.dart';
+import '../../../config/enums/invitation_status.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../../auth/domain/entities/user_entity.dart';
 import '../../groups/data/group_repository.dart';
 import '../../groups/domain/entities/group_entity.dart';
@@ -50,7 +51,7 @@ class InvitationRepository {
       final invitation = InvitationEntity(
         groupId: groupId,
         userId: user.uid,
-        status: AppInvitationStatus.pending,
+        status: InvitationStatus.pending.name,
         groupOwnerIds: ownerIds,
         group: GroupEntity.fromJson(groupData),
         user: UserEntity.fromJson(userData),
@@ -99,10 +100,11 @@ class InvitationRepository {
       }
 
       final invitationData = invitationSnapshot.data()!;
-      final currentStatus = invitationData['status'] as String? ?? '';
+      final currentStatus = (invitationData['status'] as String? ?? '')
+          .toInvitationStatus();
 
       // Avoid reprocessing already approved invitations
-      if (currentStatus == AppInvitationStatus.approved) {
+      if (currentStatus == InvitationStatus.approved) {
         return const Result.failed('Undangan sudah disetujui sebelumnya');
       }
 
@@ -113,7 +115,7 @@ class InvitationRepository {
       });
 
       // If approved, create new member in the group
-      if (newStatus == AppInvitationStatus.approved) {
+      if (newStatus == InvitationStatus.approved.name) {
         final groupId = invitationData['group_id'] as String?;
         final userMap = invitationData['user'] as Map<String, dynamic>?;
 
@@ -198,7 +200,7 @@ class InvitationRepository {
       final snapshot = await query.get();
 
       if (snapshot.docs.isEmpty) {
-        return const Result.failed('Tidak ada data undangan ditemukan');
+        return const Result.success([]);
       }
 
       // Map to entity list

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/home/presentations/pages/home_page.dart';
 import '../../features/invitations/presentations/pages/invitation_page.dart';
 import '../../features/notifications/presentations/pages/notification_page.dart';
+import '../../features/notifications/presentations/providers/get_unread_count_provider.dart';
 import '../../features/profile/presentations/pages/profile_page.dart';
 import '../../shared/widgets/bottom_navbar.dart';
 
@@ -34,32 +36,48 @@ class _UserLayoutState extends State<UserLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavBarItem(
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
-            label: "Beranda",
-          ),
-          BottomNavBarItem(
-            icon: Icons.chat_outlined,
-            activeIcon: Icons.chat,
-            label: "Undangan",
-          ),
-          BottomNavBarItem(
-            icon: Icons.notifications_outlined,
-            activeIcon: Icons.notifications,
-            label: "Notifikasi",
-            counterBadge: '11',
-          ),
-          BottomNavBarItem(
-            icon: Icons.person_outlined,
-            activeIcon: Icons.person,
-            label: "Profil",
-          ),
-        ],
+      bottomNavigationBar: Consumer(
+        builder: (context, ref, child) {
+          final unreadCountAsync = ref.watch(getUnreadCountProvider);
+          String? counterNotificationBadge;
+          unreadCountAsync.when(
+            data: (data) {
+              if (data > 0) {
+                counterNotificationBadge = data.toString();
+              }
+            },
+            error: (_, __) => null,
+            loading: () => null,
+          );
+
+          return BottomNavBar(
+            selectedIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: [
+              BottomNavBarItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: "Beranda",
+              ),
+              BottomNavBarItem(
+                icon: Icons.chat_outlined,
+                activeIcon: Icons.chat,
+                label: "Undangan",
+              ),
+              BottomNavBarItem(
+                icon: Icons.notifications_outlined,
+                activeIcon: Icons.notifications,
+                label: "Notifikasi",
+                counterBadge: counterNotificationBadge,
+              ),
+              BottomNavBarItem(
+                icon: Icons.person_outlined,
+                activeIcon: Icons.person,
+                label: "Profil",
+              ),
+            ],
+          );
+        },
       ),
     );
   }

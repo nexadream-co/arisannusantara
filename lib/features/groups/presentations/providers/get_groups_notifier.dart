@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../config/enums/group_filter.dart';
 import '../../domain/entities/group_entity.dart';
-import 'group_provider.dart';
+import 'group_providers.dart';
 
 part 'get_groups_notifier.g.dart';
 

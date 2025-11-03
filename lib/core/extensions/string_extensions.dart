@@ -9,6 +9,8 @@
 /// ```
 library;
 
+import '../../config/enums/invitation_status.dart';
+
 extension NullableStringExtensions on String? {
   /// Checks if the string is null or empty.
   bool get isNullOrEmpty => this == null || this!.isEmpty;
@@ -186,6 +188,18 @@ extension StringExtensions on String {
         .where((p) => p.isNotEmpty)
         .toList();
     return parts;
+  }
+
+  InvitationStatus toInvitationStatus() {
+    switch (toLowerCase()) {
+      case 'approved':
+        return InvitationStatus.approved;
+      case 'rejected':
+        return InvitationStatus.rejected;
+      case 'pending':
+      default:
+        return InvitationStatus.pending;
+    }
   }
 }
 

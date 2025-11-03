@@ -271,7 +271,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                     BorderRadius.circular(
                                                       context.radius.medium,
                                                     ),
-                                                value: 0.7,
+                                                value: percentage ?? 0,
                                               ),
                                             ],
                                           ),
@@ -355,129 +355,82 @@ class _HomePageState extends ConsumerState<HomePage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MasonryGridView.count(
-                        padding: EdgeInsets.only(
-                          left: context.spacing.lg,
-                          right: context.spacing.lg,
-                          bottom: context.spacing.lg,
-                        ),
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        crossAxisCount: 2,
-                        mainAxisSpacing: context.spacing.md,
-                        crossAxisSpacing: context.spacing.md,
-                        itemCount: state.groups.length,
-                        itemBuilder: (context, index) {
-                          final group = state.groups[index];
+                      if (state.groups.isNotEmpty)
+                        MasonryGridView.count(
+                          padding: EdgeInsets.only(
+                            top: 0,
+                            left: context.spacing.lg,
+                            right: context.spacing.lg,
+                            bottom: context.spacing.lg,
+                          ),
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          crossAxisCount: 2,
+                          mainAxisSpacing: context.spacing.md,
+                          crossAxisSpacing: context.spacing.md,
+                          itemCount: state.groups.length,
+                          itemBuilder: (context, index) {
+                            final group = state.groups[index];
 
-                          return GestureDetector(
-                            onTap: () {
-                              if (group.isJoined == true ||
-                                  group.isOwned == true) {
-                                context.push(GroupPage.path);
-                              } else {
-                                CustomAlert.show(
-                                  context,
-                                  title: 'Info Grup',
-                                  description:
-                                      'Anda belum bergabung di grup ini. Silakan bergabung terlebih dahulu untuk melihat detail grup.',
-                                );
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: context.spacing.sm,
-                                vertical: context.spacing.md,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: context.colors.surface,
+                            return GestureDetector(
+                              onTap: () {
+                                if (group.isJoined == true ||
+                                    group.isOwned == true) {
+                                  context.push(GroupPage.path);
+                                } else {
+                                  CustomAlert.show(
+                                    context,
+                                    title: 'Info Grup',
+                                    description:
+                                        'Anda belum bergabung di grup ini. Silakan bergabung terlebih dahulu untuk melihat detail grup.',
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.spacing.sm,
+                                  vertical: context.spacing.md,
                                 ),
-                                borderRadius: BorderRadius.circular(
-                                  context.radius.medium,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: context.colors.surface,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    context.radius.medium,
+                                  ),
                                 ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: context.appSize.s32,
-                                        height: context.appSize.s32,
-                                        child: CircleAvatar(
-                                          backgroundColor:
-                                              context.colors.surface,
-                                          child: Text(
-                                            group.name?.initials ?? 'A',
-                                            style: context.textStyles.body
-                                                .copyWith(
-                                                  color: context.colors.primary,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: context.spacing.sm),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              group.name ?? '',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: context
-                                                  .textStyles
-                                                  .bodySmall
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: context.appSize.s32,
+                                          height: context.appSize.s32,
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                                context.colors.surface,
+                                            child: Text(
+                                              group.name?.initials ?? 'A',
+                                              style: context.textStyles.body
                                                   .copyWith(
+                                                    color:
+                                                        context.colors.primary,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                             ),
-                                            Text(
-                                              group.code ?? '',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style:
-                                                  context.textStyles.bodySmall,
-                                            ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                      Icon(
-                                        Icons.chevron_right,
-                                        color: context.colors.textPrimary,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: context.appSize.s16),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      left: context.spacing.sm,
-                                      right: context.spacing.sm,
-                                    ),
-                                    child: Row(
-                                      spacing: context.spacing.xs,
-                                      children: [
+                                        SizedBox(width: context.spacing.sm),
                                         Expanded(
-                                          flex: 1,
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                'Iuran',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: context
-                                                    .textStyles
-                                                    .bodySmall
-                                                    .copyWith(fontSize: 8),
-                                              ),
-                                              Text(
-                                                group.dues?.toIdrWithPrefix ??
-                                                    '',
+                                                group.name ?? '',
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: context
                                                     .textStyles
@@ -485,79 +438,142 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                     .copyWith(
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      fontSize: 8,
-                                                      color: context
-                                                          .colors
-                                                          .primary,
                                                     ),
+                                              ),
+                                              Text(
+                                                group.code ?? '',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: context
+                                                    .textStyles
+                                                    .bodySmall,
                                               ),
                                             ],
                                           ),
                                         ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Tanggal Kocok',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: context
-                                                    .textStyles
-                                                    .bodySmall
-                                                    .copyWith(fontSize: 8),
-                                              ),
-                                              Text(
-                                                group.periodsDate?.toIdDate ??
-                                                    '',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: context
-                                                    .textStyles
-                                                    .bodySmall
-                                                    .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 8,
-                                                      color: context
-                                                          .colors
-                                                          .primary,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
+                                        Icon(
+                                          Icons.chevron_right,
+                                          color: context.colors.textPrimary,
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  if (group.isJoined == true ||
-                                      group.isOwned == true)
-                                    Container(
-                                      margin: EdgeInsets.only(
-                                        top: context.spacing.md,
+                                    SizedBox(height: context.appSize.s16),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: context.spacing.sm,
+                                        right: context.spacing.sm,
                                       ),
-                                      width: double.infinity,
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: context.spacing.sm,
+                                      child: Row(
+                                        spacing: context.spacing.xs,
+                                        children: [
+                                          Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Iuran',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: context
+                                                      .textStyles
+                                                      .bodySmall
+                                                      .copyWith(fontSize: 8),
+                                                ),
+                                                Text(
+                                                  group.dues?.toIdrWithPrefix ??
+                                                      '',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: context
+                                                      .textStyles
+                                                      .bodySmall
+                                                      .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 8,
+                                                        color: context
+                                                            .colors
+                                                            .primary,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                          minimumSize: Size(0, 0),
-                                        ),
-                                        onPressed: () {
-                                          context.push(GroupPage.path);
-                                        },
-                                        child: Text('Lihat Detail'),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Tanggal Kocok',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: context
+                                                      .textStyles
+                                                      .bodySmall
+                                                      .copyWith(fontSize: 8),
+                                                ),
+                                                Text(
+                                                  group.periodsDate?.toIdDate ??
+                                                      '',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: context
+                                                      .textStyles
+                                                      .bodySmall
+                                                      .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 8,
+                                                        color: context
+                                                            .colors
+                                                            .primary,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                ],
+                                    if (group.isJoined == true ||
+                                        group.isOwned == true)
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                          top: context.spacing.md,
+                                        ),
+                                        width: double.infinity,
+                                        child: OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: context.spacing.sm,
+                                            ),
+                                            minimumSize: Size(0, 0),
+                                          ),
+                                          onPressed: () {
+                                            context.push(GroupPage.path);
+                                          },
+                                          child: Text('Lihat Detail'),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
 
-                      /// Load More Section
+                      if (state.groups.isEmpty && !state.isLoading)
+                        Center(
+                          child: Text(
+                            'Grup tidak ditemukan',
+                            style: context.textStyles.body,
+                          ),
+                        ),
+
                       if (state.isLoading)
                         const Center(
                           child: Padding(
@@ -565,14 +581,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                             child: CircularProgressIndicator(),
                           ),
                         )
-                      else if (state.hasMore)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: OutlinedButton(
-                              onPressed: () => notifier.loadMore(),
-                              child: const Text('Load More'),
-                            ),
+                      else if (state.hasMore && state.groups.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.symmetric(
+                            horizontal: context.spacing.md,
+                          ),
+                          child: OutlinedButton(
+                            onPressed: () => notifier.loadMore(),
+                            child: const Text('Muat Lebih Banyak'),
                           ),
                         ),
 
