@@ -49,7 +49,13 @@ mixin GroupDetailRepository {
       // Apply membership filter based on enum
       switch (filter) {
         case GroupFilter.joined:
-          query = query.where('member_ids', arrayContains: user.uid);
+          // query = query.where('member_ids', arrayContains: user.uid);
+          query = query.where(
+            Filter.or(
+              Filter('member_ids', arrayContains: user.uid),
+              Filter('owner_ids', arrayContains: user.uid),
+            ),
+          );
           break;
         case GroupFilter.owned:
           query = query.where('owner_ids', arrayContains: user.uid);
@@ -164,7 +170,9 @@ mixin GroupDetailRepository {
         'search_index': generateSearchIndex([group.name, code]),
         'description': group.description,
         'code': code,
-        'periods_date': group.periodsDate,
+        'periods_date': group.periodsDate?.toString(),
+        'periods_type': group.periodsType,
+        'reward': group.reward,
         'dues': group.dues,
         'target': group.target,
         'created_by': user.uid,
@@ -175,11 +183,10 @@ mixin GroupDetailRepository {
                 'account_name': e.accountName,
                 'bank_name': e.bankName,
                 'bank_number': e.bankNumber,
-                'created_at': now,
-                'updated_at': now,
               },
             )
             .toList(),
+        'admin_fee': group.adminFee,
         'created_at': now,
         'updated_at': now,
       };
@@ -189,7 +196,7 @@ mixin GroupDetailRepository {
           .doc(groupId)
           .set(groupData);
 
-      return Result.success(groupId);
+      return Result.success("Berhasil membuat grup baru");
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();

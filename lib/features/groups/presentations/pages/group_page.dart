@@ -1,70 +1,88 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/loading_overlay.dart';
+import '../../domain/entities/group_entity.dart';
+import '../providers/get_group_detail_provider.dart';
 import 'group_detail_page.dart';
 import 'group_history_page.dart';
 import 'group_member_page.dart';
 
-class GroupPage extends StatefulWidget {
+class GroupPage extends ConsumerStatefulWidget {
   static const String path = '/group';
-  const GroupPage({super.key});
+  final String groupId;
+  const GroupPage({super.key, required this.groupId});
 
   @override
-  State<GroupPage> createState() => _GroupPageState();
+  ConsumerState<GroupPage> createState() => _GroupPageState();
 }
 
-class _GroupPageState extends State<GroupPage> {
+class _GroupPageState extends ConsumerState<GroupPage> {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          bottom: false,
-          child: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverToBoxAdapter(child: _buildHeaderInfo()),
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _StickyTabBarDelegate(
-                    TabBar(
-                      labelColor: context.colors.secondary,
-                      unselectedLabelColor: context.colors.textSecondary,
-                      unselectedLabelStyle: context.textStyles.body,
-                      indicatorColor: context.colors.secondary,
-                      dividerColor: context.colors.divider,
-                      labelStyle: context.textStyles.body.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      tabs: [
-                        Tab(text: 'Detail Grup'),
-                        Tab(text: 'Peserta'),
-                        Tab(text: 'Riwayat'),
-                      ],
-                    ),
-                  ),
-                ),
-              ];
-            },
+    final groupDetail = ref.watch(getGroupDetailProvider(widget.groupId));
+    return groupDetail.when(
+      loading: () => Scaffold(body: Center(child: LoadingIconAnimation())),
+      error: (err, _) => Scaffold(body: Center(child: LoadingIconAnimation())),
+      data: (result) {
+        if (result.isFailed) {
+          return Scaffold(body: Center(child: LoadingIconAnimation()));
+        }
 
-            body: const TabBarView(
-              children: [
-                GroupDetailPage(),
-                GroupMemberPage(),
-                GroupHistoryPage(),
-              ],
+        final group = result.resultValue!;
+
+        return DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              bottom: false,
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverToBoxAdapter(child: _buildHeaderInfo(group)),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _StickyTabBarDelegate(
+                        TabBar(
+                          labelColor: context.colors.secondary,
+                          unselectedLabelColor: context.colors.textSecondary,
+                          unselectedLabelStyle: context.textStyles.body,
+                          indicatorColor: context.colors.secondary,
+                          dividerColor: context.colors.divider,
+                          labelStyle: context.textStyles.body.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          tabs: [
+                            Tab(text: 'Detail Grup'),
+                            Tab(text: 'Peserta'),
+                            Tab(text: 'Riwayat'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ];
+                },
+
+                body: TabBarView(
+                  children: [
+                    GroupDetailPage(group: group),
+                    GroupMemberPage(),
+                    GroupHistoryPage(),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   // Your "detail info" section below AppBar
-  Widget _buildHeaderInfo() {
+  Widget _buildHeaderInfo(GroupEntity group) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -129,20 +147,20 @@ class _GroupPageState extends State<GroupPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        'Arisan Ceria',
+                        group.name ?? '',
                         maxLines: 1,
                         style: context.textStyles.header.copyWith(
                           color: context.colors.primary,
                         ),
                       ),
                       Text(
-                        '#Kode grup',
+                        '#${group.code}',
                         maxLines: 1,
                         style: context.textStyles.body,
                       ),
                       SizedBox(height: context.spacing.lg),
                       Text(
-                        'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor',
+                        group.description ?? '',
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: context.textStyles.bodySmall.copyWith(

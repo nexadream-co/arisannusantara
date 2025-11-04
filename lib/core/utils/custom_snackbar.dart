@@ -43,14 +43,12 @@ class CustomSnackbar {
   );
 
   static show({
+    BuildContext? context,
     String? title,
     String? message,
     SnackbarType? type,
     Duration? duration,
   }) {
-    final messenger = scaffoldMessengerKey.currentState;
-    if (messenger == null) return;
-
     final snackBar = SnackBar(
       behavior: SnackBarBehavior.fixed,
       backgroundColor: Colors.transparent,
@@ -111,9 +109,14 @@ class CustomSnackbar {
       duration: duration ?? const Duration(seconds: 3),
     );
 
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else {
+      final messenger = scaffoldMessengerKey.currentState;
+      messenger!
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
+    }
   }
 }
 

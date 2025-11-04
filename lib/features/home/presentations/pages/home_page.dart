@@ -310,9 +310,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                             setState(() {
                               selectedFilter = filter;
                             });
-                            ref
-                                .read(getGroupsProvider.notifier)
-                                .fetchGroups(filter: selectedFilter);
+
+                            ref.read(getGroupsProvider.notifier)
+                              ..reset()
+                              ..fetchGroups(filter: selectedFilter);
                           },
                           child: Container(
                             margin: EdgeInsets.only(right: context.spacing.sm),
@@ -376,7 +377,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               onTap: () {
                                 if (group.isJoined == true ||
                                     group.isOwned == true) {
-                                  context.push(GroupPage.path);
+                                  context.push(GroupPage.path, extra: group.id);
                                 } else {
                                   CustomAlert.show(
                                     context,
@@ -554,7 +555,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             minimumSize: Size(0, 0),
                                           ),
                                           onPressed: () {
-                                            context.push(GroupPage.path);
+                                            context.push(
+                                              GroupPage.path,
+                                              extra: group.id,
+                                            );
                                           },
                                           child: Text('Lihat Detail'),
                                         ),

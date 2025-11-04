@@ -96,3 +96,99 @@ final class GetGroupsUsecaseProvider
 }
 
 String _$getGroupsUsecaseHash() => r'1af9d85423371180d1aea24c723dbbb9a1131c8b';
+
+@ProviderFor(createGroupUsecase)
+const createGroupUsecaseProvider = CreateGroupUsecaseProvider._();
+
+final class CreateGroupUsecaseProvider
+    extends
+        $FunctionalProvider<
+          CreateGroupUsecase,
+          CreateGroupUsecase,
+          CreateGroupUsecase
+        >
+    with $Provider<CreateGroupUsecase> {
+  const CreateGroupUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'createGroupUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$createGroupUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CreateGroupUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CreateGroupUsecase create(Ref ref) {
+    return createGroupUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CreateGroupUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CreateGroupUsecase>(value),
+    );
+  }
+}
+
+String _$createGroupUsecaseHash() =>
+    r'fb51bd3eb734d00230c3eaf3d63ba8f541b9482e';
+
+@ProviderFor(getGroupDetailUsecase)
+const getGroupDetailUsecaseProvider = GetGroupDetailUsecaseProvider._();
+
+final class GetGroupDetailUsecaseProvider
+    extends
+        $FunctionalProvider<
+          GetGroupDetailUsecase,
+          GetGroupDetailUsecase,
+          GetGroupDetailUsecase
+        >
+    with $Provider<GetGroupDetailUsecase> {
+  const GetGroupDetailUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getGroupDetailUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getGroupDetailUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetGroupDetailUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetGroupDetailUsecase create(Ref ref) {
+    return getGroupDetailUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetGroupDetailUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetGroupDetailUsecase>(value),
+    );
+  }
+}
+
+String _$getGroupDetailUsecaseHash() =>
+    r'3ecec27a184025c9021f5951cd04684a3a152eee';

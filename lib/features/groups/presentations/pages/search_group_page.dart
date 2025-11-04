@@ -26,7 +26,9 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(getGroupsProvider.notifier).fetchGroups();
+      ref.read(getGroupsProvider.notifier)
+        ..reset()
+        ..fetchGroups();
     });
   }
 
@@ -53,7 +55,9 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
             controller: _searchController,
             onChanged: (value) {
               _debouncer.run(() {
-                ref.read(getGroupsProvider.notifier).fetchGroups(search: value);
+                ref.read(getGroupsProvider.notifier)
+                  ..reset()
+                  ..fetchGroups(search: value);
               });
             },
             autofocus: true,
@@ -79,105 +83,132 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
               return Column(
                 children: [
                   if (state.groups.isNotEmpty)
-                    ListView.builder(
-                      padding: EdgeInsets.only(
-                        left: context.spacing.lg,
-                        right: context.spacing.lg,
-                        bottom: context.spacing.xxl * 2,
-                        top: context.spacing.md,
-                      ),
-                      itemCount: state.groups.length,
-                      itemBuilder: (context, index) {
-                        final group = state.groups[index];
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(
+                          left: context.spacing.lg,
+                          right: context.spacing.lg,
+                          bottom: context.spacing.xxl * 2,
+                          top: context.spacing.md,
+                        ),
+                        itemCount: state.groups.length,
+                        itemBuilder: (context, index) {
+                          final group = state.groups[index];
 
-                        return Container(
-                          margin: EdgeInsets.only(bottom: context.spacing.md),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.spacing.sm,
-                            vertical: context.spacing.md,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: context.colors.surface),
-                            borderRadius: BorderRadius.circular(
-                              context.radius.medium,
+                          return Container(
+                            margin: EdgeInsets.only(bottom: context.spacing.md),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.spacing.sm,
+                              vertical: context.spacing.md,
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: context.colors.surface,
-                                    child: Text(
-                                      group.name?.initials ?? '',
-                                      style: context.textStyles.body.copyWith(
-                                        color: context.colors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: context.spacing.sm),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          group.name ?? '',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                        SizedBox(height: context.spacing.xs),
-                                        Text(
-                                          group.code ?? '',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  OutlinedButton(
-                                    onPressed: () {},
-                                    style: OutlinedButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: context.spacing.md,
-                                      ),
-                                      child: Text('Gabung'),
-                                    ),
-                                  ),
-                                ],
+                            decoration: BoxDecoration(
+                              border: Border.all(color: context.colors.surface),
+                              borderRadius: BorderRadius.circular(
+                                context.radius.medium,
                               ),
-                              SizedBox(height: context.appSize.s16),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  left: context.spacing.sm,
-                                  right: context.spacing.sm,
-                                ),
-                                child: Row(
-                                  spacing: context.spacing.xs,
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
                                   children: [
+                                    CircleAvatar(
+                                      backgroundColor: context.colors.surface,
+                                      child: Text(
+                                        group.name?.initials ?? '',
+                                        style: context.textStyles.body.copyWith(
+                                          color: context.colors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: context.spacing.sm),
                                     Expanded(
-                                      flex: 1,
                                       child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            group.name ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                          SizedBox(height: context.spacing.xs),
+                                          Text(
+                                            group.code ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    OutlinedButton(
+                                      onPressed: () {},
+                                      style: OutlinedButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: context.spacing.md,
+                                        ),
+                                        child: Text('Gabung'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: context.appSize.s16),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    left: context.spacing.sm,
+                                    right: context.spacing.sm,
+                                  ),
+                                  child: Row(
+                                    spacing: context.spacing.xs,
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              group.description ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                              style:
+                                                  context.textStyles.bodySmall,
+                                            ),
+                                            Text(
+                                              'Belum Tergabung',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: context
+                                                  .textStyles
+                                                  .bodySmall
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        context.colors.primary,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: context.spacing.xs),
+                                      Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            group.description ?? '',
+                                            'Iuran',
                                             overflow: TextOverflow.ellipsis,
                                             style: context.textStyles.bodySmall,
                                           ),
                                           Text(
-                                            'Belum Tergabung',
+                                            group.dues?.toIdrWithPrefix ?? '',
                                             overflow: TextOverflow.ellipsis,
                                             style: context.textStyles.bodySmall
                                                 .copyWith(
@@ -187,56 +218,35 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(width: context.spacing.xs),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Iuran',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall,
-                                        ),
-                                        Text(
-                                          group.dues?.toIdrWithPrefix ?? '',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: context.colors.primary,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(width: context.spacing.xs),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Tanggal Kocok',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall,
-                                        ),
-                                        Text(
-                                          group.periodsDate?.toIdDate ?? '',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: context.colors.primary,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                      SizedBox(width: context.spacing.xs),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Tanggal Kocok',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall,
+                                          ),
+                                          Text(
+                                            group.periodsDate?.toIdDate ?? '',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: context.colors.primary,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
 
                   if (state.groups.isEmpty && !state.isLoading)
@@ -295,6 +305,9 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {
+                  ref.read(getGroupsProvider.notifier)
+                    ..reset()
+                    ..fetchGroups();
                   context.pop();
                 },
                 child: Text('Kembali'),

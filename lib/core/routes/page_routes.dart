@@ -56,7 +56,13 @@ final pageRoutes = [
     path: ChangePasswordPage.path,
     builder: (context, state) => ChangePasswordPage(),
   ),
-  GoRoute(path: GroupPage.path, builder: (context, state) => GroupPage()),
+  GoRoute(
+    path: GroupPage.path,
+    builder: (context, state) {
+      final groupId = state.extra as String;
+      return GroupPage(groupId: groupId);
+    },
+  ),
   GoRoute(
     path: SearchGroupPage.path,
     builder: (context, state) => SearchGroupPage(),

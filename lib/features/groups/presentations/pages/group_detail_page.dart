@@ -1,20 +1,25 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
+import '../../domain/entities/group_entity.dart';
 import 'group_manager_create_page.dart';
 import 'group_shuffle_winner_page.dart';
 
-class GroupDetailPage extends StatefulWidget {
-  const GroupDetailPage({super.key});
+class GroupDetailPage extends ConsumerStatefulWidget {
+  final GroupEntity group;
+  const GroupDetailPage({super.key, required this.group});
 
   @override
-  State<GroupDetailPage> createState() => _GroupDetailPageState();
+  ConsumerState<GroupDetailPage> createState() => _GroupDetailPageState();
 }
 
-class _GroupDetailPageState extends State<GroupDetailPage> {
+class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,13 +30,25 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
           children: [
             Text('Infomasi Grup', style: context.textStyles.title),
             SizedBox(height: context.spacing.md),
-            _groupInformationItem('Iuran', 'Rp 100.000'),
-            _groupInformationItem('Periode', 'Bulanan'),
-            _groupInformationItem('Hadiah', 'Uang Tunai'),
+            _groupInformationItem(
+              'Iuran',
+              widget.group.dues?.toIdrWithPrefix ?? '',
+            ),
+            _groupInformationItem('Periode', widget.group.periodsType ?? '-'),
+            _groupInformationItem('Hadiah', widget.group.reward ?? '-'),
             _groupInformationItem('Maksimal pemenang', '2 Orang'),
-            _groupInformationItem('Tanggal kocok', '15 Oktober 2025'),
-            _groupInformationItem('Biaya admin', 'Rp 50.000'),
-            _groupInformationItem('Dibuat pada', '12 Oktober 2025'),
+            _groupInformationItem(
+              'Tanggal kocok',
+              widget.group.periodsDate.toIdDate,
+            ),
+            _groupInformationItem(
+              'Biaya admin',
+              widget.group.adminFee?.toIdrWithPrefix ?? '',
+            ),
+            _groupInformationItem(
+              'Dibuat pada',
+              widget.group.createdAt?.toIdDate ?? '-',
+            ),
             SizedBox(height: context.spacing.lg),
             Row(
               children: [

@@ -18,6 +18,7 @@ abstract class GroupEntity with _$GroupEntity {
     DateTime? periodsDate,
     double? dues,
     double? target,
+    double? adminFee,
     int? maxWinner,
     bool? isOwned,
     bool? isJoined,
