@@ -39,11 +39,11 @@ mixin PaymentAccountRepository {
       // Prepare data manually so we can use server timestamp
       final data = {
         'id': accountRef.id,
-        'account_name': account.accountName,
-        'bank_name': account.bankName,
-        'bank_number': account.bankNumber,
-        'created_at': now,
-        'updated_at': now,
+        'accountName': account.accountName,
+        'bankName': account.bankName,
+        'bankNumber': account.bankNumber,
+        'createdAt': now,
+        'updatedAt': now,
       };
 
       // Save to Firestore
@@ -87,10 +87,10 @@ mixin PaymentAccountRepository {
 
       // Update fields and set updatedAt using server time
       await accountRef.update({
-        if (account.accountName != null) 'account_name': account.accountName,
-        if (account.bankName != null) 'bank_name': account.bankName,
-        if (account.bankNumber != null) 'bank_number': account.bankNumber,
-        'updated_at': FieldValue.serverTimestamp(),
+        if (account.accountName != null) 'accountName': account.accountName,
+        if (account.bankName != null) 'bankName': account.bankName,
+        if (account.bankNumber != null) 'bankNumber': account.bankNumber,
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       return const Result.success("Akun pembayaran berhasil diperbarui");

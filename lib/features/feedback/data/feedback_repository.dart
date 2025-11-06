@@ -34,11 +34,11 @@ class FeedbackRepository {
 
       // Optional search filter
       if (search != null && search.isNotEmpty) {
-        query = query.where('search_index', arrayContainsAny: search);
+        query = query.where('searchIndex', arrayContainsAny: search);
       }
 
       // Order by createdAt for pagination
-      query = query.orderBy('created_at', descending: true).limit(limit);
+      query = query.orderBy('createdAt', descending: true).limit(limit);
 
       // Pagination using last document
       if (lastId != null && lastId.isNotEmpty) {
@@ -86,18 +86,18 @@ class FeedbackRepository {
         'id': currentUser.uid,
         'email': currentUser.email,
         'name': currentUser.displayName,
-        'photo_url': currentUser.photoURL,
+        'photoUrl': currentUser.photoURL,
       };
 
       final feedbackData = {
-        'user_id': currentUser.uid,
+        'userId': currentUser.uid,
         'email': currentUser.email,
         'user': userData,
         'title': title,
         'feedback': feedback,
-        'status': 'process',
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
+        'status': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       final docRef = await _firestore
@@ -130,7 +130,7 @@ class FeedbackRepository {
 
       await feedbackRef.update({
         'status': newStatus,
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       return const Result.success('Status feedback berhasil diperbarui');
@@ -161,7 +161,7 @@ class FeedbackRepository {
 
       // Optional: Ensure only the owner can delete their feedback
       final feedbackData = feedbackDoc.data();
-      if (feedbackData?['user_id'] != currentUser.uid) {
+      if (feedbackData?['userId'] != currentUser.uid) {
         return const Result.failed(
           'Anda tidak memiliki izin untuk menghapus feedback ini',
         );

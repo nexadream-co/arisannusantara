@@ -10,15 +10,18 @@ _MemberEntity _$MemberEntityFromJson(Map<String, dynamic> json) =>
     _MemberEntity(
       id: json['id'] as String?,
       groupId: json['groupId'] as String?,
+      email: json['email'] as String?,
       group: json['group'] == null
           ? null
           : GroupEntity.fromJson(json['group'] as Map<String, dynamic>),
       user: json['user'] == null
           ? null
           : UserEntity.fromJson(json['user'] as Map<String, dynamic>),
-      statusPayment: json['statusPayment'] as String?,
+      paymentStatus: $enumDecodeNullable(
+        _$PaymentStatusEnumEnumMap,
+        json['paymentStatus'],
+      ),
       isActive: json['isActive'] as bool?,
-      skip: json['skip'] as bool?,
       hasReward: json['hasReward'] as bool?,
       paidAt: json['paidAt'] == null
           ? null
@@ -35,13 +38,20 @@ Map<String, dynamic> _$MemberEntityToJson(_MemberEntity instance) =>
     <String, dynamic>{
       'id': instance.id,
       'groupId': instance.groupId,
+      'email': instance.email,
       'group': instance.group,
       'user': instance.user,
-      'statusPayment': instance.statusPayment,
+      'paymentStatus': _$PaymentStatusEnumEnumMap[instance.paymentStatus],
       'isActive': instance.isActive,
-      'skip': instance.skip,
       'hasReward': instance.hasReward,
       'paidAt': instance.paidAt?.toIso8601String(),
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };
+
+const _$PaymentStatusEnumEnumMap = {
+  PaymentStatusEnum.unpaid: 'unpaid',
+  PaymentStatusEnum.paid: 'paid',
+  PaymentStatusEnum.skip: 'skip',
+  PaymentStatusEnum.cancel: 'cancel',
+};

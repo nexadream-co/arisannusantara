@@ -1,23 +1,38 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/enums/payment_status_enum.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../core/utils/custom_alert.dart';
+import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/debouncer.dart';
+import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
+import '../../domain/entities/group_entity.dart';
+import '../../domain/entities/member_entity.dart';
+import '../providers/group_providers.dart';
 
-class GroupMemberPage extends StatefulWidget {
-  const GroupMemberPage({super.key});
+class GroupMemberPage extends ConsumerStatefulWidget {
+  final GroupEntity group;
+  const GroupMemberPage({super.key, required this.group});
 
   @override
-  State<GroupMemberPage> createState() => _GroupMemberPageState();
+  ConsumerState<GroupMemberPage> createState() => _GroupMemberPageState();
 }
 
-class _GroupMemberPageState extends State<GroupMemberPage> {
+class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
+  final _debouncer = Debouncer(milliseconds: 300);
+  final _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(context.radius.medium),
       borderSide: BorderSide.none,
     );
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.spacing.lg),
@@ -31,6 +46,17 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                 borderRadius: BorderRadius.circular(context.radius.medium),
               ),
               child: TextFormField(
+                controller: _searchController,
+                onChanged: (value) {
+                  _debouncer.run(() {
+                    ref.invalidate(
+                      getMembersProvider(
+                        widget.group.id!,
+                        _searchController.text,
+                      ),
+                    );
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: "Cari peserta...",
                   hintStyle: context.textStyles.subtitle,
@@ -68,296 +94,416 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
   }
 
   Widget _groupMember() {
-    return Container(
-      margin: EdgeInsets.only(bottom: context.spacing.md),
-      padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
-      child: Column(
-        spacing: context.spacing.md,
-        children: [
-          Container(
-            margin: EdgeInsets.only(bottom: context.spacing.md),
-            padding: EdgeInsets.symmetric(
-              vertical: context.spacing.sm,
-              horizontal: context.spacing.md,
-            ),
-            decoration: BoxDecoration(
-              color: context.colors.accent,
-              borderRadius: BorderRadius.circular(context.radius.medium),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(Icons.info_outline),
-                SizedBox(width: context.spacing.sm),
-                Expanded(
-                  child: Text(
-                    'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                    style: context.textStyles.body,
+    return Consumer(
+      builder: (context, ref, child) {
+        final membersRef = ref.watch(
+          getMembersProvider(widget.group.id!, _searchController.text),
+        );
+
+        return Container(
+          margin: EdgeInsets.only(bottom: context.spacing.md),
+          padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
+          child: Column(
+            spacing: context.spacing.md,
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: context.spacing.md),
+                padding: EdgeInsets.symmetric(
+                  vertical: context.spacing.sm,
+                  horizontal: context.spacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: context.colors.accent,
+                  borderRadius: BorderRadius.circular(context.radius.medium),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.info_outline),
+                    SizedBox(width: context.spacing.sm),
+                    Expanded(
+                      child: Text(
+                        'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                        style: context.textStyles.body,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              membersRef.when(
+                loading: () => Text(
+                  'Mohon tunggu...',
+                  style: context.textStyles.body.copyWith(
+                    color: context.colors.primary,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
-              ],
-            ),
-          ),
-          for (var i = 0; i < 10; i++)
-            Container(
-              padding: EdgeInsets.only(bottom: context.spacing.md),
-              decoration: BoxDecoration(
-                border: i == 2
-                    ? null
-                    : Border(bottom: BorderSide(color: context.colors.divider)),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: context.colors.surface,
-                    child: Text(
-                      'AC',
-                      style: context.textStyles.body.copyWith(
-                        color: context.colors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                error: (err, stack) => Text(
+                  'Terjadi kesalahan, mohon coba kembali',
+                  style: context.textStyles.body.copyWith(
+                    color: context.colors.primary,
+                    fontStyle: FontStyle.italic,
                   ),
-                  SizedBox(width: context.spacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Ardi Sanjaya',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textStyles.bodySmall.copyWith(
-                            fontWeight: FontWeight.bold,
+                ),
+                data: (result) {
+                  if (result.isFailed) return const SizedBox();
+                  final members = result.resultValue ?? [];
+                  return Column(
+                    children: [
+                      for (var i = 0; i < members.length; i++)
+                        Container(
+                          padding: EdgeInsets.only(bottom: context.spacing.md),
+                          decoration: BoxDecoration(
+                            border: i == 2
+                                ? null
+                                : Border(
+                                    bottom: BorderSide(
+                                      color: context.colors.divider,
+                                    ),
+                                  ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: context.colors.surface,
+                                child: Text(
+                                  members[i].user?.name?.initials ?? '',
+                                  style: context.textStyles.body.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: context.spacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      members[i].user?.name ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    SizedBox(height: context.spacing.xs),
+                                    Text(
+                                      members[i].user?.email ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  _editMember(members[i]);
+                                },
+                                icon: Icon(
+                                  Icons.edit_outlined,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                              OutlinedButton(
+                                onPressed: () {},
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: context.spacing.sm,
+                                  ),
+                                  minimumSize: Size(0, 0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: context.spacing.md,
+                                  ),
+                                  child: Text(
+                                    members[i].paymentStatus?.label ?? '',
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(height: context.spacing.xs),
-                        Text(
-                          'ardisanjaya@gmail.com',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textStyles.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _editMember();
-                    },
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      color: context.colors.primary,
-                    ),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.spacing.sm,
-                      ),
-                      minimumSize: Size(0, 0),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.spacing.md,
-                      ),
-                      child: Text('Sudah Bayar'),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
-            ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  void _editMember() {
+  void _editMember(MemberEntity member) {
+    bool selectedStatus = member.isActive ?? false;
+    PaymentStatusEnum? selectedPaymentStatus = member.paymentStatus;
+
     showAppModalBottomSheet(
       context: context,
-      child: Container(
+      child: Padding(
         padding: EdgeInsets.all(context.spacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ardi Sanjaya',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyles.title.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.primary,
+                // Header with name & status
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            member.user?.name ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyles.title.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: context.colors.primary,
+                            ),
+                          ),
+                          Text(
+                            member.user?.email ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyles.body,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text('Status', style: context.textStyles.body),
+                    SizedBox(width: context.spacing.sm),
+                    DropdownButtonFormField<bool>(
+                      initialValue: selectedStatus,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
                         ),
                       ),
-                      Text(
-                        'ardisanjaya@gmail.com',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyles.body,
+                      items: [
+                        DropdownMenuItem(
+                          value: true,
+                          child: Text(
+                            'Aktif',
+                            style: context.textStyles.body.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: context.colors.success,
+                            ),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: false,
+                          child: Text(
+                            'Tidak Aktif',
+                            style: context.textStyles.body.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: context.colors.error,
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() => selectedStatus = value);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+
+                // Info section
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: context.spacing.md),
+                  child: Text(
+                    'Informasi Peserta',
+                    style: context.textStyles.body.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                // These fields remain visually the same but disabled/read-only
+                _textField(
+                  controller: TextEditingController(text: member.user?.name),
+                  label: 'Nama',
+                  hintText: 'Masukkan nama anda...',
+                  readonly: true,
+                ),
+                _textField(
+                  controller: TextEditingController(
+                    text: member.user?.gender == 'male'
+                        ? 'Laki-laki'
+                        : 'Perempuan',
+                  ),
+                  label: 'Jenis Kelamin',
+                  hintText: 'Masukkan jenis kelamin...',
+                  readonly: true,
+                ),
+                _textField(
+                  controller: TextEditingController(
+                    text: member.user?.phoneNumber,
+                  ),
+                  label: 'No Telp',
+                  hintText: 'No telp anda...',
+                  readonly: true,
+                ),
+
+                // Payment status section
+                Container(
+                  margin: EdgeInsets.only(
+                    top: context.spacing.lg,
+                    bottom: context.spacing.sm,
+                  ),
+                  child: Text(
+                    'Status Pembayaran',
+                    style: context.textStyles.body.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                // CheckboxListTile using PaymentStatusEnum
+                Column(
+                  children: PaymentStatusEnum.values.map((status) {
+                    return CheckboxListTile(
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: selectedPaymentStatus == status,
+                      onChanged: (_) {
+                        setState(() => selectedPaymentStatus = status);
+                      },
+                      title: Text(status.label),
+                    );
+                  }).toList(),
+                ),
+
+                // Buttons
+                Container(
+                  margin: EdgeInsets.only(
+                    top: context.spacing.xxl,
+                    bottom: context.spacing.sm,
+                  ),
+                  child: Row(
+                    spacing: context.spacing.sm,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          CustomAlert.show(
+                            context,
+                            onYes: () {
+                              LoadingOverlay.show(context);
+                              ref
+                                  .read(deleteMemberUsecaseProvider)
+                                  .call(member.id!)
+                                  .then((result) {
+                                    LoadingOverlay.hide();
+                                    if (result.isSuccess) {
+                                      Navigator.pop(context);
+                                      CustomSnackbar.success(
+                                        message: result.resultValue,
+                                      );
+
+                                      ref.invalidate(
+                                        getMembersProvider(
+                                          widget.group.id!,
+                                          _searchController.text,
+                                        ),
+                                      );
+                                    } else {
+                                      CustomSnackbar.error(
+                                        message: result.errorMessage,
+                                      );
+                                    }
+                                  });
+                            },
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: context.spacing.md,
+                            horizontal: context.spacing.xl,
+                          ),
+                          foregroundColor: context.colors.error,
+                          side: BorderSide(
+                            color: context.colors.error,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.radius.medium,
+                            ),
+                          ),
+                        ),
+                        child: const Text('Hapus'),
+                      ),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            // Validation
+                            if (selectedPaymentStatus == null) {
+                              CustomSnackbar.error(
+                                message: 'Pilih salah satu status pembayaran!',
+                              );
+                              return;
+                            }
+
+                            LoadingOverlay.show(context);
+                            ref
+                                .read(updateMemberUsecaseProvider)
+                                .call(
+                                  member.copyWith(
+                                    paymentStatus: selectedPaymentStatus,
+                                    isActive: selectedStatus,
+                                  ),
+                                )
+                                .then((result) {
+                                  LoadingOverlay.hide();
+                                  if (result.isSuccess) {
+                                    Navigator.pop(context);
+                                    CustomSnackbar.success(
+                                      message: result.resultValue,
+                                    );
+
+                                    ref.invalidate(
+                                      getMembersProvider(
+                                        widget.group.id!,
+                                        _searchController.text,
+                                      ),
+                                    );
+                                  } else {
+                                    CustomSnackbar.error(
+                                      message: result.errorMessage,
+                                    );
+                                  }
+                                });
+                          },
+                          child: const Text('Simpan'),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Text('Status', style: context.textStyles.body),
-                StatefulBuilder(
-                  builder: (context, setState) {
-                    String? selectedStatus = 'Aktif';
-
-                    return SizedBox(
-                      width: context.appSize.s100,
-                      child: DropdownButtonFormField<String>(
-                        initialValue: selectedStatus,
-                        isExpanded: false,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            value: 'Aktif',
-                            child: Text(
-                              'Aktif',
-                              style: context.textStyles.body.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: context.colors.success,
-                              ),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Tidak Aktif',
-                            child: Text(
-                              'Tidak Aktif',
-                              style: context.textStyles.body.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: context.colors.error,
-                              ),
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() => selectedStatus = value);
-                        },
-                      ),
-                    );
-                  },
-                ),
               ],
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: context.spacing.md),
-              child: Text(
-                'Infomasi Peserta',
-                style: context.textStyles.body.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            _textField(label: 'Nama', hintText: 'Masukkan nama anda...'),
-            _textField(
-              label: 'Jenis Kelamin',
-              hintText: 'Masukkan jenis kelamin...',
-            ),
-            _textField(label: 'No Telp', hintText: 'No telp anda...'),
-
-            Container(
-              margin: EdgeInsets.only(
-                top: context.spacing.lg,
-                bottom: context.spacing.sm,
-              ),
-              child: Text(
-                'Status Pembayaran',
-                style: context.textStyles.body.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            GridView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 5,
-              ),
-              children: [
-                CheckboxListTile(
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: true,
-                  onChanged: (value) {},
-                  title: Text('Belum Bayar'),
-                ),
-                CheckboxListTile(
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: false,
-                  onChanged: (value) {},
-                  title: Text('Lunas'),
-                ),
-                CheckboxListTile(
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: false,
-                  onChanged: (value) {},
-                  title: Text('Sudah bayar'),
-                ),
-                CheckboxListTile(
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: false,
-                  onChanged: (value) {},
-                  title: Text('Lewati'),
-                ),
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.only(
-                top: context.spacing.xxl,
-                bottom: context.spacing.sm,
-              ),
-              child: Row(
-                spacing: context.spacing.sm,
-                children: [
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.spacing.md,
-                        horizontal: context.spacing.xl,
-                      ),
-                      foregroundColor: context.colors.error,
-                      side: BorderSide(color: context.colors.error, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          context.radius.medium,
-                        ),
-                      ),
-                    ),
-                    child: Text('Hapus'),
-                  ),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () {},
-                      child: Text('Simpan'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _textField({required String label, required String hintText}) {
+  Widget _textField({
+    TextEditingController? controller,
+    required String label,
+    required String hintText,
+    bool readonly = false,
+  }) {
     return Container(
       padding: EdgeInsets.only(bottom: context.spacing.sm),
       margin: EdgeInsets.only(bottom: context.spacing.xs),
@@ -370,7 +516,9 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
           Text(label, style: context.textStyles.body),
           Expanded(
             child: TextfieldWithoutBorderWidget(
+              controller: controller,
               hintText: hintText,
+              readonly: readonly,
               textAlign: TextAlign.end,
             ),
           ),

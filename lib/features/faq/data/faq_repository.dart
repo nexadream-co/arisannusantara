@@ -20,7 +20,7 @@ class FaqRepository {
 
       final querySnapshot = await _firestore
           .collection(DBCollections.faqs)
-          .orderBy('created_at', descending: true)
+          .orderBy('createdAt', descending: true)
           .get();
 
       final faqs = querySnapshot.docs.map((doc) {
@@ -29,8 +29,8 @@ class FaqRepository {
           id: doc.id,
           title: data['title'] as String?,
           description: data['description'] as String?,
-          createdAt: (data['created_at'] as Timestamp?)?.toDate(),
-          updatedAt: (data['updated_at'] as Timestamp?)?.toDate(),
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
         );
       }).toList();
 

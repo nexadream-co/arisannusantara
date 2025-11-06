@@ -8,6 +8,7 @@ import '../../features/auth/presentations/pages/login_page.dart';
 import '../../features/auth/presentations/pages/register_page.dart';
 import '../../features/auth/presentations/pages/verify_email_page.dart';
 import '../../features/faq/presentations/pages/faq_page.dart';
+import '../../features/groups/domain/entities/history_entity.dart';
 import '../../features/groups/presentations/pages/group_choose_winner_page.dart';
 import '../../features/groups/presentations/pages/group_create_page.dart';
 import '../../features/groups/presentations/pages/group_history_detail_page.dart';
@@ -69,7 +70,8 @@ final pageRoutes = [
   ),
   GoRoute(
     path: GroupHistoryDetailPage.path,
-    builder: (context, state) => GroupHistoryDetailPage(),
+    builder: (context, state) =>
+        GroupHistoryDetailPage(history: state.extra as HistoryEntity),
   ),
   GoRoute(
     path: GroupManagerCreatePage.path,

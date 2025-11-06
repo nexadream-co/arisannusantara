@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../config/enums/payment_status_enum.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import 'group_entity.dart';
 
@@ -11,11 +12,11 @@ abstract class MemberEntity with _$MemberEntity {
   const factory MemberEntity({
     String? id,
     String? groupId,
+    String? email,
     GroupEntity? group,
     UserEntity? user,
-    String? statusPayment,
+    PaymentStatusEnum? paymentStatus,
     bool? isActive,
-    bool? skip,
     bool? hasReward,
     DateTime? paidAt,
     DateTime? createdAt,

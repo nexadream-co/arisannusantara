@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../config/database/db_collection.dart';
 import '../../../config/enums/invitation_status.dart';
+import '../../../config/enums/payment_status_enum.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
@@ -34,7 +35,7 @@ class InvitationRepository {
       }
 
       final groupData = groupSnapshot.data()!;
-      final ownerIds = List<String>.from(groupData['owner_ids'] ?? []);
+      final ownerIds = List<String>.from(groupData['ownerIds'] ?? []);
 
       // Get current user data
       final userSnapshot = await _firestore
@@ -60,14 +61,14 @@ class InvitationRepository {
 
       // Convert to Firestore data
       final invitationJson = {
-        'group_id': invitation.groupId,
-        'user_id': invitation.userId,
+        'groupId': invitation.groupId,
+        'userId': invitation.userId,
         'status': invitation.status,
-        'group_owner_ids': invitation.groupOwnerIds,
+        'groupOwnerIds': invitation.groupOwnerIds,
         'group': invitation.group?.toJson(),
         'user': invitation.user?.toJson(),
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       // Add document and update its ID
@@ -111,12 +112,12 @@ class InvitationRepository {
       // Update invitation status
       await invitationRef.update({
         'status': newStatus,
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       // If approved, create new member in the group
       if (newStatus == InvitationStatus.approved.name) {
-        final groupId = invitationData['group_id'] as String?;
+        final groupId = invitationData['groupId'] as String?;
         final userMap = invitationData['user'] as Map<String, dynamic>?;
 
         if (groupId == null || userMap == null) {
@@ -132,8 +133,7 @@ class InvitationRepository {
           groupId: groupId,
           isActive: true,
           hasReward: false,
-          skip: false,
-          statusPayment: 'unpaid', // or your default logic
+          paymentStatus: PaymentStatusEnum.unpaid,
         );
 
         final result = await GroupRepository().createMember(

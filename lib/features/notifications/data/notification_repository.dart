@@ -27,15 +27,15 @@ class NotificationRepository {
       );
 
       // Filter notifications by user
-      query = query.where('user_id', isEqualTo: currentUser.uid);
+      query = query.where('userId', isEqualTo: currentUser.uid);
 
       // Optional search filter
       if (search != null && search.isNotEmpty) {
-        query = query.where('search_index', arrayContains: search);
+        query = query.where('searchIndex', arrayContains: search);
       }
 
       // Order by createdAt for pagination
-      query = query.orderBy('created_at', descending: true).limit(limit);
+      query = query.orderBy('createdAt', descending: true).limit(limit);
 
       // Pagination
       if (lastId != null && lastId.isNotEmpty) {
@@ -79,8 +79,8 @@ class NotificationRepository {
       // Get all unread notifications (where readAt == null)
       final querySnapshot = await _firestore
           .collection(DBCollections.notifications)
-          .where('user_id', isEqualTo: currentUser.uid)
-          .where('read_at', isNull: true)
+          .where('userId', isEqualTo: currentUser.uid)
+          .where('readAt', isNull: true)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -91,8 +91,8 @@ class NotificationRepository {
 
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
-          'read_at': FieldValue.serverTimestamp(),
-          'updated_at': FieldValue.serverTimestamp(),
+          'readAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
         });
       }
 
@@ -119,8 +119,8 @@ class NotificationRepository {
 
       final snapshot = await _firestore
           .collection(DBCollections.notifications)
-          .where('user_id', isEqualTo: currentUser.uid)
-          .where('read_at', isNull: true)
+          .where('userId', isEqualTo: currentUser.uid)
+          .where('readAt', isNull: true)
           .get();
 
       final count = snapshot.size;

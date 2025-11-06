@@ -5,15 +5,14 @@ import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../domain/entities/history_entity.dart';
 import '../domain/entities/member_entity.dart';
 
 mixin HistoryRepository {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  Future<Result<List<Map<String, dynamic>>>> getHistories(
-    String groupId,
-  ) async {
+  Future<Result<List<HistoryEntity>>> getHistories(String groupId) async {
     try {
       final user = _auth.currentUser;
       if (user == null) {
@@ -35,22 +34,27 @@ mixin HistoryRepository {
       final histories = querySnap.docs.map((doc) {
         final data = doc.data();
 
-        return {
+        return HistoryEntity.fromJson({
           'id': data['id'],
-          'group_id': data['group_id'],
-          'date': data['date'],
+          'groupId': data['group_id'],
+          'date': (data['date'] as Timestamp?)?.toDate(),
           'notes': data['notes'],
-          'amount': data['amount'],
+          'amount': (data['amount'] as num?)?.toInt(),
           'reward': data['reward'],
           'group': data['group'],
-          'members': List<Map<String, dynamic>>.from(data['members'] ?? []),
-          'winner_ids': List<String>.from(data['winner_ids'] ?? []),
-          'winners': List<Map<String, dynamic>>.from(data['winners'] ?? []),
-          'created_at': data['created_at'],
-        };
+          'members': (data['members'] as List?)
+              ?.map((m) => MemberEntity.fromJson(Map<String, dynamic>.from(m)))
+              .toList(),
+          'winnerIds': (data['winner_ids'] as List?)?.cast<String>(),
+          'winners': (data['winners'] as List?)
+              ?.map((w) => MemberEntity.fromJson(Map<String, dynamic>.from(w)))
+              .toList(),
+          'createdAt': (data['created_at'] as Timestamp?)?.toDate(),
+          'updatedAt': (data['updated_at'] as Timestamp?)?.toDate(),
+        });
       }).toList();
 
-      return Result.success(histories);
+      return Result.success(histories.toList());
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);
@@ -95,7 +99,7 @@ mixin HistoryRepository {
       final members = membersSnap.docs.map((m) => m.data()).toList();
 
       // Count only active members
-      final activeMembers = members.where((m) => m['is_active'] == true).length;
+      final activeMembers = members.where((m) => m['isActive'] == true).length;
 
       // Step 4: Calculate total amount and reward
       final dues = (groupData['dues'] ?? 0) as num;
@@ -110,16 +114,16 @@ mixin HistoryRepository {
 
       final historyData = {
         'id': historyRef.id,
-        'group_id': groupId,
+        'groupId': groupId,
         'group': groupData,
         'members': members,
         'winners': winnerList,
-        'winner_ids': winnerIds,
+        'winnerIds': winnerIds,
         'date': now,
         'notes': notes,
         'amount': totalAmount,
         'reward': reward,
-        'created_at': now,
+        'createdAt': now,
       };
 
       await historyRef.set(historyData);
@@ -132,7 +136,7 @@ mixin HistoryRepository {
         final userId = doc.data()['user']['id'];
         final isWinner = winnerIds.contains(userId);
 
-        batch.update(memberRef, {'paid_at': null, 'has_reward': isWinner});
+        batch.update(memberRef, {'paidAt': null, 'hasReward': isWinner});
       }
 
       await batch.commit();

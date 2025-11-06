@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/datetime_extensions.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../domain/entities/group_entity.dart';
 import '../providers/get_group_detail_provider.dart';
@@ -69,8 +70,8 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                 body: TabBarView(
                   children: [
                     GroupDetailPage(group: group),
-                    GroupMemberPage(),
-                    GroupHistoryPage(),
+                    GroupMemberPage(group: group),
+                    GroupHistoryPage(group: group),
                   ],
                 ),
               ),
@@ -191,7 +192,7 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                           SizedBox(width: context.spacing.sm),
                           Icon(Icons.shuffle, color: context.colors.primary),
                           Text(
-                            '16 Oktober 2023',
+                            group.periodsDate?.toIdDate ?? '',
                             style: context.textStyles.bodySmall.copyWith(
                               color: context.colors.textSecondary,
                             ),

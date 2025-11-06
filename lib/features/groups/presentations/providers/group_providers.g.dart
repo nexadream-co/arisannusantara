@@ -95,7 +95,7 @@ final class GetGroupsUsecaseProvider
   }
 }
 
-String _$getGroupsUsecaseHash() => r'1af9d85423371180d1aea24c723dbbb9a1131c8b';
+String _$getGroupsUsecaseHash() => r'557ac47c5db2d35ff0582e67f9ec2089e2c9776d';
 
 @ProviderFor(createGroupUsecase)
 const createGroupUsecaseProvider = CreateGroupUsecaseProvider._();
@@ -143,7 +143,7 @@ final class CreateGroupUsecaseProvider
 }
 
 String _$createGroupUsecaseHash() =>
-    r'fb51bd3eb734d00230c3eaf3d63ba8f541b9482e';
+    r'dad4c3a5874835fc45e2face73a61fccd233c0e6';
 
 @ProviderFor(getGroupDetailUsecase)
 const getGroupDetailUsecaseProvider = GetGroupDetailUsecaseProvider._();
@@ -191,4 +191,464 @@ final class GetGroupDetailUsecaseProvider
 }
 
 String _$getGroupDetailUsecaseHash() =>
-    r'3ecec27a184025c9021f5951cd04684a3a152eee';
+    r'333490da734969485e79daf46e347101a3225859';
+
+@ProviderFor(getGroupOwners)
+const getGroupOwnersProvider = GetGroupOwnersFamily._();
+
+final class GetGroupOwnersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<UserEntity>>>,
+          Result<List<UserEntity>>,
+          FutureOr<Result<List<UserEntity>>>
+        >
+    with
+        $FutureModifier<Result<List<UserEntity>>>,
+        $FutureProvider<Result<List<UserEntity>>> {
+  const GetGroupOwnersProvider._({
+    required GetGroupOwnersFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getGroupOwnersProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getGroupOwnersHash();
+
+  @override
+  String toString() {
+    return r'getGroupOwnersProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<UserEntity>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<UserEntity>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return getGroupOwners(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetGroupOwnersProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getGroupOwnersHash() => r'2d558604049d460d7ec44a75e763f6cc4bf30545';
+
+final class GetGroupOwnersFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<List<UserEntity>>>, String> {
+  const GetGroupOwnersFamily._()
+    : super(
+        retry: null,
+        name: r'getGroupOwnersProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetGroupOwnersProvider call(String groupId) =>
+      GetGroupOwnersProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'getGroupOwnersProvider';
+}
+
+@ProviderFor(getMembers)
+const getMembersProvider = GetMembersFamily._();
+
+final class GetMembersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<MemberEntity>>>,
+          Result<List<MemberEntity>>,
+          FutureOr<Result<List<MemberEntity>>>
+        >
+    with
+        $FutureModifier<Result<List<MemberEntity>>>,
+        $FutureProvider<Result<List<MemberEntity>>> {
+  const GetMembersProvider._({
+    required GetMembersFamily super.from,
+    required (String, String?) super.argument,
+  }) : super(
+         retry: null,
+         name: r'getMembersProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getMembersHash();
+
+  @override
+  String toString() {
+    return r'getMembersProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<MemberEntity>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<MemberEntity>>> create(Ref ref) {
+    final argument = this.argument as (String, String?);
+    return getMembers(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetMembersProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getMembersHash() => r'4b4b233b1a3babc54efe474f132d931f53c1c6f3';
+
+final class GetMembersFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<MemberEntity>>>,
+          (String, String?)
+        > {
+  const GetMembersFamily._()
+    : super(
+        retry: null,
+        name: r'getMembersProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetMembersProvider call(String groupId, String? search) =>
+      GetMembersProvider._(argument: (groupId, search), from: this);
+
+  @override
+  String toString() => r'getMembersProvider';
+}
+
+@ProviderFor(getHistories)
+const getHistoriesProvider = GetHistoriesFamily._();
+
+final class GetHistoriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<HistoryEntity>>>,
+          Result<List<HistoryEntity>>,
+          FutureOr<Result<List<HistoryEntity>>>
+        >
+    with
+        $FutureModifier<Result<List<HistoryEntity>>>,
+        $FutureProvider<Result<List<HistoryEntity>>> {
+  const GetHistoriesProvider._({
+    required GetHistoriesFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getHistoriesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getHistoriesHash();
+
+  @override
+  String toString() {
+    return r'getHistoriesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<HistoryEntity>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<HistoryEntity>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return getHistories(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetHistoriesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getHistoriesHash() => r'53431612f04901c86cec794c04061c5945650a6f';
+
+final class GetHistoriesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<HistoryEntity>>>,
+          String
+        > {
+  const GetHistoriesFamily._()
+    : super(
+        retry: null,
+        name: r'getHistoriesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetHistoriesProvider call(String groupId) =>
+      GetHistoriesProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'getHistoriesProvider';
+}
+
+@ProviderFor(createHistoryUsecase)
+const createHistoryUsecaseProvider = CreateHistoryUsecaseProvider._();
+
+final class CreateHistoryUsecaseProvider
+    extends
+        $FunctionalProvider<
+          CreateHistoryUsecase,
+          CreateHistoryUsecase,
+          CreateHistoryUsecase
+        >
+    with $Provider<CreateHistoryUsecase> {
+  const CreateHistoryUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'createHistoryUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$createHistoryUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CreateHistoryUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CreateHistoryUsecase create(Ref ref) {
+    return createHistoryUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CreateHistoryUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CreateHistoryUsecase>(value),
+    );
+  }
+}
+
+String _$createHistoryUsecaseHash() =>
+    r'8c5608e73decfb170529aa0847155ec3be2eb63d';
+
+@ProviderFor(getMemberDetail)
+const getMemberDetailProvider = GetMemberDetailFamily._();
+
+final class GetMemberDetailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<MemberEntity>>,
+          Result<MemberEntity>,
+          FutureOr<Result<MemberEntity>>
+        >
+    with
+        $FutureModifier<Result<MemberEntity>>,
+        $FutureProvider<Result<MemberEntity>> {
+  const GetMemberDetailProvider._({
+    required GetMemberDetailFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getMemberDetailProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getMemberDetailHash();
+
+  @override
+  String toString() {
+    return r'getMemberDetailProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<MemberEntity>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<MemberEntity>> create(Ref ref) {
+    final argument = this.argument as String;
+    return getMemberDetail(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetMemberDetailProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getMemberDetailHash() => r'51163d54721e3fdbafa8c685274c9445d6d7fc0b';
+
+final class GetMemberDetailFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<MemberEntity>>, String> {
+  const GetMemberDetailFamily._()
+    : super(
+        retry: null,
+        name: r'getMemberDetailProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetMemberDetailProvider call(String memberId) =>
+      GetMemberDetailProvider._(argument: memberId, from: this);
+
+  @override
+  String toString() => r'getMemberDetailProvider';
+}
+
+@ProviderFor(updateMemberUsecase)
+const updateMemberUsecaseProvider = UpdateMemberUsecaseProvider._();
+
+final class UpdateMemberUsecaseProvider
+    extends
+        $FunctionalProvider<
+          UpdateMemberUsecase,
+          UpdateMemberUsecase,
+          UpdateMemberUsecase
+        >
+    with $Provider<UpdateMemberUsecase> {
+  const UpdateMemberUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updateMemberUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updateMemberUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdateMemberUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  UpdateMemberUsecase create(Ref ref) {
+    return updateMemberUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdateMemberUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdateMemberUsecase>(value),
+    );
+  }
+}
+
+String _$updateMemberUsecaseHash() =>
+    r'931236548a4c0ced203e311cd130e7d04011a750';
+
+@ProviderFor(deleteMemberUsecase)
+const deleteMemberUsecaseProvider = DeleteMemberUsecaseProvider._();
+
+final class DeleteMemberUsecaseProvider
+    extends
+        $FunctionalProvider<
+          DeleteMemberUsecase,
+          DeleteMemberUsecase,
+          DeleteMemberUsecase
+        >
+    with $Provider<DeleteMemberUsecase> {
+  const DeleteMemberUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'deleteMemberUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$deleteMemberUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<DeleteMemberUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DeleteMemberUsecase create(Ref ref) {
+    return deleteMemberUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DeleteMemberUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DeleteMemberUsecase>(value),
+    );
+  }
+}
+
+String _$deleteMemberUsecaseHash() =>
+    r'cf3ea1b100615d052873d13e320a429fdaad9a75';

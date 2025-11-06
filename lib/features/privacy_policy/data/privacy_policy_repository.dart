@@ -18,7 +18,7 @@ class PrivacyPolicyRepository {
       // Reference to settings collection
       final settingRef = _firestore
           .collection(DBCollections.settings)
-          .where('key', isEqualTo: 'privacy_policy')
+          .where('key', isEqualTo: 'privacyPolicy')
           .limit(1);
 
       final querySnapshot = await settingRef.get();
@@ -33,7 +33,7 @@ class PrivacyPolicyRepository {
       return Result.success({
         'key': data['key'],
         'value': data['value'], // already a Map<String, dynamic>
-        'updated_at': data['updated_at'],
+        'updatedAt': data['updatedAt'],
       });
     } catch (e) {
       return Result.failed(e.toString());

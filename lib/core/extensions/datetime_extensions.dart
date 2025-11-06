@@ -20,4 +20,20 @@ extension NullableDateTimeExtensions on DateTime? {
     final formatter = DateFormat('d MMMM yyyy HH:mm', 'id_ID');
     return formatter.format(this!);
   }
+
+  /// Format to full Indonesian date with day name and time
+  /// Example: Senin, 7 Januari 2025 14:35
+  String get toIdFullDateTime {
+    if (this == null) return '-';
+    final formatter = DateFormat('EEEE, d MMMM yyyy HH:mm', 'id_ID');
+    return formatter.format(this!);
+  }
+
+  /// Format to full Indonesian date with day name only (no time)
+  /// Example: Senin, 7 Januari 2025
+  String get toIdFullDate {
+    if (this == null) return '-';
+    final formatter = DateFormat('EEEE, d MMMM yyyy', 'id_ID');
+    return formatter.format(this!);
+  }
 }

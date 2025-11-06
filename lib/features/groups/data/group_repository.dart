@@ -52,16 +52,16 @@ mixin GroupDetailRepository {
           // query = query.where('member_ids', arrayContains: user.uid);
           query = query.where(
             Filter.or(
-              Filter('member_ids', arrayContains: user.uid),
-              Filter('owner_ids', arrayContains: user.uid),
+              Filter('memberIds', arrayContains: user.uid),
+              Filter('ownerIds', arrayContains: user.uid),
             ),
           );
           break;
         case GroupFilter.owned:
-          query = query.where('owner_ids', arrayContains: user.uid);
+          query = query.where('ownerIds', arrayContains: user.uid);
           break;
         case GroupFilter.invited:
-          query = query.where('invited_user_ids', arrayContains: user.uid);
+          query = query.where('invitedUserIds', arrayContains: user.uid);
           break;
         case GroupFilter.all:
           // no filter applied
@@ -71,11 +71,11 @@ mixin GroupDetailRepository {
       // Apply search filter
       if (search != null && search.isNotEmpty) {
         final lower = search.toLowerCase();
-        query = query.where('search_index', arrayContains: lower);
+        query = query.where('searchIndex', arrayContains: lower);
       }
 
       // Order & pagination
-      query = query.orderBy('created_at', descending: true).limit(limit);
+      query = query.orderBy('createdAt', descending: true).limit(limit);
 
       // Apply pagination with lastId
       if (lastId != null && lastId.isNotEmpty) {
@@ -95,12 +95,13 @@ mixin GroupDetailRepository {
         final data = doc.data();
 
         final ownerIds =
-            (data['owner_ids'] as List<dynamic>?)
+            (data['ownerIds'] as List<dynamic>?)
                 ?.map((e) => e.toString())
                 .toList() ??
             [];
+
         final memberIds =
-            (data['member_ids'] as List<dynamic>?)
+            (data['memberIds'] as List<dynamic>?)
                 ?.map((e) => e.toString())
                 .toList() ??
             [];
@@ -113,7 +114,7 @@ mixin GroupDetailRepository {
           name: data['name'] as String?,
           description: data['description'] as String?,
           code: data['code'] as String?,
-          periodsDate: parseFirestoreDate(data['periods_date']),
+          periodsDate: parseFirestoreDate(data['periodsDate']),
           dues: (data['dues'] as num?)?.toDouble(),
           target: (data['target'] as num?)?.toDouble(),
           isOwned: isOwned,
@@ -167,28 +168,28 @@ mixin GroupDetailRepository {
       final groupData = {
         'id': groupId,
         'name': group.name,
-        'search_index': generateSearchIndex([group.name, code]),
+        'searchIndex': generateSearchIndex([group.name, code]),
         'description': group.description,
         'code': code,
-        'periods_date': group.periodsDate?.toString(),
-        'periods_type': group.periodsType,
+        'periodsDate': group.periodsDate?.toString(),
+        'periodsType': group.periodsType,
         'reward': group.reward,
         'dues': group.dues,
         'target': group.target,
-        'created_by': user.uid,
-        'owner_ids': [user.uid], // current user as owner
-        'payment_accounts': group.paymentAccounts
+        'createdBy': user.uid,
+        'ownerIds': [user.uid], // current user as owner
+        'paymentAccounts': group.paymentAccounts
             ?.map(
               (e) => {
-                'account_name': e.accountName,
-                'bank_name': e.bankName,
-                'bank_number': e.bankNumber,
+                'accountName': e.accountName,
+                'bankName': e.bankName,
+                'bankNumber': e.bankNumber,
               },
             )
             .toList(),
-        'admin_fee': group.adminFee,
-        'created_at': now,
-        'updated_at': now,
+        'adminFee': group.adminFee,
+        'createdAt': now,
+        'updatedAt': now,
       };
 
       await _firestore
@@ -220,12 +221,12 @@ mixin GroupDetailRepository {
 
       final updateData = {
         'name': group.name,
-        'search_index': generateSearchIndex([group.name, group.code]),
+        'searchIndex': generateSearchIndex([group.name, group.code]),
         'description': group.description,
-        'periods_date': group.periodsDate,
+        'periodsDate': group.periodsDate,
         'dues': group.dues,
         'target': group.target,
-        'updated_at': now,
+        'updatedAt': now,
       };
 
       await docRef.update(updateData);
@@ -260,7 +261,7 @@ mixin GroupDetailRepository {
       // Delete all members with this group_id
       final membersQuery = await _firestore
           .collection(DBCollections.members)
-          .where('group_id', isEqualTo: groupId)
+          .where('groupId', isEqualTo: groupId)
           .get();
 
       for (final doc in membersQuery.docs) {
@@ -270,7 +271,7 @@ mixin GroupDetailRepository {
       // Delete all histories with this group_id
       final historiesQuery = await _firestore
           .collection(DBCollections.histories)
-          .where('group_id', isEqualTo: groupId)
+          .where('groupId', isEqualTo: groupId)
           .get();
 
       for (final doc in historiesQuery.docs) {
@@ -306,7 +307,7 @@ mixin GroupDetailRepository {
 
       final data = groupDoc.data();
       final ownerIds =
-          (data?['owner_ids'] as List<dynamic>?)
+          (data?['ownerIds'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [];
@@ -340,7 +341,7 @@ mixin GroupDetailRepository {
             id: doc.id,
             name: userData['name'] as String?,
             email: userData['email'] as String? ?? '',
-            photoUrl: userData['photo_url'] as String?,
+            photoUrl: userData['photoUrl'] as String?,
             role: userData['role'] as String?,
           );
         }).toList();
@@ -379,18 +380,18 @@ mixin GroupDetailRepository {
         name: data['name'] as String?,
         description: data['description'] as String?,
         code: data['code'] as String?,
-        periodsDate: parseFirestoreDate(data['periods_date']),
+        periodsDate: parseFirestoreDate(data['periodsDate']),
         dues: (data['dues'] as num?)?.toDouble(),
         target: (data['target'] as num?)?.toDouble(),
-        paymentAccounts: (data['payment_accounts'] as List<dynamic>?)
+        paymentAccounts: (data['paymentAccounts'] as List<dynamic>?)
             ?.map(
               (item) => PaymentAccountEntity(
                 id: item['id'] as String?,
-                accountName: item['account_name'] as String?,
-                bankName: item['bank_name'] as String?,
-                bankNumber: item['bank_number'] as String?,
-                createdAt: parseFirestoreDate(item['created_at']),
-                updatedAt: parseFirestoreDate(item['updated_at']),
+                accountName: item['accountName'] as String?,
+                bankName: item['bankName'] as String?,
+                bankNumber: item['bankNumber'] as String?,
+                createdAt: parseFirestoreDate(item['createdAt']),
+                updatedAt: parseFirestoreDate(item['updatedAt']),
               ),
             )
             .toList(),
@@ -425,12 +426,12 @@ mixin GroupDetailRepository {
 
       final data = groupSnap.data()!;
       final existingOwnerIds =
-          (data['owner_ids'] as List<dynamic>?)?.cast<String>() ?? [];
+          (data['ownerIds'] as List<dynamic>?)?.cast<String>() ?? [];
 
       // Combine and remove duplicates
       final updatedOwnerIds = {...existingOwnerIds, ...userIds}.toList();
 
-      await groupRef.update({'owner_ids': updatedOwnerIds});
+      await groupRef.update({'ownerIds': updatedOwnerIds});
 
       return const Result.success('Pemilik grup berhasil diperbarui');
     } on FirebaseException catch (e) {
@@ -458,7 +459,7 @@ mixin GroupDetailRepository {
 
       final data = groupSnap.data()!;
       final existingOwnerIds =
-          (data['owner_ids'] as List<dynamic>?)?.cast<String>() ?? [];
+          (data['ownerIds'] as List<dynamic>?)?.cast<String>() ?? [];
 
       if (!existingOwnerIds.contains(userId)) {
         return const Result.failed('Pemilik tidak ditemukan dalam grup');
@@ -467,7 +468,7 @@ mixin GroupDetailRepository {
       // Remove the specific owner
       existingOwnerIds.remove(userId);
 
-      await groupRef.update({'owner_ids': existingOwnerIds});
+      await groupRef.update({'ownerIds': existingOwnerIds});
 
       return const Result.success('Pemilik berhasil dihapus dari grup');
     } on FirebaseException catch (e) {

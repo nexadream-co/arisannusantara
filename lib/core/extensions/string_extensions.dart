@@ -10,6 +10,7 @@
 library;
 
 import '../../config/enums/invitation_status.dart';
+import '../../config/enums/payment_status_enum.dart';
 
 extension NullableStringExtensions on String? {
   /// Checks if the string is null or empty.
@@ -199,6 +200,21 @@ extension StringExtensions on String {
       case 'pending':
       default:
         return InvitationStatus.pending;
+    }
+  }
+
+  PaymentStatusEnum? toPaymentStatusEnum() {
+    switch (toLowerCase()) {
+      case 'unpaid':
+        return PaymentStatusEnum.unpaid;
+      case 'paid':
+        return PaymentStatusEnum.paid;
+      case 'skip':
+        return PaymentStatusEnum.skip;
+      case 'cancel':
+        return PaymentStatusEnum.cancel;
+      default:
+        return null;
     }
   }
 }

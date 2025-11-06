@@ -29,11 +29,11 @@ class UserRepository {
       // Search filter
       if (search != null && search.isNotEmpty) {
         final lower = search.toLowerCase();
-        query = query.where('search_index', arrayContains: lower);
+        query = query.where('searchIndex', arrayContains: lower);
       }
 
       // Order and limit
-      query = query.orderBy('created_at', descending: true).limit(limit);
+      query = query.orderBy('createdAt', descending: true).limit(limit);
 
       // Pagination using lastId as cursor
       if (lastId != null && lastId.isNotEmpty) {
@@ -56,7 +56,7 @@ class UserRepository {
           name: data['name'] as String?,
           email: data['email'] as String?,
           phoneNumber: data['phone'] as String?,
-          emailVerified: data['email_verified'] as bool? ?? false,
+          emailVerified: data['emailVerified'] as bool? ?? false,
         );
       }).toList();
 
@@ -104,12 +104,12 @@ class UserRepository {
       final userData = {
         'name': name,
         'email': email,
-        'photo_url': photoUrl,
-        'phone_number': phoneNumber,
+        'photoUrl': photoUrl,
+        'phoneNumber': phoneNumber,
         'role': role,
-        'email_verified': false,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
+        'emailVerified': false,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       await _firestore
@@ -151,10 +151,10 @@ class UserRepository {
 
       final updates = <String, dynamic>{
         if (name != null) 'name': name,
-        if (photoUrl != null) 'photo_url': photoUrl,
-        if (phoneNumber != null) 'phone_number': phoneNumber,
+        if (photoUrl != null) 'photoUrl': photoUrl,
+        if (phoneNumber != null) 'phoneNumber': phoneNumber,
         if (role != null) 'role': role,
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       if (updates.isEmpty) {

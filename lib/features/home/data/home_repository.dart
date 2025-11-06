@@ -38,8 +38,8 @@ class HomeRepository {
 
       final query = await _firestore
           .collection(DBCollections.groups)
-          .where('created_at', isGreaterThanOrEqualTo: range['start'])
-          .where('created_at', isLessThanOrEqualTo: range['end'])
+          .where('createdAt', isGreaterThanOrEqualTo: range['start'])
+          .where('createdAt', isLessThanOrEqualTo: range['end'])
           .get();
 
       return Result.success(query.size);
@@ -54,8 +54,8 @@ class HomeRepository {
 
       final query = await _firestore
           .collection(DBCollections.users)
-          .where('created_at', isGreaterThanOrEqualTo: range['start'])
-          .where('created_at', isLessThanOrEqualTo: range['end'])
+          .where('createdAt', isGreaterThanOrEqualTo: range['start'])
+          .where('createdAt', isLessThanOrEqualTo: range['end'])
           .get();
 
       return Result.success(query.size);
@@ -70,8 +70,8 @@ class HomeRepository {
 
       final query = await _firestore
           .collection(DBCollections.feedback)
-          .where('created_at', isGreaterThanOrEqualTo: range['start'])
-          .where('created_at', isLessThanOrEqualTo: range['end'])
+          .where('createdAt', isGreaterThanOrEqualTo: range['start'])
+          .where('createdAt', isLessThanOrEqualTo: range['end'])
           .get();
 
       return Result.success(query.size);
@@ -86,8 +86,8 @@ class HomeRepository {
 
       final query = await _firestore
           .collection(DBCollections.histories)
-          .where('created_at', isGreaterThanOrEqualTo: range['start'])
-          .where('created_at', isLessThanOrEqualTo: range['end'])
+          .where('createdAt', isGreaterThanOrEqualTo: range['start'])
+          .where('createdAt', isLessThanOrEqualTo: range['end'])
           .get();
 
       return Result.success(query.size);
@@ -103,12 +103,12 @@ class HomeRepository {
         return const Result.failed('User not found');
       }
 
-      final membersRef = _firestore.collection('members');
+      final membersRef = _firestore.collection(DBCollections.members);
 
       // Query all active members for current user (skip == false or not exists)
       final totalSnapshot = await membersRef
-          .where('user_id', isEqualTo: user.uid)
-          .where('is_active', isEqualTo: true)
+          .where('userId', isEqualTo: user.uid)
+          .where('isActive', isEqualTo: true)
           .where('skip', isNotEqualTo: true)
           .get();
 
@@ -119,10 +119,10 @@ class HomeRepository {
 
       // Query all paid members
       final paidSnapshot = await membersRef
-          .where('user_id', isEqualTo: user.uid)
-          .where('is_active', isEqualTo: true)
+          .where('userId', isEqualTo: user.uid)
+          .where('isActive', isEqualTo: true)
           .where('skip', isNotEqualTo: true)
-          .where('paid_at', isNotEqualTo: null)
+          .where('paidAt', isNotEqualTo: null)
           .get();
 
       final totalCount = totalSnapshot.size;

@@ -31,9 +31,9 @@ class ProfileRepository {
 
       await userRef.update({
         'name': name,
-        'phone_number': phoneNumber,
+        'phoneNumber': phoneNumber,
         'gender': gender,
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       return const Result.success('Profil berhasil diperbarui');

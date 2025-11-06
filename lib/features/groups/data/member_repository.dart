@@ -5,6 +5,7 @@ import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../../../core/utils/generate_search_index.dart';
 import '../../auth/domain/entities/user_entity.dart';
 import '../domain/entities/member_entity.dart';
@@ -29,12 +30,12 @@ mixin MemberRepository {
       // Reference to main members collection
       Query memberQuery = _firestore
           .collection(DBCollections.members)
-          .where('group_id', isEqualTo: groupId)
-          .orderBy('created_at', descending: true);
+          .where('groupId', isEqualTo: groupId)
+          .orderBy('createdAt', descending: true);
 
       // Apply optional filters if provided
       if (isActive != null) {
-        memberQuery = memberQuery.where('is_active', isEqualTo: isActive);
+        memberQuery = memberQuery.where('isActive', isEqualTo: isActive);
       }
 
       if (skip != null) {
@@ -42,13 +43,13 @@ mixin MemberRepository {
       }
 
       if (hasReward != null) {
-        memberQuery = memberQuery.where('has_reward', isEqualTo: hasReward);
+        memberQuery = memberQuery.where('hasReward', isEqualTo: hasReward);
       }
 
       // Add search filter if query provided
       if (query != null && query.isNotEmpty) {
         memberQuery = memberQuery.where(
-          'search_index',
+          'searchIndex',
           arrayContains: query.toLowerCase(),
         );
       }
@@ -63,14 +64,15 @@ mixin MemberRepository {
 
         return MemberEntity(
           id: doc.id,
-          groupId: data['group_id'] as String?,
-          statusPayment: data['status_payment'] as String?,
-          isActive: data['is_active'] as bool?,
-          skip: data['skip'] as bool?,
-          hasReward: data['has_reward'] as bool?,
-          paidAt: (data['paid_at'] as Timestamp?)?.toDate(),
-          createdAt: (data['created_at'] as Timestamp?)?.toDate(),
-          updatedAt: (data['updated_at'] as Timestamp?)?.toDate(),
+          groupId: data['groupId'] as String?,
+          paymentStatus: data['paymentStatus']
+              ?.toString()
+              .toPaymentStatusEnum(),
+          isActive: data['isActive'] as bool?,
+          hasReward: data['hasReward'] as bool?,
+          paidAt: (data['paidAt'] as Timestamp?)?.toDate(),
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
           group: null,
           user: userData != null
               ? UserEntity(
@@ -134,16 +136,15 @@ mixin MemberRepository {
       // Save user as embedded object
       final data = {
         'id': memberRef.id,
-        'group_id': member.groupId,
-        'status_payment': member.statusPayment,
-        'is_active': member.isActive ?? true,
-        'skip': member.skip ?? false,
-        'has_reward': member.hasReward ?? false,
-        'paid_at': member.paidAt,
-        'created_at': now,
-        'updated_at': now,
+        'groupId': member.groupId,
+        'paymentStatus': member.paymentStatus?.name,
+        'isActive': member.isActive ?? true,
+        'hasReward': member.hasReward ?? false,
+        'paidAt': member.paidAt,
+        'createdAt': now,
+        'updatedAt': now,
         'user': {'id': userDoc.id, 'name': userName, 'email': userEmailLower},
-        'search_index': searchIndex,
+        'searchIndex': searchIndex,
       };
 
       await memberRef.set(data);
@@ -160,7 +161,9 @@ mixin MemberRepository {
 
   Future<Result<String>> updateMember(MemberEntity member) async {
     try {
-      final memberRef = _firestore.collection('members').doc(member.id);
+      final memberRef = _firestore
+          .collection(DBCollections.members)
+          .doc(member.id);
 
       // Check if member exists
       final memberSnap = await memberRef.get();
@@ -169,13 +172,13 @@ mixin MemberRepository {
       }
 
       // Fetch latest user data from Firestore
-      final userEmail = member.user?.email;
+      final userEmail = member.email;
       if (userEmail == null || userEmail.isEmpty) {
         return const Result.failed('Email pengguna diperlukan');
       }
 
       final userQuery = await _firestore
-          .collection('users')
+          .collection(DBCollections.users)
           .where('email', isEqualTo: userEmail)
           .limit(1)
           .get();
@@ -203,15 +206,11 @@ mixin MemberRepository {
       // Prepare updated data
       final now = DateTime.now();
       final data = {
-        'group_id': member.groupId,
         'user': userObject,
-        'status_payment': member.statusPayment,
-        'is_active': member.isActive,
-        'skip': member.skip,
-        'has_reward': member.hasReward,
-        'paid_at': member.paidAt,
-        'updated_at': now,
-        'search_index': searchIndex,
+        'paymentStatus': member.paymentStatus?.name,
+        'isActive': member.isActive,
+        'updatedAt': now,
+        'searchIndex': searchIndex,
       };
 
       // Update Firestore document
@@ -229,7 +228,9 @@ mixin MemberRepository {
 
   Future<Result<String>> deleteMember(String memberId) async {
     try {
-      final memberRef = _firestore.collection('members').doc(memberId);
+      final memberRef = _firestore
+          .collection(DBCollections.members)
+          .doc(memberId);
 
       // Check if member document exists
       final memberSnap = await memberRef.get();
@@ -252,7 +253,9 @@ mixin MemberRepository {
 
   Future<Result<MemberEntity>> getMemberDetail(String memberId) async {
     try {
-      final memberRef = _firestore.collection('members').doc(memberId);
+      final memberRef = _firestore
+          .collection(DBCollections.members)
+          .doc(memberId);
 
       // Get member document
       final memberSnap = await memberRef.get();
@@ -268,14 +271,13 @@ mixin MemberRepository {
       // Create MemberEntity from Firestore data
       final member = MemberEntity(
         id: data['id'],
-        groupId: data['group_id'],
-        statusPayment: data['status_payment'],
-        isActive: data['is_active'],
-        skip: data['skip'],
-        hasReward: data['has_reward'],
-        paidAt: (data['paid_at'] as Timestamp?)?.toDate(),
-        createdAt: (data['created_at'] as Timestamp?)?.toDate(),
-        updatedAt: (data['updated_at'] as Timestamp?)?.toDate(),
+        groupId: data['groupId'],
+        paymentStatus: data['paymentStatus']?.toString().toPaymentStatusEnum(),
+        isActive: data['isActive'],
+        hasReward: data['hasReward'],
+        paidAt: (data['paidAt'] as Timestamp?)?.toDate(),
+        createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+        updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
         user: userData != null
             ? UserEntity(
                 id: userData['id'],
@@ -292,7 +294,7 @@ mixin MemberRepository {
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return const Result.failed(
-        'Terjadi kesalahan saat mengambil detail member',
+        'Terjadi kesalahan saat mengambil detail anggota/peserta',
       );
     }
   }

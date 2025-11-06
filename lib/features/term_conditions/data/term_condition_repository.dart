@@ -18,7 +18,7 @@ class TermConditionRepository {
       // Reference to settings collection
       final settingRef = _firestore
           .collection(DBCollections.settings)
-          .where('key', isEqualTo: 'term_condition')
+          .where('key', isEqualTo: 'termCondition')
           .limit(1);
 
       final querySnapshot = await settingRef.get();
@@ -32,8 +32,8 @@ class TermConditionRepository {
 
       return Result.success({
         'key': data['key'],
-        'value': data['value'], // already a JSON (Map<String, dynamic>)
-        'updated_at': data['updated_at'],
+        'value': data['value'],
+        'updatedAt': data['updatedAt'],
       });
     } catch (e) {
       return Result.failed(e.toString());

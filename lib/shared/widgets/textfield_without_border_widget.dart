@@ -8,6 +8,7 @@ class TextfieldWithoutBorderWidget extends StatelessWidget {
   final TextAlign textAlign;
   final int? minLines;
   final int? maxLines;
+  final bool readonly;
   final String? label;
   final bool required;
   final TextInputType? keyboardType;
@@ -19,6 +20,7 @@ class TextfieldWithoutBorderWidget extends StatelessWidget {
     this.minLines,
     this.label,
     this.maxLines,
+    this.readonly = false,
     this.keyboardType,
     this.required = false,
     this.validator,
@@ -34,6 +36,7 @@ class TextfieldWithoutBorderWidget extends StatelessWidget {
       keyboardType: keyboardType,
       minLines: minLines,
       maxLines: maxLines,
+      readOnly: readonly,
       validator:
           validator ??
           (value) {

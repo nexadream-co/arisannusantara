@@ -1,17 +1,25 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/extensions/number_extensions.dart';
+import '../../domain/entities/history_entity.dart';
+import '../widgets/history_detail_members_widget.dart';
 
-class GroupHistoryDetailPage extends StatefulWidget {
+class GroupHistoryDetailPage extends ConsumerStatefulWidget {
   static const String path = '/group-history-detail';
-  const GroupHistoryDetailPage({super.key});
+  final HistoryEntity history;
+  const GroupHistoryDetailPage({super.key, required this.history});
 
   @override
-  State<GroupHistoryDetailPage> createState() => _GroupHistoryDetailPageState();
+  ConsumerState<GroupHistoryDetailPage> createState() =>
+      _GroupHistoryDetailPageState();
 }
 
-class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
+class _GroupHistoryDetailPageState
+    extends ConsumerState<GroupHistoryDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +96,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                             ),
                           ),
                           Text(
-                            '#Kode grup',
+                            '#${widget.history.group?.code}',
                             maxLines: 1,
                             style: context.textStyles.body,
                           ),
@@ -126,7 +134,8 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            'Minggu, 18 October 2025',
+                                            widget.history.date?.toIdFullDate ??
+                                                '',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: context.textStyles.bodySmall
@@ -136,7 +145,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                           ),
                                           SizedBox(height: context.spacing.xs),
                                           Text(
-                                            'Periode 1',
+                                            'Periode ${widget.history.periodOrder}',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: context.textStyles.bodySmall,
@@ -158,7 +167,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                                         .bodySmall,
                                                   ),
                                                   Text(
-                                                    '2 Orang',
+                                                    '${(widget.history.winners ?? []).length} Orang',
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: context
@@ -187,7 +196,9 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                                         .bodySmall,
                                                   ),
                                                   Text(
-                                                    'Rp 100.000',
+                                                    widget.history.group?.dues
+                                                            ?.toString() ??
+                                                        '-',
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: context
@@ -208,7 +219,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    'Hadiah uang tunai',
+                                                    widget.history.reward ?? '',
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: context
@@ -216,7 +227,11 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                                                         .bodySmall,
                                                   ),
                                                   Text(
-                                                    'Rp 1.000.000',
+                                                    widget
+                                                            .history
+                                                            .amount
+                                                            ?.toIdrWithPrefix ??
+                                                        '',
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: context
@@ -249,138 +264,7 @@ class _GroupHistoryDetailPageState extends State<GroupHistoryDetailPage> {
                   ],
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(
-                  bottom: context.spacing.lg,
-                  top: context.spacing.lg,
-                ),
-                height: context.appSize.s40,
-                width: double.infinity,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  padding: EdgeInsets.symmetric(horizontal: context.spacing.lg),
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(right: context.spacing.sm),
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.spacing.md,
-                      ),
-                      decoration: BoxDecoration(
-                        color: context.colors.secondary,
-                        borderRadius: BorderRadius.circular(
-                          context.radius.medium,
-                        ),
-                      ),
-                      child: Text(
-                        'Semua',
-                        style: context.textStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    for (int i = 0; i < 5; i++)
-                      Container(
-                        margin: EdgeInsets.only(right: context.spacing.sm),
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.spacing.md,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: context.colors.secondary),
-                          borderRadius: BorderRadius.circular(
-                            context.radius.medium,
-                          ),
-                        ),
-                        child: Text(
-                          'Pemenang',
-                          style: context.textStyles.body.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: context.colors.secondary,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Column(
-                spacing: context.spacing.md,
-                children: [
-                  for (var i = 0; i < 10; i++)
-                    Container(
-                      padding: EdgeInsets.only(
-                        bottom: context.spacing.md,
-                        left: context.spacing.lg,
-                        right: context.spacing.lg,
-                      ),
-                      decoration: BoxDecoration(
-                        border: i == 2
-                            ? null
-                            : Border(
-                                bottom: BorderSide(
-                                  color: context.colors.divider,
-                                ),
-                              ),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: context.colors.surface,
-                            child: Text(
-                              'AC',
-                              style: context.textStyles.body.copyWith(
-                                color: context.colors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: context.spacing.sm),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Ardi Sanjaya',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.bodySmall.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: context.spacing.xs),
-                                Text(
-                                  'ardisanjaya@gmail.com',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: context.spacing.sm,
-                              ),
-                              minimumSize: Size(0, 0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: context.spacing.md,
-                              ),
-                              child: Text('Sudah Bayar'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+              HistoryDetailMembersWidget(history: widget.history),
             ],
           ),
         ),

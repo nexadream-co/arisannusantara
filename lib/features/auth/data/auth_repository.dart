@@ -55,13 +55,13 @@ class AuthRepository {
           'id': user.uid,
           'name': user.displayName ?? '',
           'email': user.email ?? email,
-          'created_at': FieldValue.serverTimestamp(),
-          'updated_at': FieldValue.serverTimestamp(),
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
           'role': AppUserRole.user,
         });
       } else {
         // Optionally, update last login or refresh info
-        await docRef.update({'last_login_at': FieldValue.serverTimestamp()});
+        await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
       }
 
       return const Result.success('Login berhasil');
@@ -118,8 +118,8 @@ class AuthRepository {
         await usersRef.doc(existingUser.docs.first.id).update({
           'id': user.uid,
           'name': name,
-          'photo_url': user.photoURL,
-          'updated_at': FieldValue.serverTimestamp(),
+          'photoUrl': user.photoURL,
+          'updatedAt': FieldValue.serverTimestamp(),
         });
       } else {
         // Create new document
@@ -128,9 +128,9 @@ class AuthRepository {
           'name': name,
           'email': email,
           'role': AppUserRole.user,
-          'photo_url': user.photoURL,
-          'created_at': FieldValue.serverTimestamp(),
-          'updated_at': FieldValue.serverTimestamp(),
+          'photoUrl': user.photoURL,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
         });
       }
 
@@ -204,14 +204,14 @@ class AuthRepository {
           'id': user.uid,
           'name': user.displayName,
           'email': user.email,
-          'photo_url': user.photoURL,
-          'created_at': FieldValue.serverTimestamp(),
-          'updated_at': FieldValue.serverTimestamp(),
+          'photoUrl': user.photoURL,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
           'role': AppUserRole.user,
         });
       } else {
         // Optionally, update last login or refresh info
-        await docRef.update({'last_login_at': FieldValue.serverTimestamp()});
+        await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
       }
 
       return Result.success(token);
@@ -315,7 +315,7 @@ class AuthRepository {
         name: data['name'] ?? user.displayName ?? '',
         email: data['email'] ?? user.email ?? '',
         role: data['role'] ?? AppUserRole.user,
-        photoUrl: data['photo_url'] ?? user.photoURL,
+        photoUrl: data['photoUrl'] ?? user.photoURL,
       );
 
       return Result.success(userEntity);
