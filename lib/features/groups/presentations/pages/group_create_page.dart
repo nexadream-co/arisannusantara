@@ -282,7 +282,10 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                                       message: result.resultValue,
                                     );
                                     context.pop();
-                                    ref.invalidate(getGroupsProvider);
+
+                                    ref
+                                        .read(getGroupsProvider.notifier)
+                                        .refresh();
                                   } else {
                                     CustomSnackbar.error(
                                       message: result.errorMessage,

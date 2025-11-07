@@ -652,3 +652,149 @@ final class DeleteMemberUsecaseProvider
 
 String _$deleteMemberUsecaseHash() =>
     r'cf3ea1b100615d052873d13e320a429fdaad9a75';
+
+@ProviderFor(addPaymentAccountUsecase)
+const addPaymentAccountUsecaseProvider = AddPaymentAccountUsecaseProvider._();
+
+final class AddPaymentAccountUsecaseProvider
+    extends
+        $FunctionalProvider<
+          AddPaymentAccountUsecase,
+          AddPaymentAccountUsecase,
+          AddPaymentAccountUsecase
+        >
+    with $Provider<AddPaymentAccountUsecase> {
+  const AddPaymentAccountUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'addPaymentAccountUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$addPaymentAccountUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<AddPaymentAccountUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AddPaymentAccountUsecase create(Ref ref) {
+    return addPaymentAccountUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AddPaymentAccountUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AddPaymentAccountUsecase>(value),
+    );
+  }
+}
+
+String _$addPaymentAccountUsecaseHash() =>
+    r'4d4be30fa1ecf716099038e1a01c6fe4534ccbf6';
+
+@ProviderFor(updatePaymentAccountUsecase)
+const updatePaymentAccountUsecaseProvider =
+    UpdatePaymentAccountUsecaseProvider._();
+
+final class UpdatePaymentAccountUsecaseProvider
+    extends
+        $FunctionalProvider<
+          UpdatePaymentAccountUsecase,
+          UpdatePaymentAccountUsecase,
+          UpdatePaymentAccountUsecase
+        >
+    with $Provider<UpdatePaymentAccountUsecase> {
+  const UpdatePaymentAccountUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updatePaymentAccountUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updatePaymentAccountUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdatePaymentAccountUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  UpdatePaymentAccountUsecase create(Ref ref) {
+    return updatePaymentAccountUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdatePaymentAccountUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdatePaymentAccountUsecase>(value),
+    );
+  }
+}
+
+String _$updatePaymentAccountUsecaseHash() =>
+    r'a8c183ce729d9542573728b7c940659931148532';
+
+@ProviderFor(deletePaymentAccountUsecase)
+const deletePaymentAccountUsecaseProvider =
+    DeletePaymentAccountUsecaseProvider._();
+
+final class DeletePaymentAccountUsecaseProvider
+    extends
+        $FunctionalProvider<
+          DeletePaymentAccountUsecase,
+          DeletePaymentAccountUsecase,
+          DeletePaymentAccountUsecase
+        >
+    with $Provider<DeletePaymentAccountUsecase> {
+  const DeletePaymentAccountUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'deletePaymentAccountUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$deletePaymentAccountUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<DeletePaymentAccountUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DeletePaymentAccountUsecase create(Ref ref) {
+    return deletePaymentAccountUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DeletePaymentAccountUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DeletePaymentAccountUsecase>(value),
+    );
+  }
+}
+
+String _$deletePaymentAccountUsecaseHash() =>
+    r'dc4e36f5d858f9b040338e608e506455ede31b78';

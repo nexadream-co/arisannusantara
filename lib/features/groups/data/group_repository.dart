@@ -175,18 +175,19 @@ mixin GroupDetailRepository {
         'periodsType': group.periodsType,
         'reward': group.reward,
         'dues': group.dues,
+        'maxWinner': group.maxWinner,
         'target': group.target,
         'createdBy': user.uid,
         'ownerIds': [user.uid], // current user as owner
-        'paymentAccounts': group.paymentAccounts
-            ?.map(
-              (e) => {
-                'accountName': e.accountName,
-                'bankName': e.bankName,
-                'bankNumber': e.bankNumber,
-              },
-            )
-            .toList(),
+        'paymentAccounts': group.paymentAccounts?.map((e) {
+          final accountId = _firestore.collection('tmp').doc().id;
+          return {
+            'id': accountId,
+            'accountName': e.accountName,
+            'bankName': e.bankName,
+            'bankNumber': e.bankNumber,
+          };
+        }).toList(),
         'adminFee': group.adminFee,
         'createdAt': now,
         'updatedAt': now,
@@ -380,8 +381,12 @@ mixin GroupDetailRepository {
         name: data['name'] as String?,
         description: data['description'] as String?,
         code: data['code'] as String?,
+        reward: data['reward'] as String?,
+        periodsType: data['periodsType'] as String?,
         periodsDate: parseFirestoreDate(data['periodsDate']),
         dues: (data['dues'] as num?)?.toDouble(),
+        maxWinner: data['maxWinner'] as int?,
+        adminFee: (data['adminFee'] as num?)?.toDouble(),
         target: (data['target'] as num?)?.toDouble(),
         paymentAccounts: (data['paymentAccounts'] as List<dynamic>?)
             ?.map(
@@ -395,6 +400,7 @@ mixin GroupDetailRepository {
               ),
             )
             .toList(),
+        createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
 
       return Result.success(group);

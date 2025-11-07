@@ -217,6 +217,19 @@ extension StringExtensions on String {
         return null;
     }
   }
+
+  String? toPeriodsTypeId() {
+    switch (toLowerCase()) {
+      case 'weekly':
+        return 'Mingguan';
+      case 'monthly':
+        return 'Bulanan';
+      case 'yearly':
+        return 'Tahunan';
+      default:
+        return null;
+    }
+  }
 }
 
 /*

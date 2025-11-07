@@ -64,11 +64,11 @@ class _LoadingContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const LoadingIconAnimation(),
-          Text(
-            message,
-            style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
+          // Text(
+          //   message,
+          //   style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
+          //   textAlign: TextAlign.center,
+          // ),
         ],
       ),
     );
@@ -78,7 +78,7 @@ class _LoadingContent extends StatelessWidget {
 class LoadingIconAnimation extends StatefulWidget {
   final double width;
   final double height;
-  const LoadingIconAnimation({super.key, this.width = 64, this.height = 64});
+  const LoadingIconAnimation({super.key, this.width = 56, this.height = 56});
 
   @override
   LoadingIconAnimationState createState() => LoadingIconAnimationState();

@@ -54,10 +54,10 @@ Future<void> showAppModalBottomSheet({
     enableDrag: enableDrag,
     backgroundColor: Colors.transparent,
     builder: (context) {
-      final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
-      return Padding(
-        padding: EdgeInsets.only(bottom: bottomPadding),
-        child: Container(
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: GestureDetector(onTap: () => Navigator.pop(context)),
+        bottomSheet: Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

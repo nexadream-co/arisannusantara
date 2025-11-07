@@ -36,7 +36,7 @@ mixin HistoryRepository {
 
         return HistoryEntity.fromJson({
           'id': data['id'],
-          'groupId': data['group_id'],
+          'groupId': data['groupId'],
           'date': (data['date'] as Timestamp?)?.toDate(),
           'notes': data['notes'],
           'amount': (data['amount'] as num?)?.toInt(),
@@ -45,12 +45,12 @@ mixin HistoryRepository {
           'members': (data['members'] as List?)
               ?.map((m) => MemberEntity.fromJson(Map<String, dynamic>.from(m)))
               .toList(),
-          'winnerIds': (data['winner_ids'] as List?)?.cast<String>(),
+          'winnerIds': (data['winnerIds'] as List?)?.cast<String>(),
           'winners': (data['winners'] as List?)
               ?.map((w) => MemberEntity.fromJson(Map<String, dynamic>.from(w)))
               .toList(),
-          'createdAt': (data['created_at'] as Timestamp?)?.toDate(),
-          'updatedAt': (data['updated_at'] as Timestamp?)?.toDate(),
+          'createdAt': (data['createdAt'] as Timestamp?)?.toDate(),
+          'updatedAt': (data['updatedAt'] as Timestamp?)?.toDate(),
         });
       }).toList();
 

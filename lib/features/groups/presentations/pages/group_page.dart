@@ -21,6 +21,7 @@ class GroupPage extends ConsumerStatefulWidget {
 }
 
 class _GroupPageState extends ConsumerState<GroupPage> {
+  bool showMore = false;
   @override
   Widget build(BuildContext context) {
     final groupDetail = ref.watch(getGroupDetailProvider(widget.groupId));
@@ -160,20 +161,36 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                         style: context.textStyles.body,
                       ),
                       SizedBox(height: context.spacing.lg),
-                      Text(
-                        group.description ?? '',
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyles.bodySmall.copyWith(
-                          color: context.colors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: context.spacing.xs),
-                      Text(
-                        'Lihat lebih',
-                        style: context.textStyles.bodySmall.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      StatefulBuilder(
+                        builder: (context, setState) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                group.description ?? '',
+                                maxLines: showMore ? null : 3,
+                                overflow: showMore
+                                    ? null
+                                    : TextOverflow.ellipsis,
+                                style: context.textStyles.bodySmall.copyWith(
+                                  color: context.colors.textSecondary,
+                                ),
+                              ),
+                              SizedBox(height: context.spacing.xs),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() => showMore = !showMore);
+                                },
+                                child: Text(
+                                  showMore ? 'Sembunyikan' : 'Lihat lebih',
+                                  style: context.textStyles.bodySmall.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                       SizedBox(height: context.spacing.sm),
                       Wrap(
@@ -190,12 +207,20 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                             ),
                           ),
                           SizedBox(width: context.spacing.sm),
-                          Icon(Icons.shuffle, color: context.colors.primary),
-                          Text(
-                            group.periodsDate?.toIdDate ?? '',
-                            style: context.textStyles.bodySmall.copyWith(
-                              color: context.colors.textSecondary,
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.shuffle,
+                                color: context.colors.primary,
+                              ),
+                              Text(
+                                group.periodsDate?.toIdDate ?? '',
+                                style: context.textStyles.bodySmall.copyWith(
+                                  color: context.colors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
                           SizedBox(width: context.spacing.sm),
                         ],

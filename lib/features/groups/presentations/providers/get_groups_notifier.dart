@@ -85,4 +85,9 @@ class GetGroupsNotifier extends _$GetGroupsNotifier {
   void reset() {
     state = const GetGroupsState();
   }
+
+  void refresh() {
+    reset();
+    fetchGroups();
+  }
 }

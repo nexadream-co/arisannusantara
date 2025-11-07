@@ -5,9 +5,11 @@ import '../../../auth/domain/entities/user_entity.dart';
 import '../../data/group_repository.dart';
 import '../../domain/entities/history_entity.dart';
 import '../../domain/entities/member_entity.dart';
+import '../../domain/usecases/add_payment_account_usecase.dart';
 import '../../domain/usecases/create_group_usecase.dart';
 import '../../domain/usecases/create_history_usecase.dart';
 import '../../domain/usecases/delete_member_usecase.dart';
+import '../../domain/usecases/delete_payment_account_usecase.dart';
 import '../../domain/usecases/get_group_detail_usecase.dart';
 import '../../domain/usecases/get_group_owners_usecase.dart';
 import '../../domain/usecases/get_groups_usecase.dart';
@@ -15,6 +17,7 @@ import '../../domain/usecases/get_histories_usecase.dart';
 import '../../domain/usecases/get_member_detail_usecase.dart';
 import '../../domain/usecases/get_members_usecase.dart';
 import '../../domain/usecases/update_member_usecase.dart';
+import '../../domain/usecases/update_payment_account_usecase.dart';
 
 part 'group_providers.g.dart';
 
@@ -92,4 +95,22 @@ UpdateMemberUsecase updateMemberUsecase(Ref ref) {
 DeleteMemberUsecase deleteMemberUsecase(Ref ref) {
   final repository = ref.read(groupRepositoryProvider);
   return DeleteMemberUsecase(repository: repository);
+}
+
+@riverpod
+AddPaymentAccountUsecase addPaymentAccountUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return AddPaymentAccountUsecase(repository: repository);
+}
+
+@riverpod
+UpdatePaymentAccountUsecase updatePaymentAccountUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return UpdatePaymentAccountUsecase(repository: repository);
+}
+
+@riverpod
+DeletePaymentAccountUsecase deletePaymentAccountUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return DeletePaymentAccountUsecase(repository: repository);
 }

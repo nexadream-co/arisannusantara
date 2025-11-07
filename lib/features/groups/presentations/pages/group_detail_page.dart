@@ -7,8 +7,13 @@ import '../../../../core/extensions/datetime_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../core/utils/custom_alert.dart';
+import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import '../../domain/entities/group_entity.dart';
+import '../../domain/entities/payment_account_entity.dart';
+import '../providers/get_group_detail_provider.dart';
 import '../providers/group_providers.dart';
 import 'group_manager_create_page.dart';
 import 'group_shuffle_winner_page.dart';
@@ -30,15 +35,21 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Infomasi Grup', style: context.textStyles.title),
+            Text('Informasi Grup', style: context.textStyles.title),
             SizedBox(height: context.spacing.md),
             _groupInformationItem(
               'Iuran',
               widget.group.dues?.toIdrWithPrefix ?? '',
             ),
-            _groupInformationItem('Periode', widget.group.periodsType ?? '-'),
+            _groupInformationItem(
+              'Periode',
+              widget.group.periodsType?.toPeriodsTypeId() ?? '-',
+            ),
             _groupInformationItem('Hadiah', widget.group.reward ?? '-'),
-            _groupInformationItem('Maksimal pemenang', '2 Orang'),
+            _groupInformationItem(
+              'Maksimal pemenang',
+              '${widget.group.maxWinner ?? 0} Orang',
+            ),
             _groupInformationItem(
               'Tanggal kocok',
               widget.group.periodsDate.toIdDate,
@@ -100,6 +111,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   Widget _groupPayment() {
+    final paymentAccounts = widget.group.paymentAccounts ?? [];
     return Column(
       children: [
         Row(
@@ -108,7 +120,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             Spacer(),
             TextButton(
               onPressed: () {
-                _addPayment();
+                _paymentAccountModal();
               },
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
               child: Wrap(
@@ -132,6 +144,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           ],
         ),
         Container(
+          width: double.infinity,
           margin: EdgeInsets.only(bottom: context.spacing.md),
           padding: EdgeInsets.symmetric(
             horizontal: context.spacing.md,
@@ -145,13 +158,19 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           child: Column(
             spacing: context.spacing.md,
             children: [
-              for (var i = 0; i < 3; i++)
+              if (paymentAccounts.isEmpty)
+                Text(
+                  'Belum ada akun pembayaran',
+                  textAlign: TextAlign.center,
+                  style: context.textStyles.body,
+                ),
+              for (var i = 0; i < paymentAccounts.length; i++)
                 Container(
-                  padding: i == 2
+                  padding: i == 2 || i == paymentAccounts.length - 1
                       ? null
                       : EdgeInsets.only(bottom: context.spacing.md),
                   decoration: BoxDecoration(
-                    border: i == 2
+                    border: i == 2 || i == paymentAccounts.length - 1
                         ? null
                         : Border(
                             bottom: BorderSide(color: context.colors.divider),
@@ -162,7 +181,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                       CircleAvatar(
                         backgroundColor: context.colors.surface,
                         child: Text(
-                          'AC',
+                          paymentAccounts[i].accountName?.initials ?? '',
                           style: context.textStyles.body.copyWith(
                             color: context.colors.primary,
                             fontWeight: FontWeight.bold,
@@ -176,7 +195,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'BCA - Yasmin Arhan',
+                              '${paymentAccounts[i].bankName} - ${paymentAccounts[i].accountName}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: context.textStyles.bodySmall.copyWith(
@@ -185,7 +204,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                             ),
                             SizedBox(height: context.spacing.xs),
                             Text(
-                              '3445466565',
+                              paymentAccounts[i].bankNumber ?? '',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: context.textStyles.bodySmall,
@@ -194,7 +213,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          _paymentAccountModal(account: paymentAccounts[i]);
+                        },
                         icon: Icon(
                           Icons.edit_outlined,
                           color: context.colors.primary,
@@ -229,259 +250,403 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     return Consumer(
       builder: (context, ref, child) {
         final provider = ref.watch(getGroupOwnersProvider(widget.group.id!));
-        provider.whenData((result) {
-          final groupOwners = result.resultValue ?? [];
-          return Column(
-            children: [
-              Row(
-                children: [
-                  Text('Pengelola', style: context.textStyles.title),
-                  Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      context.push(GroupManagerCreatePage.path);
-                    },
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                    child: Wrap(
-                      children: [
-                        Icon(
-                          Icons.add_circle_outlined,
-                          size: context.appSize.s16,
-                          color: context.colors.primary,
-                        ),
-                        SizedBox(width: context.appSize.s4),
-                        Text(
-                          'Tambah',
-                          style: context.textStyles.body.copyWith(
-                            color: context.colors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: context.spacing.md),
-                padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
-                child: Column(
-                  spacing: context.spacing.md,
+        return provider.when(
+          data: (result) {
+            final groupOwners = result.resultValue ?? [];
+            return Column(
+              children: [
+                Row(
                   children: [
-                    Container(
-                      margin: EdgeInsets.only(bottom: context.spacing.md),
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.spacing.sm,
-                        horizontal: context.spacing.md,
-                      ),
-                      decoration: BoxDecoration(
-                        color: context.colors.accent,
-                        borderRadius: BorderRadius.circular(
-                          context.radius.medium,
-                        ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    Text('Pengelola', style: context.textStyles.title),
+                    Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        context.push(GroupManagerCreatePage.path);
+                      },
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: Wrap(
                         children: [
-                          Icon(Icons.info_outline),
-                          SizedBox(width: context.spacing.sm),
-                          Expanded(
-                            child: Text(
-                              'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                              style: context.textStyles.body,
+                          Icon(
+                            Icons.add_circle_outlined,
+                            size: context.appSize.s16,
+                            color: context.colors.primary,
+                          ),
+                          SizedBox(width: context.appSize.s4),
+                          Text(
+                            'Tambah',
+                            style: context.textStyles.body.copyWith(
+                              color: context.colors.primary,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    for (var i = 0; i < groupOwners.length; i++)
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.only(bottom: context.spacing.md),
+                  padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
+                  child: Column(
+                    spacing: context.spacing.md,
+                    children: [
                       Container(
-                        padding: i == 2
-                            ? null
-                            : EdgeInsets.only(bottom: context.spacing.md),
+                        margin: EdgeInsets.only(bottom: context.spacing.md),
+                        padding: EdgeInsets.symmetric(
+                          vertical: context.spacing.sm,
+                          horizontal: context.spacing.md,
+                        ),
                         decoration: BoxDecoration(
-                          border: i == 2
-                              ? null
-                              : Border(
-                                  bottom: BorderSide(
-                                    color: context.colors.divider,
-                                  ),
-                                ),
+                          color: context.colors.accent,
+                          borderRadius: BorderRadius.circular(
+                            context.radius.medium,
+                          ),
                         ),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            CircleAvatar(
-                              backgroundColor: context.colors.surface,
-                              child: Text(
-                                groupOwners[i].name?.initials ?? '',
-                                style: context.textStyles.body.copyWith(
-                                  color: context.colors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                            Icon(Icons.info_outline),
                             SizedBox(width: context.spacing.sm),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    groupOwners[i].name ?? '',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(height: context.spacing.xs),
-                                  Text(
-                                    groupOwners[i].phoneNumber ??
-                                        groupOwners[i].email ??
-                                        '-',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: context.spacing.sm,
-                                ),
-                                minimumSize: Size(0, 0),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: context.spacing.md,
-                                ),
-                                child: Text('Hubungi'),
+                              child: Text(
+                                'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                                style: context.textStyles.body,
                               ),
                             ),
                           ],
                         ),
                       ),
-                  ],
+                      for (var i = 0; i < groupOwners.length; i++)
+                        Container(
+                          padding: i == 2
+                              ? null
+                              : EdgeInsets.only(bottom: context.spacing.md),
+                          decoration: BoxDecoration(
+                            border: i == 2
+                                ? null
+                                : Border(
+                                    bottom: BorderSide(
+                                      color: context.colors.divider,
+                                    ),
+                                  ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: context.colors.surface,
+                                child: Text(
+                                  groupOwners[i].name?.initials ?? '',
+                                  style: context.textStyles.body.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: context.spacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      groupOwners[i].name ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    SizedBox(height: context.spacing.xs),
+                                    Text(
+                                      groupOwners[i].phoneNumber ??
+                                          groupOwners[i].email ??
+                                          '-',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: groupOwners.length == 1
+                                    ? null
+                                    : () {},
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: groupOwners.length == 1
+                                      ? null
+                                      : context.colors.primary,
+                                ),
+                              ),
+                              OutlinedButton(
+                                onPressed: () {},
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: context.spacing.sm,
+                                  ),
+                                  minimumSize: Size(0, 0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: context.spacing.md,
+                                  ),
+                                  child: Text('Hubungi'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        });
-        return const SizedBox();
+              ],
+            );
+          },
+          error: (_, __) => const SizedBox(),
+          loading: () => const SizedBox(),
+        );
       },
     );
   }
 
-  void _addPayment() {
+  void _paymentAccountModal({PaymentAccountEntity? account}) {
+    final formKey = GlobalKey<FormState>();
+    final accountNameController = TextEditingController(
+      text: account?.accountName,
+    );
+    final bankNameController = TextEditingController(text: account?.bankName);
+    final bankNumberController = TextEditingController(
+      text: account?.bankNumber,
+    );
+
     showAppModalBottomSheet(
       context: context,
       child: Container(
         padding: EdgeInsets.all(context.spacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tambah Metode Pembayaran',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyles.title.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.primary,
-                  ),
-                ),
-                Text(
-                  'Masukkan informasi pembayaran grup arisan anda',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyles.body,
-                ),
-              ],
-            ),
-            SizedBox(height: context.appSize.s16),
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: context.spacing.sm,
-                horizontal: context.spacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: context.colors.accent,
-                borderRadius: BorderRadius.circular(context.radius.medium),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline),
-                  SizedBox(width: context.spacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                      style: context.textStyles.body,
+                  Text(
+                    'Tambah Metode Pembayaran',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.title.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.primary,
                     ),
+                  ),
+                  Text(
+                    'Masukkan informasi pembayaran grup arisan anda',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.body,
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: context.appSize.s16),
-            _textField(label: 'Nama', hintText: 'Masukkan nama rekening...'),
-            _textField(
-              label: 'Nomor Rekening',
-              hintText: 'Masukkan nomor rekening...',
-            ),
-            _textField(label: 'Bank', hintText: 'Masukkan nama bank...'),
-
-            Container(
-              margin: EdgeInsets.only(
-                top: context.spacing.lg,
-                bottom: context.spacing.sm,
-              ),
-              child: Row(
-                spacing: context.spacing.sm,
-                children: [
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.spacing.md,
-                        horizontal: context.spacing.xl,
+              SizedBox(height: context.appSize.s16),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  vertical: context.spacing.sm,
+                  horizontal: context.spacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: context.colors.accent,
+                  borderRadius: BorderRadius.circular(context.radius.medium),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.info_outline),
+                    SizedBox(width: context.spacing.sm),
+                    Expanded(
+                      child: Text(
+                        'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                        style: context.textStyles.body,
                       ),
-                      foregroundColor: context.colors.error,
-                      side: BorderSide(color: context.colors.error, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          context.radius.medium,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: context.appSize.s16),
+              _textField(
+                controller: accountNameController,
+                label: 'Nama',
+                hintText: 'Masukkan nama rekening...',
+                required: true,
+              ),
+              _textField(
+                controller: bankNumberController,
+                label: 'Nomor Rekening',
+                hintText: 'Masukkan nomor rekening...',
+                required: true,
+              ),
+              _textField(
+                controller: bankNameController,
+                label: 'Bank',
+                hintText: 'Masukkan nama bank...',
+                required: true,
+              ),
+
+              Container(
+                margin: EdgeInsets.only(
+                  top: context.spacing.lg,
+                  bottom: context.spacing.sm,
+                ),
+                child: Row(
+                  spacing: context.spacing.sm,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        // Close modal
+                        if (account == null) {
+                          Navigator.pop(context);
+                          return;
+                        }
+
+                        // Delete payment account
+                        CustomAlert.show(
+                          context,
+                          title: 'Hapus Metode Pembayaran',
+                          description:
+                              'Apakah anda yakin ingin menghapus metode pembayaran ini?',
+                          onYes: () {
+                            LoadingOverlay.show(context);
+                            ref
+                                .read(deletePaymentAccountUsecaseProvider)
+                                .call(
+                                  groupId: widget.group.id!,
+                                  accountId: account.id!,
+                                )
+                                .then((result) {
+                                  LoadingOverlay.hide();
+                                  if (result.isSuccess) {
+                                    Navigator.pop(context);
+                                    CustomSnackbar.success(
+                                      message: result.resultValue,
+                                    );
+
+                                    ref.invalidate(
+                                      getGroupDetailProvider(widget.group.id!),
+                                    );
+                                  } else {
+                                    CustomSnackbar.error(
+                                      message: result.errorMessage,
+                                    );
+                                  }
+                                });
+                          },
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: context.spacing.md,
+                          horizontal: context.spacing.xl,
+                        ),
+                        foregroundColor: context.colors.error,
+                        side: BorderSide(
+                          color: context.colors.error,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            context.radius.medium,
+                          ),
                         ),
                       ),
+                      child: Text(account == null ? 'Batal' : 'Hapus'),
                     ),
-                    child: Text('Hapus'),
-                  ),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () {},
-                      child: Text('Simpan'),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          if (!formKey.currentState!.validate()) return;
+                          LoadingOverlay.show(context);
+                          final PaymentAccountEntity paymentAccount =
+                              PaymentAccountEntity(
+                                id: account?.id,
+                                accountName: accountNameController.text,
+                                bankName: bankNameController.text,
+                                bankNumber: bankNumberController.text,
+                              );
+
+                          LoadingOverlay.show(context);
+                          if (account != null) {
+                            // Update payment account
+                            ref
+                                .read(updatePaymentAccountUsecaseProvider)
+                                .call(
+                                  groupId: widget.group.id!,
+                                  account: paymentAccount,
+                                )
+                                .then((result) {
+                                  LoadingOverlay.hide();
+                                  if (result.isSuccess) {
+                                    Navigator.pop(context);
+                                    CustomSnackbar.success(
+                                      message: result.resultValue,
+                                    );
+
+                                    ref.invalidate(
+                                      getGroupDetailProvider(widget.group.id!),
+                                    );
+                                  } else {
+                                    CustomSnackbar.error(
+                                      message: result.errorMessage,
+                                    );
+                                  }
+                                });
+                          } else {
+                            // Create payment account
+                            ref
+                                .read(addPaymentAccountUsecaseProvider)
+                                .call(
+                                  groupId: widget.group.id!,
+                                  account: paymentAccount,
+                                )
+                                .then((result) {
+                                  LoadingOverlay.hide();
+                                  if (result.isSuccess) {
+                                    Navigator.pop(context);
+                                    CustomSnackbar.success(
+                                      message: result.resultValue,
+                                    );
+
+                                    ref.invalidate(
+                                      getGroupDetailProvider(widget.group.id!),
+                                    );
+                                  } else {
+                                    CustomSnackbar.error(
+                                      message: result.errorMessage,
+                                    );
+                                  }
+                                });
+                          }
+                        },
+                        child: Text('Simpan'),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _textField({required String label, required String hintText}) {
+  Widget _textField({
+    TextEditingController? controller,
+    bool required = false,
+    required String label,
+    required String hintText,
+  }) {
     return Container(
       padding: EdgeInsets.only(bottom: context.spacing.sm),
       margin: EdgeInsets.only(bottom: context.spacing.xs),
@@ -489,13 +654,17 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: context.spacing.md,
         children: [
-          Text(label, style: context.textStyles.body),
+          Expanded(flex: 1, child: Text(label, style: context.textStyles.body)),
           Expanded(
+            flex: 2,
             child: TextfieldWithoutBorderWidget(
+              maxLines: 1,
+              controller: controller,
+              required: required,
               hintText: hintText,
-              textAlign: TextAlign.end,
             ),
           ),
         ],

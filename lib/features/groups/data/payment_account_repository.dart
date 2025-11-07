@@ -29,25 +29,21 @@ mixin PaymentAccountRepository {
         return const Result.failed('Grup tidak ditemukan');
       }
 
-      // Create a new document reference for the payment account
-      final accountRef = groupRef
-          .collection(DBCollections.paymentAccounts)
-          .doc();
+      // Create a new unique ID for the payment account
+      final accountId = _firestore.collection('tmp').doc().id;
 
-      final now = FieldValue.serverTimestamp();
-
-      // Prepare data manually so we can use server timestamp
-      final data = {
-        'id': accountRef.id,
+      // Prepare payment account data
+      final newAccount = {
+        'id': accountId,
         'accountName': account.accountName,
         'bankName': account.bankName,
         'bankNumber': account.bankNumber,
-        'createdAt': now,
-        'updatedAt': now,
       };
 
-      // Save to Firestore
-      await accountRef.set(data);
+      // Add the new account to the group's paymentAccounts array
+      await groupRef.update({
+        'paymentAccounts': FieldValue.arrayUnion([newAccount]),
+      });
 
       return const Result.success("Akun pembayaran berhasil ditambahkan");
     } on FirebaseException catch (e) {
@@ -73,25 +69,36 @@ mixin PaymentAccountRepository {
         return const Result.failed('ID akun pembayaran tidak valid');
       }
 
-      final accountRef = _firestore
-          .collection(DBCollections.groups)
-          .doc(groupId)
-          .collection(DBCollections.paymentAccounts)
-          .doc(account.id);
+      final groupRef = _firestore.collection(DBCollections.groups).doc(groupId);
 
-      // Check if the document exists
-      final accountSnap = await accountRef.get();
-      if (!accountSnap.exists) {
+      // Check if the group exists
+      final groupSnap = await groupRef.get();
+      if (!groupSnap.exists) {
+        return const Result.failed('Grup tidak ditemukan');
+      }
+
+      final data = groupSnap.data();
+      final accounts = (data?['paymentAccounts'] as List<dynamic>?) ?? [];
+
+      // Find index of account to update
+      final index = accounts.indexWhere((a) => a['id'] == account.id);
+      if (index == -1) {
         return const Result.failed('Akun pembayaran tidak ditemukan');
       }
 
-      // Update fields and set updatedAt using server time
-      await accountRef.update({
+      // Create updated account map
+      final updatedAccount = {
+        ...accounts[index],
         if (account.accountName != null) 'accountName': account.accountName,
         if (account.bankName != null) 'bankName': account.bankName,
         if (account.bankNumber != null) 'bankNumber': account.bankNumber,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      };
+
+      // Replace old account with new one
+      accounts[index] = updatedAccount;
+
+      // Save updated list back to Firestore
+      await groupRef.update({'paymentAccounts': accounts});
 
       return const Result.success("Akun pembayaran berhasil diperbarui");
     } on FirebaseException catch (e) {
@@ -113,20 +120,28 @@ mixin PaymentAccountRepository {
         return const Result.failed('Pengguna tidak ditemukan');
       }
 
-      final accountRef = _firestore
-          .collection(DBCollections.groups)
-          .doc(groupId)
-          .collection(DBCollections.paymentAccounts)
-          .doc(accountId);
+      final groupRef = _firestore.collection(DBCollections.groups).doc(groupId);
 
-      // Check if the payment account exists
-      final accountSnap = await accountRef.get();
-      if (!accountSnap.exists) {
+      // Check if the group exists
+      final groupSnap = await groupRef.get();
+      if (!groupSnap.exists) {
+        return const Result.failed('Grup tidak ditemukan');
+      }
+
+      final data = groupSnap.data();
+      final accounts = (data?['paymentAccounts'] as List<dynamic>?) ?? [];
+
+      // Find target account
+      final index = accounts.indexWhere((a) => a['id'] == accountId);
+      if (index == -1) {
         return const Result.failed('Akun pembayaran tidak ditemukan');
       }
 
-      // Delete the document
-      await accountRef.delete();
+      // Remove target account
+      accounts.removeAt(index);
+
+      // Update Firestore document
+      await groupRef.update({'paymentAccounts': accounts});
 
       return const Result.success("Akun pembayaran berhasil dihapus");
     } on FirebaseException catch (e) {
