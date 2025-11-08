@@ -38,6 +38,7 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
     final authStateAsync = ref.read(authStateProvider);
     authStateAsync.when(
       data: (user) {
+        ref.read(getInvitationsProvider.notifier).reset();
         ref
             .read(getInvitationsProvider.notifier)
             .fetchInvitations(
@@ -52,223 +53,429 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(context.spacing.lg),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(context.assets.textureBg),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Undangan',
-                            maxLines: 1,
-                            style: context.textStyles.header,
-                          ),
-                          Text(
-                            'Semua undangan peserta',
-                            maxLines: 1,
-                            style: context.textStyles.body,
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.info_outlined,
-                        color: context.colors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              StatefulBuilder(
-                builder: (context, setState) {
-                  return Container(
-                    margin: EdgeInsets.symmetric(vertical: context.spacing.lg),
-                    height: context.appSize.s32,
+    final auth = ref.watch(authStateProvider);
+    return auth.when(
+      loading: () => Scaffold(body: Center(child: LoadingIconAnimation())),
+      error: (_, __) => Scaffold(body: Center(child: LoadingIconAnimation())),
+      data: (user) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(context.spacing.lg),
                     width: double.infinity,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.spacing.lg,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(context.assets.textureBg),
+                        fit: BoxFit.cover,
                       ),
-                      children: InvitationStatus.values.map((status) {
-                        final isSelected = status == selectedStatus;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedStatus = status;
-                            });
-                            refresh();
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: context.spacing.sm),
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: context.spacing.md,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? context.colors.secondary
-                                  : Colors.transparent,
-                              border: isSelected
-                                  ? null
-                                  : Border.all(color: context.colors.secondary),
-                              borderRadius: BorderRadius.circular(
-                                context.radius.medium,
-                              ),
-                            ),
-                            child: Text(
-                              status.label,
-                              style: context.textStyles.body.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? Colors.white
-                                    : context.colors.secondary,
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
                     ),
-                  );
-                },
-              ),
-
-              Consumer(
-                builder: (context, ref, child) {
-                  final authStateAsync = ref.watch(authStateProvider);
-
-                  return authStateAsync.when(
-                    loading: () => const CircularProgressIndicator(),
-                    error: (e, _) => const SizedBox(),
-                    data: (user) {
-                      return Consumer(
-                        builder: (context, ref, child) {
-                          final state = ref.watch(getInvitationsProvider);
-                          final notifier = ref.read(
-                            getInvitationsProvider.notifier,
-                          );
-
-                          return Column(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              if (state.invitations.isNotEmpty)
-                                ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  padding: EdgeInsets.only(
-                                    left: context.spacing.lg,
-                                    right: context.spacing.lg,
-                                    bottom: context.spacing.lg,
-                                  ),
-                                  shrinkWrap: true,
-                                  itemCount: state.invitations.length,
-                                  itemBuilder: (context, index) {
-                                    final invitation = state.invitations[index];
+                              Text(
+                                'Undangan',
+                                maxLines: 1,
+                                style: context.textStyles.header,
+                              ),
+                              Text(
+                                'Semua undangan peserta',
+                                maxLines: 1,
+                                style: context.textStyles.body,
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.info_outlined,
+                            color: context.colors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                                    return Container(
-                                      padding: EdgeInsets.only(
-                                        bottom: context.spacing.md,
-                                      ),
-                                      margin: EdgeInsets.only(
-                                        bottom: context.spacing.md,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: context.colors.divider,
-                                          ),
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          vertical: context.spacing.lg,
+                        ),
+                        height: context.appSize.s32,
+                        width: double.infinity,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.spacing.lg,
+                          ),
+                          children: InvitationStatus.values.map((status) {
+                            final isSelected = status == selectedStatus;
+
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedStatus = status;
+                                });
+                                refresh();
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                  right: context.spacing.sm,
+                                ),
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.spacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? context.colors.secondary
+                                      : Colors.transparent,
+                                  border: isSelected
+                                      ? null
+                                      : Border.all(
+                                          color: context.colors.secondary,
                                         ),
+                                  borderRadius: BorderRadius.circular(
+                                    context.radius.medium,
+                                  ),
+                                ),
+                                child: Text(
+                                  status.label,
+                                  style: context.textStyles.body.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : context.colors.secondary,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final authStateAsync = ref.watch(authStateProvider);
+
+                      return authStateAsync.when(
+                        loading: () => const CircularProgressIndicator(),
+                        error: (e, _) => const SizedBox(),
+                        data: (user) {
+                          return Consumer(
+                            builder: (context, ref, child) {
+                              final state = ref.watch(getInvitationsProvider);
+                              final notifier = ref.read(
+                                getInvitationsProvider.notifier,
+                              );
+
+                              return Column(
+                                children: [
+                                  if (state.invitations.isNotEmpty)
+                                    ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      padding: EdgeInsets.only(
+                                        left: context.spacing.lg,
+                                        right: context.spacing.lg,
+                                        bottom: context.spacing.lg,
                                       ),
-                                      child: Column(
-                                        children: [
-                                          Row(
+                                      shrinkWrap: true,
+                                      itemCount: state.invitations.length,
+                                      itemBuilder: (context, index) {
+                                        final invitation =
+                                            state.invitations[index];
+
+                                        return Container(
+                                          padding: EdgeInsets.only(
+                                            bottom: context.spacing.md,
+                                          ),
+                                          margin: EdgeInsets.only(
+                                            bottom: context.spacing.md,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: context.colors.divider,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Column(
                                             children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  boxShadow: [
-                                                    context.shadow.small,
-                                                  ],
-                                                ),
-                                                child: CircleAvatar(
-                                                  backgroundColor: Colors.white,
-                                                  child: Text(
-                                                    invitation
-                                                            .user
-                                                            ?.name
-                                                            ?.initials ??
-                                                        '',
-                                                    style: context
-                                                        .textStyles
-                                                        .body
-                                                        .copyWith(
-                                                          color: context
-                                                              .colors
-                                                              .primary,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      boxShadow: [
+                                                        context.shadow.small,
+                                                      ],
+                                                    ),
+                                                    child: CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      child: Text(
+                                                        invitation
+                                                                .user
+                                                                ?.name
+                                                                ?.initials ??
+                                                            '',
+                                                        style: context
+                                                            .textStyles
+                                                            .body
+                                                            .copyWith(
+                                                              color: context
+                                                                  .colors
+                                                                  .primary,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: context.spacing.sm,
-                                              ),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
+                                                  SizedBox(
+                                                    width: context.spacing.sm,
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          invitation
+                                                                  .user
+                                                                  ?.name ??
+                                                              '',
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: context
+                                                              .textStyles
+                                                              .body
+                                                              .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: context
+                                                                    .colors
+                                                                    .primary,
+                                                              ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: context
+                                                              .spacing
+                                                              .xs,
+                                                        ),
+                                                        Text(
+                                                          invitation
+                                                                  .user
+                                                                  ?.email ??
+                                                              '',
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: context
+                                                              .textStyles
+                                                              .bodySmall,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  if (invitation.status ==
+                                                      InvitationStatus
+                                                          .approved
+                                                          .name)
                                                     Text(
-                                                      invitation.user?.name ??
-                                                          '',
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                      'Disetujui',
                                                       style: context
                                                           .textStyles
-                                                          .body
+                                                          .title
                                                           .copyWith(
-                                                            fontWeight:
-                                                                FontWeight.bold,
                                                             color: context
                                                                 .colors
-                                                                .primary,
+                                                                .success,
                                                           ),
                                                     ),
-                                                    SizedBox(
-                                                      height:
-                                                          context.spacing.xs,
+                                                  if (invitation.status ==
+                                                      InvitationStatus
+                                                          .rejected
+                                                          .name)
+                                                    Text(
+                                                      'Ditolak',
+                                                      style: context
+                                                          .textStyles
+                                                          .title
+                                                          .copyWith(
+                                                            color: context
+                                                                .colors
+                                                                .error,
+                                                          ),
+                                                    ),
+                                                  if (invitation.status ==
+                                                          InvitationStatus
+                                                              .pending
+                                                              .name &&
+                                                      !(invitation.groupOwnerIds ??
+                                                              [])
+                                                          .contains(user?.id))
+                                                    Text(
+                                                      'Menunggu',
+                                                      style: context
+                                                          .textStyles
+                                                          .title
+                                                          .copyWith(
+                                                            color: context
+                                                                .colors
+                                                                .warning,
+                                                          ),
+                                                    ),
+                                                  if (invitation.status ==
+                                                          InvitationStatus
+                                                              .pending
+                                                              .name &&
+                                                      (invitation.groupOwnerIds ??
+                                                              [])
+                                                          .contains(user?.id))
+                                                    Row(
+                                                      children: [
+                                                        OutlinedButton(
+                                                          onPressed: () {
+                                                            updateInvitationStatus(
+                                                              invitation:
+                                                                  invitation,
+                                                              status:
+                                                                  InvitationStatus
+                                                                      .rejected,
+                                                            );
+                                                          },
+                                                          style: OutlinedButton.styleFrom(
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      context
+                                                                          .spacing
+                                                                          .md,
+                                                                  vertical:
+                                                                      context
+                                                                          .spacing
+                                                                          .sm,
+                                                                ),
+                                                            minimumSize:
+                                                                Size.zero,
+                                                          ),
+                                                          child: Text('Tolak'),
+                                                        ),
+                                                        SizedBox(
+                                                          width: context
+                                                              .spacing
+                                                              .sm,
+                                                        ),
+                                                        FilledButton(
+                                                          onPressed: () {
+                                                            updateInvitationStatus(
+                                                              invitation:
+                                                                  invitation,
+                                                              status:
+                                                                  InvitationStatus
+                                                                      .approved,
+                                                            );
+                                                          },
+                                                          style: FilledButton.styleFrom(
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      context
+                                                                          .spacing
+                                                                          .md,
+                                                                  vertical:
+                                                                      context
+                                                                          .spacing
+                                                                          .sm,
+                                                                ),
+                                                            minimumSize:
+                                                                Size.zero,
+                                                          ),
+                                                          child: Text('Terima'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: context.appSize.s16,
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                  left: context.spacing.sm,
+                                                  right: context.spacing.sm,
+                                                ),
+                                                child: Row(
+                                                  spacing: context.spacing.xs,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 1,
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            invitation
+                                                                    .group
+                                                                    ?.name ??
+                                                                '',
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: context
+                                                                .textStyles
+                                                                .bodySmall
+                                                                .copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                          ),
+                                                          Text(
+                                                            invitation
+                                                                    .group
+                                                                    ?.code ??
+                                                                '',
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: context
+                                                                .textStyles
+                                                                .bodySmall,
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                     Text(
-                                                      invitation.user?.email ??
+                                                      invitation
+                                                              .createdAt
+                                                              ?.toIdDate ??
                                                           '',
-                                                      maxLines: 1,
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                       style: context
@@ -278,169 +485,74 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
                                                   ],
                                                 ),
                                               ),
-                                              OutlinedButton(
-                                                onPressed: () {
-                                                  updateInvitationStatus(
-                                                    invitation: invitation,
-                                                    status: InvitationStatus
-                                                        .rejected,
-                                                  );
-                                                },
-                                                style: OutlinedButton.styleFrom(
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        context.spacing.md,
-                                                    vertical:
-                                                        context.spacing.sm,
-                                                  ),
-                                                  minimumSize: Size.zero,
-                                                ),
-                                                child: Text('Tolak'),
-                                              ),
-                                              SizedBox(
-                                                width: context.spacing.sm,
-                                              ),
-                                              FilledButton(
-                                                onPressed: () {
-                                                  updateInvitationStatus(
-                                                    invitation: invitation,
-                                                    status: InvitationStatus
-                                                        .approved,
-                                                  );
-                                                },
-                                                style: FilledButton.styleFrom(
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        context.spacing.md,
-                                                    vertical:
-                                                        context.spacing.sm,
-                                                  ),
-                                                  minimumSize: Size.zero,
-                                                ),
-                                                child: Text('Terima'),
-                                              ),
                                             ],
                                           ),
-                                          SizedBox(height: context.appSize.s16),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                              left: context.spacing.sm,
-                                              right: context.spacing.sm,
-                                            ),
-                                            child: Row(
-                                              spacing: context.spacing.xs,
-                                              children: [
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        invitation
-                                                                .group
-                                                                ?.name ??
-                                                            '',
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: context
-                                                            .textStyles
-                                                            .bodySmall
-                                                            .copyWith(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                      ),
-                                                      Text(
-                                                        invitation
-                                                                .group
-                                                                ?.code ??
-                                                            '',
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: context
-                                                            .textStyles
-                                                            .bodySmall,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  invitation
-                                                          .createdAt
-                                                          ?.toIdDate ??
-                                                      '',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: context
-                                                      .textStyles
-                                                      .bodySmall,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                        );
+                                      },
+                                    ),
+
+                                  if (state.invitations.isEmpty &&
+                                      !state.isLoading)
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Undangan tidak ditemukan',
+                                        style: context.textStyles.body,
                                       ),
-                                    );
-                                  },
-                                ),
-
-                              if (state.invitations.isEmpty && !state.isLoading)
-                                Container(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Undangan tidak ditemukan',
-                                    style: context.textStyles.body,
-                                  ),
-                                ),
-
-                              if (state.isLoading)
-                                Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(context.spacing.lg),
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              else if (state.hasMore &&
-                                  state.invitations.isNotEmpty)
-                                Container(
-                                  width: double.infinity,
-                                  margin: EdgeInsets.symmetric(
-                                    horizontal: context.spacing.md,
-                                  ),
-                                  child: OutlinedButton(
-                                    onPressed: () => notifier.loadMore(
-                                      status: selectedStatus.name,
-                                      forOwner: user?.role != AppUserRole.user,
                                     ),
-                                    child: const Text('Muat Lebih Banyak'),
-                                  ),
-                                ),
 
-                              if (state.error != null)
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      state.error!,
-                                      style: const TextStyle(color: Colors.red),
+                                  if (state.isLoading)
+                                    Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(
+                                          context.spacing.lg,
+                                        ),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  else if (state.hasMore &&
+                                      state.invitations.isNotEmpty)
+                                    Container(
+                                      width: double.infinity,
+                                      margin: EdgeInsets.symmetric(
+                                        horizontal: context.spacing.md,
+                                      ),
+                                      child: OutlinedButton(
+                                        onPressed: () => notifier.loadMore(
+                                          status: selectedStatus.name,
+                                          forOwner:
+                                              user?.role != AppUserRole.user,
+                                        ),
+                                        child: const Text('Muat Lebih Banyak'),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                            ],
+
+                                  if (state.error != null)
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8),
+                                        child: Text(
+                                          state.error!,
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
                           );
                         },
                       );
                     },
-                  );
-                },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -459,6 +571,9 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
           (result) {
             LoadingOverlay.hide();
             if (result.isSuccess) {
+              setState(() {
+                selectedStatus = status;
+              });
               refresh();
               CustomSnackbar.success(message: result.resultValue);
             } else {

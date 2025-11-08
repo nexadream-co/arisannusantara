@@ -26,7 +26,11 @@ import '../../features/term_conditions/presentations/pages/term_condition_page.d
 
 final pageRoutes = [
   GoRoute(path: Splash.path, builder: (context, state) => Splash()),
-  GoRoute(path: UserLayout.path, builder: (context, state) => UserLayout()),
+  GoRoute(
+    path: UserLayout.path,
+    builder: (context, state) =>
+        UserLayout(selectedIndex: (state.extra as int?) ?? 0),
+  ),
   GoRoute(
     path: SuperadminLayout.path,
     builder: (context, state) => SuperadminLayout(),

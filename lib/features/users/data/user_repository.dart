@@ -108,8 +108,8 @@ class UserRepository {
         'phoneNumber': phoneNumber,
         'role': role,
         'emailVerified': false,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'createdAt': DateTime.now().toString(),
+        'updatedAt': DateTime.now().toString(),
       };
 
       await _firestore
@@ -154,7 +154,7 @@ class UserRepository {
         if (photoUrl != null) 'photoUrl': photoUrl,
         if (phoneNumber != null) 'phoneNumber': phoneNumber,
         if (role != null) 'role': role,
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': DateTime.now().toString(),
       };
 
       if (updates.isEmpty) {

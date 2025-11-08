@@ -6,8 +6,15 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
+import '../../../../core/layouts/user_layout.dart';
+import '../../../../core/utils/custom_alert.dart';
+import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/debouncer.dart';
+import '../../../../core/utils/loading_overlay.dart';
+import '../../../auth/presentations/provider/auth_state_provider.dart';
+import '../../../invitations/presentations/providers/invitation_providers.dart';
 import '../providers/get_groups_notifier.dart';
+import 'group_page.dart';
 
 class SearchGroupPage extends ConsumerStatefulWidget {
   static const String path = '/search-group';
@@ -38,6 +45,7 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
       borderRadius: BorderRadius.circular(context.radius.medium),
       borderSide: BorderSide.none,
     );
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -80,6 +88,18 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
             builder: (context, ref, child) {
               final state = ref.watch(getGroupsProvider);
               final notifier = ref.read(getGroupsProvider.notifier);
+
+              final auth = ref.watch(authStateProvider);
+
+              late String? userId;
+              auth.when(
+                loading: () => const SizedBox(),
+                error: (_, __) => const SizedBox(),
+                data: (user) {
+                  userId = user?.id;
+                },
+              );
+
               return Column(
                 children: [
                   if (state.groups.isNotEmpty)
@@ -147,18 +167,72 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
                                         ],
                                       ),
                                     ),
-                                    OutlinedButton(
-                                      onPressed: () {},
-                                      style: OutlinedButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: context.spacing.md,
-                                        ),
-                                        child: Text('Gabung'),
-                                      ),
-                                    ),
+                                    (group.isJoined == true ||
+                                            group.isOwned == true)
+                                        ? OutlinedButton(
+                                            onPressed: () {
+                                              context.pop();
+                                              context.push(
+                                                GroupPage.path,
+                                                extra: group.id,
+                                              );
+                                            },
+                                            style: OutlinedButton.styleFrom(
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: context.spacing.md,
+                                              ),
+                                              child: Text('Lihat Detail'),
+                                            ),
+                                          )
+                                        : OutlinedButton(
+                                            onPressed: () {
+                                              CustomAlert.show(
+                                                context,
+                                                title: 'Gabung Grup',
+                                                description:
+                                                    'Apakah kamu yakin ingin bergabung dengan grup ini?',
+                                                onYes: () async {
+                                                  LoadingOverlay.show(context);
+                                                  ref
+                                                      .read(
+                                                        createInvitationUsecaseProvider,
+                                                      )
+                                                      .call(groupId: group.id!)
+                                                      .then((result) {
+                                                        LoadingOverlay.hide();
+                                                        if (result.isSuccess) {
+                                                          context
+                                                              .pushReplacement(
+                                                                UserLayout.path,
+                                                                extra: 1,
+                                                              );
+                                                          CustomSnackbar.success(
+                                                            message: result
+                                                                .resultValue,
+                                                          );
+                                                        } else {
+                                                          CustomSnackbar.error(
+                                                            message: result
+                                                                .errorMessage,
+                                                          );
+                                                        }
+                                                      });
+                                                },
+                                              );
+                                            },
+                                            style: OutlinedButton.styleFrom(
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: context.spacing.md,
+                                              ),
+                                              child: Text('Gabung'),
+                                            ),
+                                          ),
                                   ],
                                 ),
                                 SizedBox(height: context.appSize.s16),
@@ -183,7 +257,13 @@ class _SearchGroupPageState extends ConsumerState<SearchGroupPage> {
                                                   context.textStyles.bodySmall,
                                             ),
                                             Text(
-                                              'Belum Tergabung',
+                                              (group.memberIds ?? []).contains(
+                                                        userId,
+                                                      ) ||
+                                                      (group.owners ?? [])
+                                                          .contains(userId)
+                                                  ? 'Tergabung'
+                                                  : 'Belum Tergabung',
                                               overflow: TextOverflow.ellipsis,
                                               style: context
                                                   .textStyles

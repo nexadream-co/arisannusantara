@@ -33,7 +33,7 @@ class ProfileRepository {
         'name': name,
         'phoneNumber': phoneNumber,
         'gender': gender,
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': DateTime.now().toString(),
       });
 
       return const Result.success('Profil berhasil diperbarui');

@@ -8,6 +8,7 @@ import '../../../config/enums/group_filter.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../../../core/utils/generate_search_index.dart';
 import '../../../core/utils/helpers.dart';
 import '../../auth/domain/entities/user_entity.dart';
@@ -114,6 +115,8 @@ mixin GroupDetailRepository {
           name: data['name'] as String?,
           description: data['description'] as String?,
           code: data['code'] as String?,
+          memberIds: data['memberIds']?.cast<String>() ?? [],
+          owners: data['ownerIds']?.cast<String>() ?? [],
           periodsDate: parseFirestoreDate(data['periodsDate']),
           dues: (data['dues'] as num?)?.toDouble(),
           target: (data['target'] as num?)?.toDouble(),
@@ -163,7 +166,7 @@ mixin GroupDetailRepository {
         isUnique = query.docs.isEmpty;
       } while (!isUnique);
 
-      final now = FieldValue.serverTimestamp();
+      final now = DateTime.now().toString();
 
       final groupData = {
         'id': groupId,
@@ -218,7 +221,7 @@ mixin GroupDetailRepository {
 
       final docRef = _firestore.collection(DBCollections.groups).doc(group.id);
 
-      final now = FieldValue.serverTimestamp();
+      final now = DateTime.now().toString();
 
       final updateData = {
         'name': group.name,
@@ -406,7 +409,7 @@ mixin GroupDetailRepository {
               ),
             )
             .toList(),
-        createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+        createdAt: data['createdAt']?.toString().toDateTime(),
       );
 
       return Result.success(group);

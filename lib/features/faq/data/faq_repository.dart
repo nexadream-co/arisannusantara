@@ -5,6 +5,7 @@ import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../../profile/domain/entities/faq_entity.dart';
 
 class FaqRepository {
@@ -29,8 +30,8 @@ class FaqRepository {
           id: doc.id,
           title: data['title'] as String?,
           description: data['description'] as String?,
-          createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
-          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+          createdAt: data['createdAt']?.toString().toDateTime(),
+          updatedAt: data['updatedAt']?.toString().toDateTime(),
         );
       }).toList();
 

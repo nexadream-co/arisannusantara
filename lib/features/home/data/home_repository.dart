@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../config/database/db_collection.dart';
+import '../../../config/enums/payment_status_enum.dart';
 import '../../../config/enums/period_filter.dart';
 import '../../../core/app/result.dart';
 
@@ -109,7 +110,6 @@ class HomeRepository {
       final totalSnapshot = await membersRef
           .where('userId', isEqualTo: user.uid)
           .where('isActive', isEqualTo: true)
-          .where('skip', isNotEqualTo: true)
           .get();
 
       // If user never joined any active group
@@ -121,8 +121,7 @@ class HomeRepository {
       final paidSnapshot = await membersRef
           .where('userId', isEqualTo: user.uid)
           .where('isActive', isEqualTo: true)
-          .where('skip', isNotEqualTo: true)
-          .where('paidAt', isNotEqualTo: null)
+          .where('paymentStatus', isEqualTo: PaymentStatusEnum.paid.name)
           .get();
 
       final totalCount = totalSnapshot.size;

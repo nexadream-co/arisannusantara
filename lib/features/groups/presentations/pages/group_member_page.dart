@@ -170,7 +170,11 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                           child: Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: context.colors.surface,
+                                backgroundColor: members[i].isActive == true
+                                    ? context.colors.surface
+                                    : context.colors.error.withValues(
+                                        alpha: 0.4,
+                                      ),
                                 child: Text(
                                   members[i].user?.name?.initials ?? '',
                                   style: context.textStyles.body.copyWith(
@@ -204,6 +208,14 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                                   ],
                                 ),
                               ),
+                              if (members[i].hasReward == true)
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.emoji_events_outlined,
+                                    color: context.colors.warning,
+                                  ),
+                                ),
                               IconButton(
                                 onPressed: () {
                                   _memberModal(member: members[i]);

@@ -230,6 +230,26 @@ extension StringExtensions on String {
         return null;
     }
   }
+
+  /// Convert string to DateTime safely.
+  /// Supports ISO-8601 (e.g., "2025-10-30T12:30:00Z"),
+  /// or simple date formats like "2025-10-30" or "2025/10/30".
+  ///
+  /// Returns null if parsing fails.
+  DateTime? toDateTime() {
+    try {
+      // Handle if string is timestamp number (milliseconds since epoch)
+      final numeric = int.tryParse(this);
+      if (numeric != null) {
+        return DateTime.fromMillisecondsSinceEpoch(numeric);
+      }
+
+      // Try parsing with DateTime.parse
+      return DateTime.parse(this);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /*

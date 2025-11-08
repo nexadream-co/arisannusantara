@@ -55,13 +55,13 @@ class AuthRepository {
           'id': user.uid,
           'name': user.displayName ?? '',
           'email': user.email ?? email,
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
+          'createdAt': DateTime.now().toString(),
+          'updatedAt': DateTime.now().toString(),
           'role': AppUserRole.user,
         });
       } else {
         // Optionally, update last login or refresh info
-        await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
+        await docRef.update({'lastLoginAt': DateTime.now().toString()});
       }
 
       return const Result.success('Login berhasil');
@@ -119,7 +119,7 @@ class AuthRepository {
           'id': user.uid,
           'name': name,
           'photoUrl': user.photoURL,
-          'updatedAt': FieldValue.serverTimestamp(),
+          'updatedAt': DateTime.now().toString(),
         });
       } else {
         // Create new document
@@ -129,8 +129,8 @@ class AuthRepository {
           'email': email,
           'role': AppUserRole.user,
           'photoUrl': user.photoURL,
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
+          'createdAt': DateTime.now().toString(),
+          'updatedAt': DateTime.now().toString(),
         });
       }
 
@@ -205,13 +205,13 @@ class AuthRepository {
           'name': user.displayName,
           'email': user.email,
           'photoUrl': user.photoURL,
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
+          'createdAt': DateTime.now().toString(),
+          'updatedAt': DateTime.now().toString(),
           'role': AppUserRole.user,
         });
       } else {
         // Optionally, update last login or refresh info
-        await docRef.update({'lastLoginAt': FieldValue.serverTimestamp()});
+        await docRef.update({'lastLoginAt': DateTime.now().toString()});
       }
 
       return Result.success(token);

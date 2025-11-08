@@ -91,8 +91,8 @@ class NotificationRepository {
 
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
-          'readAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
+          'readAt': DateTime.now().toString(),
+          'updatedAt': DateTime.now().toString(),
         });
       }
 

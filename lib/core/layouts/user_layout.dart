@@ -10,7 +10,8 @@ import '../../shared/widgets/bottom_navbar.dart';
 
 class UserLayout extends StatefulWidget {
   static const String path = '/user-layout';
-  const UserLayout({super.key});
+  final int selectedIndex;
+  const UserLayout({super.key, this.selectedIndex = 0});
 
   @override
   State<UserLayout> createState() => _UserLayoutState();
@@ -30,6 +31,12 @@ class _UserLayoutState extends State<UserLayout> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
   }
 
   @override

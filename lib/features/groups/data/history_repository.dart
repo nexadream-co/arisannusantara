@@ -5,6 +5,7 @@ import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/extensions/string_extensions.dart';
 import '../domain/entities/history_entity.dart';
 import '../domain/entities/member_entity.dart';
 
@@ -37,7 +38,7 @@ mixin HistoryRepository {
         return HistoryEntity.fromJson({
           'id': data['id'],
           'groupId': data['groupId'],
-          'date': (data['date'] as Timestamp?)?.toDate(),
+          'date': data['date']?.toString().toDateTime(),
           'notes': data['notes'],
           'amount': (data['amount'] as num?)?.toInt(),
           'reward': data['reward'],
@@ -49,8 +50,8 @@ mixin HistoryRepository {
           'winners': (data['winners'] as List?)
               ?.map((w) => MemberEntity.fromJson(Map<String, dynamic>.from(w)))
               .toList(),
-          'createdAt': (data['createdAt'] as Timestamp?)?.toDate(),
-          'updatedAt': (data['updatedAt'] as Timestamp?)?.toDate(),
+          'createdAt': data['createdAt']?.toString().toDateTime(),
+          'updatedAt': data['updatedAt']?.toString().toDateTime(),
         });
       }).toList();
 
@@ -110,7 +111,7 @@ mixin HistoryRepository {
       // Step 5: Create new history document
       final historyRef = _firestore.collection(DBCollections.histories).doc();
 
-      final now = FieldValue.serverTimestamp();
+      final now = DateTime.now().toString();
 
       final historyData = {
         'id': historyRef.id,

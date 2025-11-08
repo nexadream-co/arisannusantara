@@ -72,9 +72,9 @@ mixin MemberRepository {
               .toPaymentStatusEnum(),
           isActive: data['isActive'] as bool?,
           hasReward: data['hasReward'] as bool?,
-          paidAt: (data['paidAt'] as Timestamp?)?.toDate(),
-          createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
-          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+          paidAt: data['paidAt']?.toString().toDateTime(),
+          createdAt: data['createdAt']?.toString().toDateTime(),
+          updatedAt: data['updatedAt']?.toString().toDateTime(),
           group: null,
           user: userData != null
               ? UserEntity(
@@ -129,15 +129,28 @@ mixin MemberRepository {
       final userName = (userData['name'] ?? '') as String;
       final userEmailLower = (userData['email'] ?? '').toString().toLowerCase();
 
+      // ✅ Check if this user is already a member of the same group
+      final existingMemberQuery = await _firestore
+          .collection(DBCollections.members)
+          .where('groupId', isEqualTo: member.groupId)
+          .where('user.email', isEqualTo: userEmailLower)
+          .limit(1)
+          .get();
+
+      if (existingMemberQuery.docs.isNotEmpty) {
+        return const Result.failed('Anggota sudah terdaftar di grup ini');
+      }
+
       // Generate search index from user name + email
       final searchIndex = generateSearchIndex([userName, userEmailLower]);
 
       final memberRef = _firestore.collection(DBCollections.members).doc();
-      final now = FieldValue.serverTimestamp();
+      final now = DateTime.now().toString();
 
       // Save member data
       final data = {
         'id': memberRef.id,
+        'userId': userDoc.id,
         'email': userData['email'],
         'groupId': member.groupId,
         'paymentStatus': member.paymentStatus?.name,
@@ -152,13 +165,13 @@ mixin MemberRepository {
 
       await memberRef.set(data);
 
-      // Add member ID to group member_ids list
+      // Add member ID to group's memberIds list
       final groupRef = _firestore
           .collection(DBCollections.groups)
           .doc(member.groupId);
 
       await groupRef.update({
-        'memberIds': FieldValue.arrayUnion([userDoc.id]),
+        'memberIds': FieldValue.arrayUnion([memberRef.id]),
         'updatedAt': now,
       });
 
@@ -290,7 +303,7 @@ mixin MemberRepository {
       ]);
 
       // Prepare updated data
-      final now = DateTime.now();
+      final now = DateTime.now().toString();
       final data = {
         'user': userObject,
         'paymentStatus': member.paymentStatus?.name,
@@ -379,9 +392,9 @@ mixin MemberRepository {
         paymentStatus: data['paymentStatus']?.toString().toPaymentStatusEnum(),
         isActive: data['isActive'],
         hasReward: data['hasReward'],
-        paidAt: (data['paidAt'] as Timestamp?)?.toDate(),
-        createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
-        updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+        paidAt: data['paidAt']?.toString().toDateTime(),
+        createdAt: data['createdAt']?.toString().toDateTime(),
+        updatedAt: data['updatedAt']?.toString().toDateTime(),
         user: userData != null
             ? UserEntity(
                 id: userData['id'],

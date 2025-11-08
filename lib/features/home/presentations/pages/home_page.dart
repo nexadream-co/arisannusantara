@@ -233,7 +233,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 text: TextSpan(
                                                   text: percentage == null
                                                       ? ''
-                                                      : '${(percentage * 100).toInt()}%, ',
+                                                      : '${percentage.toInt()}%, ',
                                                   style: context.textStyles.body
                                                       .copyWith(
                                                         fontWeight:
@@ -245,8 +245,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   children: [
                                                     TextSpan(
                                                       text: percentage == null
-                                                          ? 'Anda belum tergabung grup'
-                                                          : 'arisan kamu sudah lunas',
+                                                          ? 'Anda belum tergabung sebagai peserta'
+                                                          : 'Arisan kamu sudah lunas',
+
                                                       style: context
                                                           .textStyles
                                                           .body
@@ -271,7 +272,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                     BorderRadius.circular(
                                                       context.radius.medium,
                                                     ),
-                                                value: percentage ?? 0,
+                                                value: (percentage ?? 0) * 0.01,
                                               ),
                                             ],
                                           ),

@@ -65,10 +65,10 @@ class InvitationRepository {
         'userId': invitation.userId,
         'status': invitation.status,
         'groupOwnerIds': invitation.groupOwnerIds,
-        'group': invitation.group?.toJson(),
+        'group': invitation.group?.toJson()?..remove('paymentAccounts'),
         'user': invitation.user?.toJson(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'createdAt': DateTime.now().toString(),
+        'updatedAt': DateTime.now().toString(),
       };
 
       // Add document and update its ID
@@ -76,8 +76,9 @@ class InvitationRepository {
       await docRef.update({'id': docRef.id});
 
       return const Result.success('Permintaan undangan berhasil dibuat');
-    } catch (e) {
-      return Result.failed('Gagal membuat permintaan undangan: $e');
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
     }
   }
 
@@ -109,12 +110,6 @@ class InvitationRepository {
         return const Result.failed('Undangan sudah disetujui sebelumnya');
       }
 
-      // Update invitation status
-      await invitationRef.update({
-        'status': newStatus,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
       // If approved, create new member in the group
       if (newStatus == InvitationStatus.approved.name) {
         final groupId = invitationData['groupId'] as String?;
@@ -142,9 +137,15 @@ class InvitationRepository {
         );
 
         if (!result.isSuccess) {
-          return Result.failed(result.resultValue);
+          return Result.failed(result.errorMessage);
         }
       }
+
+      // Update invitation status
+      await invitationRef.update({
+        'status': newStatus,
+        'updatedAt': DateTime.now().toString(),
+      });
 
       return const Result.success('Status undangan berhasil diperbarui');
     } on FirebaseException catch (e) {

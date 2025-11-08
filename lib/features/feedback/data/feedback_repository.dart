@@ -96,8 +96,8 @@ class FeedbackRepository {
         'title': title,
         'feedback': feedback,
         'status': 'pending',
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'createdAt': DateTime.now().toString(),
+        'updatedAt': DateTime.now().toString(),
       };
 
       final docRef = await _firestore
@@ -130,7 +130,7 @@ class FeedbackRepository {
 
       await feedbackRef.update({
         'status': newStatus,
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': DateTime.now().toString(),
       });
 
       return const Result.success('Status feedback berhasil diperbarui');
