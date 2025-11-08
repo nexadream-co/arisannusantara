@@ -7,7 +7,7 @@ class GetFaqsUsecase {
 
   GetFaqsUsecase({required this.repository});
 
-  Future<Result<List<FaqEntity>>> call() async {
-    return await repository.getFaqs();
+  Future<Result<List<FaqEntity>>> call({String? search}) async {
+    return await repository.getFaqs(search: search);
   }
 }

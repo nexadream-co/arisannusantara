@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/app/result.dart';
+import '../../../profile/domain/entities/faq_entity.dart';
 import '../../data/faq_repository.dart';
 import '../../domain/usecases/get_faqs_usecase.dart';
 
@@ -11,7 +13,8 @@ FaqRepository faqRepository(Ref ref) {
 }
 
 @riverpod
-GetFaqsUsecase getFaqsUsecase(Ref ref) {
-  final repository = ref.watch(faqRepositoryProvider);
-  return GetFaqsUsecase(repository: repository);
+Future<Result<List<FaqEntity>>> getFaq(Ref ref, String? search) async {
+  final repository = ref.read(faqRepositoryProvider);
+  final usecase = GetFaqsUsecase(repository: repository);
+  return await usecase(search: search);
 }

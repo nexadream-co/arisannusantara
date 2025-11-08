@@ -57,50 +57,43 @@ final class PrivacyPolicyRepositoryProvider
 String _$privacyPolicyRepositoryHash() =>
     r'8e63e1bd216db68d7d2ad9912008911549b3667d';
 
-@ProviderFor(getPrivacyPolicyUsecase)
-const getPrivacyPolicyUsecaseProvider = GetPrivacyPolicyUsecaseProvider._();
+@ProviderFor(getPrivacyPolicy)
+const getPrivacyPolicyProvider = GetPrivacyPolicyProvider._();
 
-final class GetPrivacyPolicyUsecaseProvider
+final class GetPrivacyPolicyProvider
     extends
         $FunctionalProvider<
-          GetPrivacyPolicyUsecase,
-          GetPrivacyPolicyUsecase,
-          GetPrivacyPolicyUsecase
+          AsyncValue<Result<Map<String, dynamic>>>,
+          Result<Map<String, dynamic>>,
+          FutureOr<Result<Map<String, dynamic>>>
         >
-    with $Provider<GetPrivacyPolicyUsecase> {
-  const GetPrivacyPolicyUsecaseProvider._()
+    with
+        $FutureModifier<Result<Map<String, dynamic>>>,
+        $FutureProvider<Result<Map<String, dynamic>>> {
+  const GetPrivacyPolicyProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'getPrivacyPolicyUsecaseProvider',
+        name: r'getPrivacyPolicyProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$getPrivacyPolicyUsecaseHash();
+  String debugGetCreateSourceHash() => _$getPrivacyPolicyHash();
 
   @$internal
   @override
-  $ProviderElement<GetPrivacyPolicyUsecase> $createElement(
+  $FutureProviderElement<Result<Map<String, dynamic>>> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  GetPrivacyPolicyUsecase create(Ref ref) {
-    return getPrivacyPolicyUsecase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GetPrivacyPolicyUsecase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<GetPrivacyPolicyUsecase>(value),
-    );
+  FutureOr<Result<Map<String, dynamic>>> create(Ref ref) {
+    return getPrivacyPolicy(ref);
   }
 }
 
-String _$getPrivacyPolicyUsecaseHash() =>
-    r'4b6632c7685538d74bd158c6ba60f70154655f32';
+String _$getPrivacyPolicyHash() => r'd12e4cc65a5ed06407ace65ca27e43016a6fb8d4';

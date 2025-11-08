@@ -50,43 +50,79 @@ final class FaqRepositoryProvider
 
 String _$faqRepositoryHash() => r'4f6d1f9cfb2622366f035d88ac7b56716dab77d1';
 
-@ProviderFor(getFaqsUsecase)
-const getFaqsUsecaseProvider = GetFaqsUsecaseProvider._();
+@ProviderFor(getFaq)
+const getFaqProvider = GetFaqFamily._();
 
-final class GetFaqsUsecaseProvider
-    extends $FunctionalProvider<GetFaqsUsecase, GetFaqsUsecase, GetFaqsUsecase>
-    with $Provider<GetFaqsUsecase> {
-  const GetFaqsUsecaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'getFaqsUsecaseProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+final class GetFaqProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<FaqEntity>>>,
+          Result<List<FaqEntity>>,
+          FutureOr<Result<List<FaqEntity>>>
+        >
+    with
+        $FutureModifier<Result<List<FaqEntity>>>,
+        $FutureProvider<Result<List<FaqEntity>>> {
+  const GetFaqProvider._({
+    required GetFaqFamily super.from,
+    required String? super.argument,
+  }) : super(
+         retry: null,
+         name: r'getFaqProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  String debugGetCreateSourceHash() => _$getFaqsUsecaseHash();
+  String debugGetCreateSourceHash() => _$getFaqHash();
+
+  @override
+  String toString() {
+    return r'getFaqProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
-  $ProviderElement<GetFaqsUsecase> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $FutureProviderElement<Result<List<FaqEntity>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  GetFaqsUsecase create(Ref ref) {
-    return getFaqsUsecase(ref);
+  FutureOr<Result<List<FaqEntity>>> create(Ref ref) {
+    final argument = this.argument as String?;
+    return getFaq(ref, argument);
   }
 
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GetFaqsUsecase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<GetFaqsUsecase>(value),
-    );
+  @override
+  bool operator ==(Object other) {
+    return other is GetFaqProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
   }
 }
 
-String _$getFaqsUsecaseHash() => r'dba89a708523dd670e61a062183e0c01f9bb1524';
+String _$getFaqHash() => r'85a4f01608f219cb6cc9482eb4de66870ce05bf6';
+
+final class GetFaqFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<List<FaqEntity>>>, String?> {
+  const GetFaqFamily._()
+    : super(
+        retry: null,
+        name: r'getFaqProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetFaqProvider call(String? search) =>
+      GetFaqProvider._(argument: search, from: this);
+
+  @override
+  String toString() => r'getFaqProvider';
+}

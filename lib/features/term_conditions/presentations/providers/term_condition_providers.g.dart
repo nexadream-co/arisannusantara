@@ -57,50 +57,43 @@ final class TermConditionRepositoryProvider
 String _$termConditionRepositoryHash() =>
     r'2e7000608cd747845d58ede8bd569609a78826db';
 
-@ProviderFor(getTermConditionUsecase)
-const getTermConditionUsecaseProvider = GetTermConditionUsecaseProvider._();
+@ProviderFor(getTermCondition)
+const getTermConditionProvider = GetTermConditionProvider._();
 
-final class GetTermConditionUsecaseProvider
+final class GetTermConditionProvider
     extends
         $FunctionalProvider<
-          GetTermConditionUsecase,
-          GetTermConditionUsecase,
-          GetTermConditionUsecase
+          AsyncValue<Result<Map<String, dynamic>>>,
+          Result<Map<String, dynamic>>,
+          FutureOr<Result<Map<String, dynamic>>>
         >
-    with $Provider<GetTermConditionUsecase> {
-  const GetTermConditionUsecaseProvider._()
+    with
+        $FutureModifier<Result<Map<String, dynamic>>>,
+        $FutureProvider<Result<Map<String, dynamic>>> {
+  const GetTermConditionProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'getTermConditionUsecaseProvider',
+        name: r'getTermConditionProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$getTermConditionUsecaseHash();
+  String debugGetCreateSourceHash() => _$getTermConditionHash();
 
   @$internal
   @override
-  $ProviderElement<GetTermConditionUsecase> $createElement(
+  $FutureProviderElement<Result<Map<String, dynamic>>> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  GetTermConditionUsecase create(Ref ref) {
-    return getTermConditionUsecase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GetTermConditionUsecase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<GetTermConditionUsecase>(value),
-    );
+  FutureOr<Result<Map<String, dynamic>>> create(Ref ref) {
+    return getTermCondition(ref);
   }
 }
 
-String _$getTermConditionUsecaseHash() =>
-    r'4cfddb1cb85526921aeaea8d2fd73e7377de8051';
+String _$getTermConditionHash() => r'3189cb6e9fc8d87119ea0c4d153592178a79e154';

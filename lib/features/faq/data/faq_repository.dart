@@ -12,7 +12,7 @@ class FaqRepository {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  Future<Result<List<FaqEntity>>> getFaqs() async {
+  Future<Result<List<FaqEntity>>> getFaqs({String? search}) async {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
@@ -24,6 +24,7 @@ class FaqRepository {
           .orderBy('createdAt', descending: true)
           .get();
 
+      // Map documents to entities
       final faqs = querySnapshot.docs.map((doc) {
         final data = doc.data();
         return FaqEntity(
@@ -35,7 +36,17 @@ class FaqRepository {
         );
       }).toList();
 
-      return Result.success(faqs);
+      // Apply search filter if provided
+      final filteredFaqs = (search == null || search.trim().isEmpty)
+          ? faqs
+          : faqs.where((faq) {
+              final keyword = search.toLowerCase();
+              final title = faq.title?.toLowerCase() ?? '';
+              final description = faq.description?.toLowerCase() ?? '';
+              return title.contains(keyword) || description.contains(keyword);
+            }).toList();
+
+      return Result.success(filteredFaqs);
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);
