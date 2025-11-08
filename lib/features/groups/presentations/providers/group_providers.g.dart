@@ -798,3 +798,99 @@ final class DeletePaymentAccountUsecaseProvider
 
 String _$deletePaymentAccountUsecaseHash() =>
     r'dc4e36f5d858f9b040338e608e506455ede31b78';
+
+@ProviderFor(addGroupOwnersUsecase)
+const addGroupOwnersUsecaseProvider = AddGroupOwnersUsecaseProvider._();
+
+final class AddGroupOwnersUsecaseProvider
+    extends
+        $FunctionalProvider<
+          AddGroupOwnersUsecase,
+          AddGroupOwnersUsecase,
+          AddGroupOwnersUsecase
+        >
+    with $Provider<AddGroupOwnersUsecase> {
+  const AddGroupOwnersUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'addGroupOwnersUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$addGroupOwnersUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<AddGroupOwnersUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AddGroupOwnersUsecase create(Ref ref) {
+    return addGroupOwnersUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AddGroupOwnersUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AddGroupOwnersUsecase>(value),
+    );
+  }
+}
+
+String _$addGroupOwnersUsecaseHash() =>
+    r'fc147049ef69b68ce70ea908d3eff7460aea18ae';
+
+@ProviderFor(removeGroupOwnerUsecase)
+const removeGroupOwnerUsecaseProvider = RemoveGroupOwnerUsecaseProvider._();
+
+final class RemoveGroupOwnerUsecaseProvider
+    extends
+        $FunctionalProvider<
+          RemoveGroupOwnerUsecase,
+          RemoveGroupOwnerUsecase,
+          RemoveGroupOwnerUsecase
+        >
+    with $Provider<RemoveGroupOwnerUsecase> {
+  const RemoveGroupOwnerUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'removeGroupOwnerUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$removeGroupOwnerUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<RemoveGroupOwnerUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  RemoveGroupOwnerUsecase create(Ref ref) {
+    return removeGroupOwnerUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RemoveGroupOwnerUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RemoveGroupOwnerUsecase>(value),
+    );
+  }
+}
+
+String _$removeGroupOwnerUsecaseHash() =>
+    r'3eae2db5b221e4f23e49f26306895eb5854155ee';

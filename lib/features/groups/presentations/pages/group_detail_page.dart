@@ -261,7 +261,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     Spacer(),
                     TextButton(
                       onPressed: () {
-                        context.push(GroupManagerCreatePage.path);
+                        context.push(
+                          GroupManagerCreatePage.path,
+                          extra: widget.group,
+                        );
                       },
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       child: Wrap(
@@ -372,7 +375,44 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                               IconButton(
                                 onPressed: groupOwners.length == 1
                                     ? null
-                                    : () {},
+                                    : () {
+                                        CustomAlert.show(
+                                          context,
+                                          title: 'Hapus pengelola',
+                                          description:
+                                              'Apakah Anda yakin ingin menghapus pengelola ini?',
+                                          onYes: () {
+                                            LoadingOverlay.show(context);
+                                            ref
+                                                .read(
+                                                  removeGroupOwnerUsecaseProvider,
+                                                )
+                                                .call(
+                                                  widget.group.id!,
+                                                  groupOwners[i].id!,
+                                                )
+                                                .then((result) {
+                                                  LoadingOverlay.hide();
+                                                  if (result.isSuccess) {
+                                                    CustomSnackbar.success(
+                                                      message:
+                                                          result.resultValue,
+                                                    );
+                                                    ref.invalidate(
+                                                      getGroupOwnersProvider(
+                                                        widget.group.id!,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    CustomSnackbar.error(
+                                                      message:
+                                                          result.errorMessage,
+                                                    );
+                                                  }
+                                                });
+                                          },
+                                        );
+                                      },
                                 icon: Icon(
                                   Icons.delete_outline,
                                   color: groupOwners.length == 1

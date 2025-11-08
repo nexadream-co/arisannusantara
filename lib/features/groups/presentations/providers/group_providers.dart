@@ -5,6 +5,7 @@ import '../../../auth/domain/entities/user_entity.dart';
 import '../../data/group_repository.dart';
 import '../../domain/entities/history_entity.dart';
 import '../../domain/entities/member_entity.dart';
+import '../../domain/usecases/add_group_owners_usecase.dart';
 import '../../domain/usecases/add_payment_account_usecase.dart';
 import '../../domain/usecases/create_group_usecase.dart';
 import '../../domain/usecases/create_history_usecase.dart';
@@ -16,6 +17,7 @@ import '../../domain/usecases/get_groups_usecase.dart';
 import '../../domain/usecases/get_histories_usecase.dart';
 import '../../domain/usecases/get_member_detail_usecase.dart';
 import '../../domain/usecases/get_members_usecase.dart';
+import '../../domain/usecases/remove_group_owner_usecase.dart';
 import '../../domain/usecases/update_member_usecase.dart';
 import '../../domain/usecases/update_payment_account_usecase.dart';
 
@@ -113,4 +115,16 @@ UpdatePaymentAccountUsecase updatePaymentAccountUsecase(Ref ref) {
 DeletePaymentAccountUsecase deletePaymentAccountUsecase(Ref ref) {
   final repository = ref.read(groupRepositoryProvider);
   return DeletePaymentAccountUsecase(repository: repository);
+}
+
+@riverpod
+AddGroupOwnersUsecase addGroupOwnersUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return AddGroupOwnersUsecase(repository: repository);
+}
+
+@riverpod
+RemoveGroupOwnerUsecase removeGroupOwnerUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return RemoveGroupOwnerUsecase(repository: repository);
 }
