@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 import '../../../config/database/db_collection.dart';
 import '../../../config/enums/payment_status_enum.dart';
@@ -11,7 +12,7 @@ class HomeRepository {
   final _firestore = FirebaseFirestore.instance;
 
   /// Helper to build date range based on period enum
-  Map<String, DateTime> _getDateRange(PeriodFilter period) {
+  Map<String, String> _getDateRange(PeriodFilter period) {
     final now = DateTime.now();
     late DateTime start;
 
@@ -30,7 +31,9 @@ class HomeRepository {
         break;
     }
 
-    return {'start': start, 'end': now};
+    // Use same format as Firestore stored string
+    final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    return {'start': formatter.format(start), 'end': formatter.format(now)};
   }
 
   Future<Result<int>> getTotalGroups({required PeriodFilter period}) async {
