@@ -86,7 +86,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
             heroTag: "add-member",
             backgroundColor: context.colors.primary,
             child: const Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              _memberModal();
+            },
           ),
         ],
       ),
@@ -204,7 +206,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  _editMember(members[i]);
+                                  _memberModal(member: members[i]);
                                 },
                                 icon: Icon(
                                   Icons.edit_outlined,
@@ -242,260 +244,365 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     );
   }
 
-  void _editMember(MemberEntity member) {
-    bool selectedStatus = member.isActive ?? false;
-    PaymentStatusEnum? selectedPaymentStatus = member.paymentStatus;
+  void _memberModal({MemberEntity? member}) {
+    bool selectedStatus = member?.isActive == null ? true : member!.isActive!;
+    PaymentStatusEnum? selectedPaymentStatus =
+        member?.paymentStatus ?? PaymentStatusEnum.unpaid;
+    bool hasReward = member?.hasReward ?? false;
+    final formKey = GlobalKey<FormState>();
+    final emailController = TextEditingController();
 
     showAppModalBottomSheet(
       context: context,
       child: Padding(
         padding: EdgeInsets.all(context.spacing.md),
-        child: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header with name & status
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            member.user?.name ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textStyles.title.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Text(
-                            member.user?.email ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textStyles.body,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text('Status', style: context.textStyles.body),
-                    SizedBox(width: context.spacing.sm),
-                    DropdownButtonFormField<bool>(
-                      initialValue: selectedStatus,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                      ),
-                      items: [
-                        DropdownMenuItem(
-                          value: true,
-                          child: Text(
-                            'Aktif',
-                            style: context.textStyles.body.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: context.colors.success,
-                            ),
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: false,
-                          child: Text(
-                            'Tidak Aktif',
-                            style: context.textStyles.body.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: context.colors.error,
-                            ),
-                          ),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => selectedStatus = value);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-
-                // Info section
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: context.spacing.md),
-                  child: Text(
-                    'Informasi Peserta',
-                    style: context.textStyles.body.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                // These fields remain visually the same but disabled/read-only
-                _textField(
-                  controller: TextEditingController(text: member.user?.name),
-                  label: 'Nama',
-                  hintText: 'Masukkan nama anda...',
-                  readonly: true,
-                ),
-                _textField(
-                  controller: TextEditingController(
-                    text: member.user?.gender == 'male'
-                        ? 'Laki-laki'
-                        : 'Perempuan',
-                  ),
-                  label: 'Jenis Kelamin',
-                  hintText: 'Masukkan jenis kelamin...',
-                  readonly: true,
-                ),
-                _textField(
-                  controller: TextEditingController(
-                    text: member.user?.phoneNumber,
-                  ),
-                  label: 'No Telp',
-                  hintText: 'No telp anda...',
-                  readonly: true,
-                ),
-
-                // Payment status section
-                Container(
-                  margin: EdgeInsets.only(
-                    top: context.spacing.lg,
-                    bottom: context.spacing.sm,
-                  ),
-                  child: Text(
-                    'Status Pembayaran',
-                    style: context.textStyles.body.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                // CheckboxListTile using PaymentStatusEnum
-                Column(
-                  children: PaymentStatusEnum.values.map((status) {
-                    return CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      value: selectedPaymentStatus == status,
-                      onChanged: (_) {
-                        setState(() => selectedPaymentStatus = status);
-                      },
-                      title: Text(status.label),
-                    );
-                  }).toList(),
-                ),
-
-                // Buttons
-                Container(
-                  margin: EdgeInsets.only(
-                    top: context.spacing.xxl,
-                    bottom: context.spacing.sm,
-                  ),
-                  child: Row(
-                    spacing: context.spacing.sm,
+        child: Form(
+          key: formKey,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header with name & status
+                  Row(
                     children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          CustomAlert.show(
-                            context,
-                            onYes: () {
-                              LoadingOverlay.show(context);
-                              ref
-                                  .read(deleteMemberUsecaseProvider)
-                                  .call(member.id!)
-                                  .then((result) {
-                                    LoadingOverlay.hide();
-                                    if (result.isSuccess) {
-                                      Navigator.pop(context);
-                                      CustomSnackbar.success(
-                                        message: result.resultValue,
-                                      );
-
-                                      ref.invalidate(
-                                        getMembersProvider(
-                                          widget.group.id!,
-                                          _searchController.text,
-                                        ),
-                                      );
-                                    } else {
-                                      CustomSnackbar.error(
-                                        message: result.errorMessage,
-                                      );
-                                    }
-                                  });
-                            },
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: context.spacing.md,
-                            horizontal: context.spacing.xl,
-                          ),
-                          foregroundColor: context.colors.error,
-                          side: BorderSide(
-                            color: context.colors.error,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              context.radius.medium,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              member != null
+                                  ? (member.user?.name ?? '')
+                                  : 'Tambah Peserta',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.textStyles.title.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Text(
+                              member != null
+                                  ? (member.user?.email ?? '')
+                                  : 'Masukkan email/username peserta',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.textStyles.body,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text('Status', style: context.textStyles.body),
+                      SizedBox(width: context.spacing.sm),
+                      SizedBox(
+                        width: context.appSize.s100,
+                        child: DropdownButtonFormField<bool>(
+                          initialValue: selectedStatus,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
                             ),
                           ),
-                        ),
-                        child: const Text('Hapus'),
-                      ),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            // Validation
-                            if (selectedPaymentStatus == null) {
-                              CustomSnackbar.error(
-                                message: 'Pilih salah satu status pembayaran!',
-                              );
-                              return;
+                          items: [
+                            DropdownMenuItem(
+                              value: true,
+                              child: Text(
+                                'Aktif',
+                                style: context.textStyles.body.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: context.colors.success,
+                                ),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: false,
+                              child: Text(
+                                'Tidak Aktif',
+                                style: context.textStyles.body.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: context.colors.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => selectedStatus = value);
                             }
-
-                            LoadingOverlay.show(context);
-                            ref
-                                .read(updateMemberUsecaseProvider)
-                                .call(
-                                  member.copyWith(
-                                    paymentStatus: selectedPaymentStatus,
-                                    isActive: selectedStatus,
-                                  ),
-                                )
-                                .then((result) {
-                                  LoadingOverlay.hide();
-                                  if (result.isSuccess) {
-                                    Navigator.pop(context);
-                                    CustomSnackbar.success(
-                                      message: result.resultValue,
-                                    );
-
-                                    ref.invalidate(
-                                      getMembersProvider(
-                                        widget.group.id!,
-                                        _searchController.text,
-                                      ),
-                                    );
-                                  } else {
-                                    CustomSnackbar.error(
-                                      message: result.errorMessage,
-                                    );
-                                  }
-                                });
                           },
-                          child: const Text('Simpan'),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            );
-          },
+
+                  // Info section
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: context.spacing.md),
+                    child: Text(
+                      'Informasi Peserta',
+                      style: context.textStyles.body.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  // Create new
+                  if (member == null)
+                    _textField(
+                      controller: emailController,
+                      label: 'Email',
+                      hintText: 'Masukkan email/username anda...',
+                      readonly: false,
+                      required: true,
+                    ),
+
+                  // Edit view only
+                  if (member != null)
+                    Column(
+                      children: [
+                        _textField(
+                          controller: TextEditingController(
+                            text: member.user?.name,
+                          ),
+                          label: 'Nama',
+                          hintText: 'Masukkan nama anda...',
+                          readonly: true,
+                        ),
+                        _textField(
+                          controller: TextEditingController(
+                            text: member.user?.gender == null
+                                ? '-'
+                                : (member.user?.gender == 'male'
+                                      ? 'Laki-laki'
+                                      : 'Perempuan'),
+                          ),
+                          label: 'Jenis Kelamin',
+                          hintText: 'Masukkan jenis kelamin...',
+                          readonly: true,
+                        ),
+                        _textField(
+                          controller: TextEditingController(
+                            text: member.user?.phoneNumber ?? '-',
+                          ),
+                          label: 'No Telp',
+                          hintText: 'No telp anda...',
+                          readonly: true,
+                        ),
+                      ],
+                    ),
+
+                  // Payment status section
+                  Container(
+                    margin: EdgeInsets.only(
+                      top: context.spacing.lg,
+                      bottom: context.spacing.sm,
+                    ),
+                    child: Text(
+                      'Status Pembayaran',
+                      style: context.textStyles.body.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  // CheckboxListTile using PaymentStatusEnum
+                  Wrap(
+                    children: PaymentStatusEnum.values.map((status) {
+                      return SizedBox(
+                        width: context.screen.width * 0.4,
+                        child: CheckboxListTile(
+                          controlAffinity: ListTileControlAffinity.leading,
+                          value: selectedPaymentStatus == status,
+                          onChanged: (_) {
+                            setState(() => selectedPaymentStatus = status);
+                          },
+                          title: Text(status.label),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.only(
+                      top: context.spacing.lg,
+                      bottom: context.spacing.sm,
+                    ),
+                    child: Text(
+                      'Sudah dapat Hadiah?',
+                      style: context.textStyles.body.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  // CheckboxListTile using PaymentStatusEnum
+                  CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: hasReward,
+                    onChanged: (_) {
+                      setState(() => hasReward = !hasReward);
+                    },
+                    title: Text("Ya, sudah"),
+                  ),
+
+                  // Buttons
+                  Container(
+                    margin: EdgeInsets.only(
+                      top: context.spacing.xxl,
+                      bottom: context.spacing.sm,
+                    ),
+                    child: Row(
+                      spacing: context.spacing.sm,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () {
+                            if (member == null) {
+                              Navigator.pop(context);
+                              return;
+                            }
+                            CustomAlert.show(
+                              context,
+                              title: 'Hapus Peserta',
+                              description:
+                                  'Apakah anda yakin ingin menghapus peserta ini?',
+                              onYes: () {
+                                LoadingOverlay.show(context);
+                                ref
+                                    .read(deleteMemberUsecaseProvider)
+                                    .call(member.id!)
+                                    .then((result) {
+                                      LoadingOverlay.hide();
+                                      if (result.isSuccess) {
+                                        Navigator.pop(context);
+                                        CustomSnackbar.success(
+                                          message: result.resultValue,
+                                        );
+
+                                        ref.invalidate(
+                                          getMembersProvider(
+                                            widget.group.id!,
+                                            _searchController.text,
+                                          ),
+                                        );
+                                      } else {
+                                        CustomSnackbar.error(
+                                          message: result.errorMessage,
+                                        );
+                                      }
+                                    });
+                              },
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              vertical: context.spacing.md,
+                              horizontal: context.spacing.xl,
+                            ),
+                            foregroundColor: context.colors.error,
+                            side: BorderSide(
+                              color: context.colors.error,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                context.radius.medium,
+                              ),
+                            ),
+                          ),
+                          child: Text(member != null ? 'Hapus' : 'Batal'),
+                        ),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () {
+                              // Validation
+                              if (selectedPaymentStatus == null) {
+                                CustomSnackbar.error(
+                                  message:
+                                      'Pilih salah satu status pembayaran!',
+                                );
+                                return;
+                              }
+
+                              if (member != null) {
+                                LoadingOverlay.show(context);
+                                ref
+                                    .read(updateMemberUsecaseProvider)
+                                    .call(
+                                      member.copyWith(
+                                        email: member.user?.email,
+                                        paymentStatus: selectedPaymentStatus,
+                                        isActive: selectedStatus,
+                                        hasReward: hasReward,
+                                      ),
+                                    )
+                                    .then((result) {
+                                      LoadingOverlay.hide();
+                                      if (result.isSuccess) {
+                                        Navigator.pop(context);
+                                        CustomSnackbar.success(
+                                          message: result.resultValue,
+                                        );
+
+                                        ref.invalidate(
+                                          getMembersProvider(
+                                            widget.group.id!,
+                                            _searchController.text,
+                                          ),
+                                        );
+                                      } else {
+                                        CustomSnackbar.error(
+                                          message: result.errorMessage,
+                                        );
+                                      }
+                                    });
+                              } else {
+                                if (!formKey.currentState!.validate()) return;
+                                LoadingOverlay.show(context);
+                                ref
+                                    .read(createMemberUsecaseProvider)
+                                    .call(
+                                      member: MemberEntity(
+                                        groupId: widget.group.id!,
+                                        paymentStatus: selectedPaymentStatus,
+                                        isActive: selectedStatus,
+                                        hasReward: hasReward,
+                                      ),
+                                      userEmail: emailController.text,
+                                    )
+                                    .then((result) {
+                                      LoadingOverlay.hide();
+                                      if (result.isSuccess) {
+                                        Navigator.pop(context);
+                                        CustomSnackbar.success(
+                                          message: result.resultValue,
+                                        );
+
+                                        ref.invalidate(
+                                          getMembersProvider(
+                                            widget.group.id!,
+                                            _searchController.text,
+                                          ),
+                                        );
+                                      } else {
+                                        CustomSnackbar.error(
+                                          message: result.errorMessage,
+                                        );
+                                      }
+                                    });
+                              }
+                            },
+                            child: const Text('Simpan'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -506,6 +613,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     required String label,
     required String hintText,
     bool readonly = false,
+    bool required = false,
+    int maxLines = 1,
   }) {
     return Container(
       padding: EdgeInsets.only(bottom: context.spacing.sm),
@@ -514,15 +623,18 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: context.spacing.md,
         children: [
-          Text(label, style: context.textStyles.body),
+          Expanded(flex: 1, child: Text(label, style: context.textStyles.body)),
           Expanded(
+            flex: 2,
             child: TextfieldWithoutBorderWidget(
               controller: controller,
               hintText: hintText,
               readonly: readonly,
-              textAlign: TextAlign.end,
+              maxLines: maxLines,
+              required: true,
             ),
           ),
         ],

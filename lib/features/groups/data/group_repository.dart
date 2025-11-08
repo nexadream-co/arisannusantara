@@ -391,6 +391,7 @@ mixin GroupDetailRepository {
         owners: data['ownerIds']?.cast<String>() ?? [],
         dues: (data['dues'] as num?)?.toDouble(),
         maxWinner: data['maxWinner'] as int?,
+        memberIds: data['memberIds']?.cast<String>() ?? [],
         adminFee: (data['adminFee'] as num?)?.toDouble(),
         target: (data['target'] as num?)?.toDouble(),
         paymentAccounts: (data['paymentAccounts'] as List<dynamic>?)

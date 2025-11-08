@@ -52,6 +52,7 @@ class _GroupPageState extends ConsumerState<GroupPage> {
             body: SafeArea(
               bottom: false,
               child: NestedScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverToBoxAdapter(child: _buildHeaderInfo(group)),

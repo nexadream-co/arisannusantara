@@ -9,6 +9,7 @@ import '../../domain/usecases/add_group_owners_usecase.dart';
 import '../../domain/usecases/add_payment_account_usecase.dart';
 import '../../domain/usecases/create_group_usecase.dart';
 import '../../domain/usecases/create_history_usecase.dart';
+import '../../domain/usecases/create_member_usecase.dart';
 import '../../domain/usecases/delete_group_usecase.dart';
 import '../../domain/usecases/delete_member_usecase.dart';
 import '../../domain/usecases/delete_payment_account_usecase.dart';
@@ -107,6 +108,12 @@ Future<Result<MemberEntity>> getMemberDetail(Ref ref, String memberId) async {
   final repository = ref.read(groupRepositoryProvider);
   final usecase = GetMemberDetailUsecase(repository: repository);
   return await usecase(memberId);
+}
+
+@riverpod
+CreateMemberUsecase createMemberUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return CreateMemberUsecase(repository: repository);
 }
 
 @riverpod

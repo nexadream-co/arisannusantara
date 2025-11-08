@@ -65,6 +65,7 @@ mixin MemberRepository {
 
         return MemberEntity(
           id: doc.id,
+          email: data['email'] as String?,
           groupId: data['groupId'] as String?,
           paymentStatus: data['paymentStatus']
               ?.toString()
@@ -134,9 +135,10 @@ mixin MemberRepository {
       final memberRef = _firestore.collection(DBCollections.members).doc();
       final now = FieldValue.serverTimestamp();
 
-      // Save user as embedded object
+      // Save member data
       final data = {
         'id': memberRef.id,
+        'email': userData['email'],
         'groupId': member.groupId,
         'paymentStatus': member.paymentStatus?.name,
         'isActive': member.isActive ?? true,
@@ -150,13 +152,23 @@ mixin MemberRepository {
 
       await memberRef.set(data);
 
+      // Add member ID to group member_ids list
+      final groupRef = _firestore
+          .collection(DBCollections.groups)
+          .doc(member.groupId);
+
+      await groupRef.update({
+        'memberIds': FieldValue.arrayUnion([userDoc.id]),
+        'updatedAt': now,
+      });
+
       return const Result.success('Anggota berhasil ditambahkan');
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);
     } catch (e, s) {
       handleException(e, stackTrace: s);
-      return Result.systemError();
+      return const Result.failed('Terjadi kesalahan saat menambahkan anggota');
     }
   }
 
@@ -242,7 +254,7 @@ mixin MemberRepository {
       // Check if member exists
       final memberSnap = await memberRef.get();
       if (!memberSnap.exists) {
-        return const Result.failed('Member tidak ditemukan');
+        return const Result.failed('Peserta tidak ditemukan');
       }
 
       // Fetch latest user data from Firestore
@@ -283,6 +295,7 @@ mixin MemberRepository {
         'user': userObject,
         'paymentStatus': member.paymentStatus?.name,
         'isActive': member.isActive,
+        'hasReward': member.hasReward ?? false,
         'updatedAt': now,
         'searchIndex': searchIndex,
       };
@@ -309,13 +322,30 @@ mixin MemberRepository {
       // Check if member document exists
       final memberSnap = await memberRef.get();
       if (!memberSnap.exists) {
-        return const Result.failed('Member tidak ditemukan');
+        return const Result.failed('Peserta tidak ditemukan');
       }
 
-      // Delete the document
+      final memberData = memberSnap.data();
+      final groupId = memberData?['groupId'];
+
+      if (groupId == null || groupId.isEmpty) {
+        return const Result.failed('ID grup tidak ditemukan pada member');
+      }
+
+      // Reference to group document
+      final groupRef = _firestore.collection(DBCollections.groups).doc(groupId);
+
+      // Delete the member document
       await memberRef.delete();
 
-      return const Result.success('Member berhasil dihapus');
+      // Remove the member ID from group’s memberIds list
+      await groupRef.update({
+        'memberIds': FieldValue.arrayRemove([memberData?['user']['id']]),
+      });
+
+      return const Result.success(
+        'Member berhasil dihapus dan data grup diperbarui',
+      );
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);

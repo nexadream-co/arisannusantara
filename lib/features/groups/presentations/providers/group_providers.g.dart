@@ -730,6 +730,54 @@ final class GetMemberDetailFamily extends $Family
   String toString() => r'getMemberDetailProvider';
 }
 
+@ProviderFor(createMemberUsecase)
+const createMemberUsecaseProvider = CreateMemberUsecaseProvider._();
+
+final class CreateMemberUsecaseProvider
+    extends
+        $FunctionalProvider<
+          CreateMemberUsecase,
+          CreateMemberUsecase,
+          CreateMemberUsecase
+        >
+    with $Provider<CreateMemberUsecase> {
+  const CreateMemberUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'createMemberUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$createMemberUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CreateMemberUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CreateMemberUsecase create(Ref ref) {
+    return createMemberUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CreateMemberUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CreateMemberUsecase>(value),
+    );
+  }
+}
+
+String _$createMemberUsecaseHash() =>
+    r'61e250b6775520891a2438f47f44ab3efa85777c';
+
 @ProviderFor(updateMemberUsecase)
 const updateMemberUsecaseProvider = UpdateMemberUsecaseProvider._();
 
