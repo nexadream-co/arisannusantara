@@ -12,6 +12,7 @@ import '../../features/groups/domain/entities/group_entity.dart';
 import '../../features/groups/domain/entities/history_entity.dart';
 import '../../features/groups/presentations/pages/group_choose_winner_page.dart';
 import '../../features/groups/presentations/pages/group_create_page.dart';
+import '../../features/groups/presentations/pages/group_edit_page.dart';
 import '../../features/groups/presentations/pages/group_history_detail_page.dart';
 import '../../features/groups/presentations/pages/group_manager_create_page.dart';
 import '../../features/groups/presentations/pages/group_page.dart';
@@ -82,6 +83,11 @@ final pageRoutes = [
   GoRoute(
     path: GroupCreatePage.path,
     builder: (context, state) => GroupCreatePage(),
+  ),
+  GoRoute(
+    path: GroupEditPage.path,
+    builder: (context, state) =>
+        GroupEditPage(group: state.extra as GroupEntity),
   ),
   GoRoute(
     path: GroupShuffleWinnerPage.path,

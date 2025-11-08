@@ -11,6 +11,7 @@ import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
+import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/entities/payment_account_entity.dart';
 import '../providers/get_group_detail_provider.dart';
@@ -112,137 +113,151 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
 
   Widget _groupPayment() {
     final paymentAccounts = widget.group.paymentAccounts ?? [];
-    return Column(
-      children: [
-        Row(
+    final auth = ref.watch(authStateProvider);
+    return auth.when(
+      error: (err, _) => const SizedBox(),
+      loading: () => const SizedBox(),
+      data: (user) {
+        bool isOwner = (widget.group.owners ?? []).contains(user?.id);
+        return Column(
           children: [
-            Text('Pembayaran', style: context.textStyles.title),
-            Spacer(),
-            TextButton(
-              onPressed: () {
-                _paymentAccountModal();
-              },
-              style: TextButton.styleFrom(padding: EdgeInsets.zero),
-              child: Wrap(
-                children: [
-                  Icon(
-                    Icons.add_circle_outlined,
-                    size: context.appSize.s16,
-                    color: context.colors.primary,
-                  ),
-                  SizedBox(width: context.appSize.s4),
-                  Text(
-                    'Tambah',
-                    style: context.textStyles.body.copyWith(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Container(
-          width: double.infinity,
-          margin: EdgeInsets.only(bottom: context.spacing.md),
-          padding: EdgeInsets.symmetric(
-            horizontal: context.spacing.md,
-            vertical: context.spacing.md,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [context.shadow.small],
-            borderRadius: BorderRadius.circular(context.radius.medium),
-          ),
-          child: Column(
-            spacing: context.spacing.md,
-            children: [
-              if (paymentAccounts.isEmpty)
-                Text(
-                  'Belum ada akun pembayaran',
-                  textAlign: TextAlign.center,
-                  style: context.textStyles.body,
-                ),
-              for (var i = 0; i < paymentAccounts.length; i++)
-                Container(
-                  padding: i == 2 || i == paymentAccounts.length - 1
-                      ? null
-                      : EdgeInsets.only(bottom: context.spacing.md),
-                  decoration: BoxDecoration(
-                    border: i == 2 || i == paymentAccounts.length - 1
-                        ? null
-                        : Border(
-                            bottom: BorderSide(color: context.colors.divider),
-                          ),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: context.colors.surface,
-                        child: Text(
-                          paymentAccounts[i].accountName?.initials ?? '',
+            Row(
+              children: [
+                Text('Pembayaran', style: context.textStyles.title),
+                Spacer(),
+                if (isOwner)
+                  TextButton(
+                    onPressed: () {
+                      _paymentAccountModal();
+                    },
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                    child: Wrap(
+                      children: [
+                        Icon(
+                          Icons.add_circle_outlined,
+                          size: context.appSize.s16,
+                          color: context.colors.primary,
+                        ),
+                        SizedBox(width: context.appSize.s4),
+                        Text(
+                          'Tambah',
                           style: context.textStyles.body.copyWith(
                             color: context.colors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(bottom: context.spacing.md),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.spacing.md,
+                vertical: context.spacing.md,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [context.shadow.small],
+                borderRadius: BorderRadius.circular(context.radius.medium),
+              ),
+              child: Column(
+                spacing: context.spacing.md,
+                children: [
+                  if (paymentAccounts.isEmpty)
+                    Text(
+                      'Belum ada akun pembayaran',
+                      textAlign: TextAlign.center,
+                      style: context.textStyles.body,
+                    ),
+                  for (var i = 0; i < paymentAccounts.length; i++)
+                    Container(
+                      padding: i == 2 || i == paymentAccounts.length - 1
+                          ? null
+                          : EdgeInsets.only(bottom: context.spacing.md),
+                      decoration: BoxDecoration(
+                        border: i == 2 || i == paymentAccounts.length - 1
+                            ? null
+                            : Border(
+                                bottom: BorderSide(
+                                  color: context.colors.divider,
+                                ),
+                              ),
                       ),
-                      SizedBox(width: context.spacing.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${paymentAccounts[i].bankName} - ${paymentAccounts[i].accountName}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.textStyles.bodySmall.copyWith(
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: context.colors.surface,
+                            child: Text(
+                              paymentAccounts[i].bankName?.initials ?? '',
+                              style: context.textStyles.body.copyWith(
+                                color: context.colors.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: context.spacing.xs),
-                            Text(
-                              paymentAccounts[i].bankNumber ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.textStyles.bodySmall,
+                          ),
+                          SizedBox(width: context.spacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${paymentAccounts[i].bankName} - ${paymentAccounts[i].accountName}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textStyles.bodySmall.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: context.spacing.xs),
+                                Text(
+                                  paymentAccounts[i].bankNumber ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textStyles.bodySmall,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          _paymentAccountModal(account: paymentAccounts[i]);
-                        },
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: context.spacing.sm,
                           ),
-                          minimumSize: Size(0, 0),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.spacing.md,
+                          if (isOwner)
+                            IconButton(
+                              onPressed: () {
+                                _paymentAccountModal(
+                                  account: paymentAccounts[i],
+                                );
+                              },
+                              icon: Icon(
+                                Icons.edit_outlined,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                          OutlinedButton(
+                            onPressed: () {},
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: context.spacing.sm,
+                              ),
+                              minimumSize: Size(0, 0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.spacing.md,
+                              ),
+                              child: Text('Salin'),
+                            ),
                           ),
-                          child: Text('Salin'),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
+                    ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -250,202 +265,219 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     return Consumer(
       builder: (context, ref, child) {
         final provider = ref.watch(getGroupOwnersProvider(widget.group.id!));
-        return provider.when(
-          data: (result) {
-            final groupOwners = result.resultValue ?? [];
-            return Column(
-              children: [
-                Row(
+
+        final auth = ref.watch(authStateProvider);
+        return auth.when(
+          error: (err, _) => const SizedBox(),
+          loading: () => const SizedBox(),
+          data: (user) {
+            bool isOwner = (widget.group.owners ?? []).contains(user?.id);
+            return provider.when(
+              data: (result) {
+                final groupOwners = result.resultValue ?? [];
+                return Column(
                   children: [
-                    Text('Pengelola', style: context.textStyles.title),
-                    Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        context.push(
-                          GroupManagerCreatePage.path,
-                          extra: widget.group,
-                        );
-                      },
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      child: Wrap(
-                        children: [
-                          Icon(
-                            Icons.add_circle_outlined,
-                            size: context.appSize.s16,
-                            color: context.colors.primary,
-                          ),
-                          SizedBox(width: context.appSize.s4),
-                          Text(
-                            'Tambah',
-                            style: context.textStyles.body.copyWith(
-                              color: context.colors.primary,
-                              fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        Text('Pengelola', style: context.textStyles.title),
+                        Spacer(),
+                        if (isOwner)
+                          TextButton(
+                            onPressed: () {
+                              context.push(
+                                GroupManagerCreatePage.path,
+                                extra: widget.group,
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: context.spacing.md),
-                  padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
-                  child: Column(
-                    spacing: context.spacing.md,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(bottom: context.spacing.md),
-                        padding: EdgeInsets.symmetric(
-                          vertical: context.spacing.sm,
-                          horizontal: context.spacing.md,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.colors.accent,
-                          borderRadius: BorderRadius.circular(
-                            context.radius.medium,
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.info_outline),
-                            SizedBox(width: context.spacing.sm),
-                            Expanded(
-                              child: Text(
-                                'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                                style: context.textStyles.body,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      for (var i = 0; i < groupOwners.length; i++)
-                        Container(
-                          padding: i == 2
-                              ? null
-                              : EdgeInsets.only(bottom: context.spacing.md),
-                          decoration: BoxDecoration(
-                            border: i == 2
-                                ? null
-                                : Border(
-                                    bottom: BorderSide(
-                                      color: context.colors.divider,
-                                    ),
-                                  ),
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: context.colors.surface,
-                                child: Text(
-                                  groupOwners[i].name?.initials ?? '',
+                            child: Wrap(
+                              children: [
+                                Icon(
+                                  Icons.add_circle_outlined,
+                                  size: context.appSize.s16,
+                                  color: context.colors.primary,
+                                ),
+                                SizedBox(width: context.appSize.s4),
+                                Text(
+                                  'Tambah',
                                   style: context.textStyles.body.copyWith(
                                     color: context.colors.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: context.spacing.sm),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      groupOwners[i].name ?? '',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: context.textStyles.bodySmall
-                                          .copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    SizedBox(height: context.spacing.xs),
-                                    Text(
-                                      groupOwners[i].phoneNumber ??
-                                          groupOwners[i].email ??
-                                          '-',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: context.textStyles.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: groupOwners.length == 1
-                                    ? null
-                                    : () {
-                                        CustomAlert.show(
-                                          context,
-                                          title: 'Hapus pengelola',
-                                          description:
-                                              'Apakah Anda yakin ingin menghapus pengelola ini?',
-                                          onYes: () {
-                                            LoadingOverlay.show(context);
-                                            ref
-                                                .read(
-                                                  removeGroupOwnerUsecaseProvider,
-                                                )
-                                                .call(
-                                                  widget.group.id!,
-                                                  groupOwners[i].id!,
-                                                )
-                                                .then((result) {
-                                                  LoadingOverlay.hide();
-                                                  if (result.isSuccess) {
-                                                    CustomSnackbar.success(
-                                                      message:
-                                                          result.resultValue,
-                                                    );
-                                                    ref.invalidate(
-                                                      getGroupOwnersProvider(
-                                                        widget.group.id!,
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    CustomSnackbar.error(
-                                                      message:
-                                                          result.errorMessage,
-                                                    );
-                                                  }
-                                                });
-                                          },
-                                        );
-                                      },
-                                icon: Icon(
-                                  Icons.delete_outline,
-                                  color: groupOwners.length == 1
-                                      ? null
-                                      : context.colors.primary,
-                                ),
-                              ),
-                              OutlinedButton(
-                                onPressed: () {},
-                                style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: context.spacing.sm,
-                                  ),
-                                  minimumSize: Size(0, 0),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: context.spacing.md,
-                                  ),
-                                  child: Text('Hubungi'),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: context.spacing.md),
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.xs,
+                      ),
+                      child: Column(
+                        spacing: context.spacing.md,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: context.spacing.md),
+                            padding: EdgeInsets.symmetric(
+                              vertical: context.spacing.sm,
+                              horizontal: context.spacing.md,
+                            ),
+                            decoration: BoxDecoration(
+                              color: context.colors.accent,
+                              borderRadius: BorderRadius.circular(
+                                context.radius.medium,
+                              ),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Icons.info_outline),
+                                SizedBox(width: context.spacing.sm),
+                                Expanded(
+                                  child: Text(
+                                    'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                                    style: context.textStyles.body,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          for (var i = 0; i < groupOwners.length; i++)
+                            Container(
+                              padding: i == 2
+                                  ? null
+                                  : EdgeInsets.only(bottom: context.spacing.md),
+                              decoration: BoxDecoration(
+                                border: i == 2
+                                    ? null
+                                    : Border(
+                                        bottom: BorderSide(
+                                          color: context.colors.divider,
+                                        ),
+                                      ),
+                              ),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: context.colors.surface,
+                                    child: Text(
+                                      groupOwners[i].name?.initials ?? '',
+                                      style: context.textStyles.body.copyWith(
+                                        color: context.colors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: context.spacing.sm),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          groupOwners[i].name ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.textStyles.bodySmall
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        SizedBox(height: context.spacing.xs),
+                                        Text(
+                                          groupOwners[i].phoneNumber ??
+                                              groupOwners[i].email ??
+                                              '-',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.textStyles.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isOwner)
+                                    IconButton(
+                                      onPressed: groupOwners.length == 1
+                                          ? null
+                                          : () {
+                                              CustomAlert.show(
+                                                context,
+                                                title: 'Hapus pengelola',
+                                                description:
+                                                    'Apakah Anda yakin ingin menghapus pengelola ini?',
+                                                onYes: () {
+                                                  LoadingOverlay.show(context);
+                                                  ref
+                                                      .read(
+                                                        removeGroupOwnerUsecaseProvider,
+                                                      )
+                                                      .call(
+                                                        widget.group.id!,
+                                                        groupOwners[i].id!,
+                                                      )
+                                                      .then((result) {
+                                                        LoadingOverlay.hide();
+                                                        if (result.isSuccess) {
+                                                          CustomSnackbar.success(
+                                                            message: result
+                                                                .resultValue,
+                                                          );
+                                                          ref.invalidate(
+                                                            getGroupOwnersProvider(
+                                                              widget.group.id!,
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          CustomSnackbar.error(
+                                                            message: result
+                                                                .errorMessage,
+                                                          );
+                                                        }
+                                                      });
+                                                },
+                                              );
+                                            },
+                                      icon: Icon(
+                                        Icons.delete_outline,
+                                        color: groupOwners.length == 1
+                                            ? null
+                                            : context.colors.primary,
+                                      ),
+                                    ),
+                                  OutlinedButton(
+                                    onPressed: () {},
+                                    style: OutlinedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: context.spacing.sm,
+                                      ),
+                                      minimumSize: Size(0, 0),
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: context.spacing.md,
+                                      ),
+                                      child: Text('Hubungi'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+              error: (_, __) => const SizedBox(),
+              loading: () => const SizedBox(),
             );
           },
-          error: (_, __) => const SizedBox(),
-          loading: () => const SizedBox(),
         );
       },
     );

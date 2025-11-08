@@ -24,6 +24,9 @@ _GroupEntity _$GroupEntityFromJson(Map<String, dynamic> json) => _GroupEntity(
   isOwned: json['isOwned'] as bool?,
   isJoined: json['isJoined'] as bool?,
   owners: (json['owners'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  memberIds: (json['memberIds'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
@@ -52,6 +55,7 @@ Map<String, dynamic> _$GroupEntityToJson(_GroupEntity instance) =>
       'isOwned': instance.isOwned,
       'isJoined': instance.isJoined,
       'owners': instance.owners,
+      'memberIds': instance.memberIds,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'paymentAccounts': instance.paymentAccounts,

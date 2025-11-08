@@ -9,6 +9,7 @@ import '../../domain/usecases/add_group_owners_usecase.dart';
 import '../../domain/usecases/add_payment_account_usecase.dart';
 import '../../domain/usecases/create_group_usecase.dart';
 import '../../domain/usecases/create_history_usecase.dart';
+import '../../domain/usecases/delete_group_usecase.dart';
 import '../../domain/usecases/delete_member_usecase.dart';
 import '../../domain/usecases/delete_payment_account_usecase.dart';
 import '../../domain/usecases/get_group_detail_usecase.dart';
@@ -17,7 +18,9 @@ import '../../domain/usecases/get_groups_usecase.dart';
 import '../../domain/usecases/get_histories_usecase.dart';
 import '../../domain/usecases/get_member_detail_usecase.dart';
 import '../../domain/usecases/get_members_usecase.dart';
+import '../../domain/usecases/get_total_paid_members_usecase.dart';
 import '../../domain/usecases/remove_group_owner_usecase.dart';
+import '../../domain/usecases/update_group_usecase.dart';
 import '../../domain/usecases/update_member_usecase.dart';
 import '../../domain/usecases/update_payment_account_usecase.dart';
 
@@ -38,6 +41,18 @@ GetGroupsUsecase getGroupsUsecase(Ref ref) {
 CreateGroupUsecase createGroupUsecase(Ref ref) {
   final repository = ref.read(groupRepositoryProvider);
   return CreateGroupUsecase(repository: repository);
+}
+
+@riverpod
+UpdateGroupUsecase updateGroupUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return UpdateGroupUsecase(repository: repository);
+}
+
+@riverpod
+DeleteGroupUsecase deleteGroupUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return DeleteGroupUsecase(repository: repository);
 }
 
 @riverpod
@@ -72,6 +87,13 @@ Future<Result<List<HistoryEntity>>> getHistories(
   final repository = ref.read(groupRepositoryProvider);
   final usecase = GetHistoriesUsecase(repository: repository);
   return await usecase(groupId);
+}
+
+@riverpod
+Future<Result<num>> getTotalGroupPaidAmount(Ref ref, String groupId) async {
+  final repository = ref.read(groupRepositoryProvider);
+  final usecase = GetTotalPaidMembersUsecase(repository: repository);
+  return await usecase(groupId: groupId);
 }
 
 @riverpod

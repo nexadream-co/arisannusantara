@@ -9,20 +9,19 @@ import '../../../../shared/widgets/datefield_without_border_widget.dart';
 import '../../../../shared/widgets/dropdown_without_border_widget.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import '../../domain/entities/group_entity.dart';
-import '../../domain/entities/payment_account_entity.dart';
-import '../payment_account_widget.dart';
-import '../providers/get_groups_notifier.dart';
+import '../providers/get_group_detail_provider.dart';
 import '../providers/group_providers.dart';
 
-class GroupCreatePage extends ConsumerStatefulWidget {
-  static const String path = '/group/create';
-  const GroupCreatePage({super.key});
+class GroupEditPage extends ConsumerStatefulWidget {
+  final GroupEntity group;
+  static const String path = '/group/edit';
+  const GroupEditPage({super.key, required this.group});
 
   @override
-  ConsumerState<GroupCreatePage> createState() => _GroupCreatePageState();
+  ConsumerState<GroupEditPage> createState() => _GroupEditPageState();
 }
 
-class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
+class _GroupEditPageState extends ConsumerState<GroupEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
@@ -33,8 +32,21 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
   final _adminFeeController = TextEditingController();
   String _period = 'weekly';
   DateTime _periodDate = DateTime.now();
-  List<PaymentAccountEntity> _paymentAccounts = [];
-  bool _termConditionAccepted = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameController.text = widget.group.name ?? '';
+    _descController.text = widget.group.description ?? '';
+    _duesController.text = widget.group.dues?.toInt().toString() ?? '';
+    _rewardController.text = widget.group.reward ?? '';
+    _targetController.text = widget.group.target?.toInt().toString() ?? '';
+    _maxWinnerController.text = widget.group.maxWinner?.toString() ?? '';
+    _adminFeeController.text = widget.group.adminFee?.toInt().toString() ?? '';
+    _period = widget.group.periodsType ?? 'weekly';
+    _periodDate = widget.group.periodsDate ?? DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,14 +107,14 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Tambah Grup',
+                              'Edit Grup',
                               maxLines: 1,
                               style: context.textStyles.header.copyWith(
                                 color: context.colors.primary,
                               ),
                             ),
                             Text(
-                              'Masukkan informasi grup arisan anda',
+                              'Ubah informasi grup arisan anda',
                               maxLines: 1,
                               style: context.textStyles.body,
                             ),
@@ -214,49 +226,19 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                   padding: EdgeInsets.symmetric(horizontal: context.spacing.lg),
                   child: Column(
                     children: [
-                      PaymentAccountWidget(
-                        initialValue: _paymentAccounts,
-                        onChanged: (value) {
-                          _paymentAccounts = value;
-                        },
-                      ),
-                      StatefulBuilder(
-                        builder: (context, setState) {
-                          return CheckboxListTile(
-                            contentPadding: EdgeInsets.zero,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            value: _termConditionAccepted,
-                            onChanged: (value) {
-                              setState(() => _termConditionAccepted = value!);
-                            },
-                            title: Text(
-                              'Saya menyetujui syarat dan ketentuan aplikasi',
-                              style: context.textStyles.body.copyWith(
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                       SizedBox(height: context.appSize.s24),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
                           onPressed: () {
                             if (!_formKey.currentState!.validate()) return;
-                            if (!_termConditionAccepted) {
-                              CustomSnackbar.error(
-                                message:
-                                    'Silahkan setujui syarat dan ketentuan aplikasi',
-                              );
-                              return;
-                            }
 
                             LoadingOverlay.show(context);
                             ref
-                                .read(createGroupUsecaseProvider)
+                                .read(updateGroupUsecaseProvider)
                                 .call(
                                   GroupEntity(
+                                    id: widget.group.id,
                                     name: _nameController.text,
                                     description: _descController.text,
                                     dues: double.tryParse(_duesController.text),
@@ -272,7 +254,6 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                                     adminFee: double.tryParse(
                                       _adminFeeController.text,
                                     ),
-                                    paymentAccounts: _paymentAccounts,
                                   ),
                                 )
                                 .then((result) {
@@ -283,9 +264,9 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                                     );
                                     context.pop();
 
-                                    ref
-                                        .read(getGroupsProvider.notifier)
-                                        .refresh();
+                                    ref.invalidate(
+                                      getGroupDetailProvider(widget.group.id!),
+                                    );
                                   } else {
                                     CustomSnackbar.error(
                                       message: result.errorMessage,

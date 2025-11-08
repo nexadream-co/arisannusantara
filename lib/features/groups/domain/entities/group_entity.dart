@@ -23,6 +23,7 @@ abstract class GroupEntity with _$GroupEntity {
     bool? isOwned,
     bool? isJoined,
     List<String>? owners,
+    List<String>? memberIds,
     DateTime? createdAt,
     DateTime? updatedAt,
     List<PaymentAccountEntity>? paymentAccounts,

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../config/database/db_collection.dart';
+import '../../../config/enums/payment_status_enum.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
@@ -156,6 +157,79 @@ mixin MemberRepository {
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();
+    }
+  }
+
+  Future<Result<num>> getTotalGroupPaidAmount({required String groupId}) async {
+    try {
+      // Get current user
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      // Fetch the group document to get total dues
+      final groupDoc = await _firestore
+          .collection(DBCollections.groups)
+          .doc(groupId)
+          .get();
+
+      if (!groupDoc.exists) {
+        return const Result.failed('Grup tidak ditemukan');
+      }
+
+      final groupData = groupDoc.data()!;
+      final num totalDues = (groupData['dues'] ?? 0) as num;
+
+      // Fetch members who have paid
+      final membersQuery = await _firestore
+          .collection(DBCollections.members)
+          .where('groupId', isEqualTo: groupId)
+          .where('paymentStatus', isEqualTo: PaymentStatusEnum.paid)
+          .get();
+
+      final int totalPaidMembers = membersQuery.docs.length;
+
+      // Calculate total paid amount
+      final num totalPaidAmount = totalDues * totalPaidMembers;
+
+      return Result.success(totalPaidAmount);
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return const Result.failed(
+        'Terjadi kesalahan saat menghitung total pembayaran',
+      );
+    }
+  }
+
+  Future<Result<int>> getTotalPaidMembers({required String groupId}) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      // Query members with status_payment = 'paid'
+      final snapshot = await _firestore
+          .collection(DBCollections.members)
+          .where('groupId', isEqualTo: groupId)
+          .where('paymentStatus', isEqualTo: PaymentStatusEnum.paid.name)
+          .get();
+
+      final int totalPaidMembers = snapshot.docs.length;
+
+      return Result.success(totalPaidMembers);
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return const Result.failed(
+        'Terjadi kesalahan saat mengambil total anggota yang sudah membayar',
+      );
     }
   }
 

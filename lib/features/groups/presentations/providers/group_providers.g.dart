@@ -145,6 +145,102 @@ final class CreateGroupUsecaseProvider
 String _$createGroupUsecaseHash() =>
     r'dad4c3a5874835fc45e2face73a61fccd233c0e6';
 
+@ProviderFor(updateGroupUsecase)
+const updateGroupUsecaseProvider = UpdateGroupUsecaseProvider._();
+
+final class UpdateGroupUsecaseProvider
+    extends
+        $FunctionalProvider<
+          UpdateGroupUsecase,
+          UpdateGroupUsecase,
+          UpdateGroupUsecase
+        >
+    with $Provider<UpdateGroupUsecase> {
+  const UpdateGroupUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updateGroupUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updateGroupUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdateGroupUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  UpdateGroupUsecase create(Ref ref) {
+    return updateGroupUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdateGroupUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdateGroupUsecase>(value),
+    );
+  }
+}
+
+String _$updateGroupUsecaseHash() =>
+    r'ecb9708daa59cc12189ab294db04f4a8a04f29ef';
+
+@ProviderFor(deleteGroupUsecase)
+const deleteGroupUsecaseProvider = DeleteGroupUsecaseProvider._();
+
+final class DeleteGroupUsecaseProvider
+    extends
+        $FunctionalProvider<
+          DeleteGroupUsecase,
+          DeleteGroupUsecase,
+          DeleteGroupUsecase
+        >
+    with $Provider<DeleteGroupUsecase> {
+  const DeleteGroupUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'deleteGroupUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$deleteGroupUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<DeleteGroupUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DeleteGroupUsecase create(Ref ref) {
+    return deleteGroupUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DeleteGroupUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DeleteGroupUsecase>(value),
+    );
+  }
+}
+
+String _$deleteGroupUsecaseHash() =>
+    r'450b5987bb3fa8842f861098b9966e51947247f2';
+
 @ProviderFor(getGroupDetailUsecase)
 const getGroupDetailUsecaseProvider = GetGroupDetailUsecaseProvider._();
 
@@ -430,6 +526,83 @@ final class GetHistoriesFamily extends $Family
 
   @override
   String toString() => r'getHistoriesProvider';
+}
+
+@ProviderFor(getTotalGroupPaidAmount)
+const getTotalGroupPaidAmountProvider = GetTotalGroupPaidAmountFamily._();
+
+final class GetTotalGroupPaidAmountProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<num>>,
+          Result<num>,
+          FutureOr<Result<num>>
+        >
+    with $FutureModifier<Result<num>>, $FutureProvider<Result<num>> {
+  const GetTotalGroupPaidAmountProvider._({
+    required GetTotalGroupPaidAmountFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getTotalGroupPaidAmountProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getTotalGroupPaidAmountHash();
+
+  @override
+  String toString() {
+    return r'getTotalGroupPaidAmountProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<num>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<num>> create(Ref ref) {
+    final argument = this.argument as String;
+    return getTotalGroupPaidAmount(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetTotalGroupPaidAmountProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getTotalGroupPaidAmountHash() =>
+    r'db86fb2cc0c4f2d69d75990abb5b039d78d6ef1c';
+
+final class GetTotalGroupPaidAmountFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<num>>, String> {
+  const GetTotalGroupPaidAmountFamily._()
+    : super(
+        retry: null,
+        name: r'getTotalGroupPaidAmountProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetTotalGroupPaidAmountProvider call(String groupId) =>
+      GetTotalGroupPaidAmountProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'getTotalGroupPaidAmountProvider';
 }
 
 @ProviderFor(createHistoryUsecase)

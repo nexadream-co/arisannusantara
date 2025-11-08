@@ -60,31 +60,33 @@ class _GroupHistoryPageState extends ConsumerState<GroupHistoryPage> {
               child: Column(
                 spacing: context.spacing.md,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: context.spacing.sm,
-                      horizontal: context.spacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.colors.accent,
-                      borderRadius: BorderRadius.circular(
-                        context.radius.medium,
+                  if (histories.isEmpty)
+                    Container(
+                      margin: EdgeInsets.only(bottom: context.spacing.md),
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.spacing.sm,
+                        horizontal: context.spacing.md,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.colors.accent,
+                        borderRadius: BorderRadius.circular(
+                          context.radius.medium,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.info_outline),
+                          SizedBox(width: context.spacing.sm),
+                          Expanded(
+                            child: Text(
+                              'Belum ada riwayat',
+                              style: context.textStyles.body,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(Icons.info_outline),
-                        SizedBox(width: context.spacing.sm),
-                        Expanded(
-                          child: Text(
-                            'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                            style: context.textStyles.body,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   for (int i = 0; i < histories.length; i++)
                     GestureDetector(
                       onTap: () {

@@ -205,7 +205,7 @@ mixin GroupDetailRepository {
     }
   }
 
-  Future<Result<void>> updateGroup(GroupEntity group) async {
+  Future<Result<String>> updateGroup(GroupEntity group) async {
     try {
       final user = _auth.currentUser;
       if (user == null) {
@@ -224,15 +224,19 @@ mixin GroupDetailRepository {
         'name': group.name,
         'searchIndex': generateSearchIndex([group.name, group.code]),
         'description': group.description,
-        'periodsDate': group.periodsDate,
         'dues': group.dues,
         'target': group.target,
+        'periodsDate': group.periodsDate?.toString(),
+        'periodsType': group.periodsType,
+        'reward': group.reward,
+        'maxWinner': group.maxWinner,
+        'adminFee': group.adminFee,
         'updatedAt': now,
       };
 
       await docRef.update(updateData);
 
-      return const Result.success(null);
+      return const Result.success('Grup berhasil diperbarui');
     } on FirebaseException catch (e) {
       return Result.failed(getFirebaseFirestoreExceptionMessage(e));
     } catch (e, s) {
@@ -384,6 +388,7 @@ mixin GroupDetailRepository {
         reward: data['reward'] as String?,
         periodsType: data['periodsType'] as String?,
         periodsDate: parseFirestoreDate(data['periodsDate']),
+        owners: data['ownerIds']?.cast<String>() ?? [],
         dues: (data['dues'] as num?)?.toDouble(),
         maxWinner: data['maxWinner'] as int?,
         adminFee: (data['adminFee'] as num?)?.toDouble(),

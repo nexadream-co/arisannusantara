@@ -1,13 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../core/utils/custom_alert.dart';
+import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
+import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../domain/entities/group_entity.dart';
 import '../providers/get_group_detail_provider.dart';
+import '../providers/get_groups_notifier.dart';
+import '../providers/group_providers.dart';
 import 'group_detail_page.dart';
+import 'group_edit_page.dart';
 import 'group_history_page.dart';
 import 'group_member_page.dart';
 
@@ -25,6 +34,7 @@ class _GroupPageState extends ConsumerState<GroupPage> {
   @override
   Widget build(BuildContext context) {
     final groupDetail = ref.watch(getGroupDetailProvider(widget.groupId));
+
     return groupDetail.when(
       loading: () => Scaffold(body: Center(child: LoadingIconAnimation())),
       error: (err, _) => Scaffold(body: Center(child: LoadingIconAnimation())),
@@ -85,6 +95,7 @@ class _GroupPageState extends ConsumerState<GroupPage> {
 
   // Your "detail info" section below AppBar
   Widget _buildHeaderInfo(GroupEntity group) {
+    final auth = ref.watch(authStateProvider);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -111,23 +122,70 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                     ),
                   ),
                   Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      context.pop();
+                  auth.when(
+                    error: (err, _) => const SizedBox(),
+                    loading: () => const SizedBox(),
+                    data: (user) {
+                      if ((group.owners ?? []).contains(user?.id)) {
+                        return Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                auth.whenData((user) {
+                                  if ((group.owners ?? []).contains(user?.id)) {
+                                    context.push(
+                                      GroupEditPage.path,
+                                      extra: group,
+                                    );
+                                  }
+                                });
+                              },
+                              icon: Icon(
+                                Icons.edit_outlined,
+                                color: context.colors.textPrimary,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                CustomAlert.show(
+                                  context,
+                                  title: 'Hapus Grup',
+                                  description:
+                                      'Apakah anda yakin ingin menghapus Grup ini?',
+                                  onYes: () async {
+                                    LoadingOverlay.show(context);
+                                    final usecase = ref.read(
+                                      deleteGroupUsecaseProvider,
+                                    );
+                                    usecase.call(group.id!).then((result) {
+                                      LoadingOverlay.hide();
+                                      if (result.isSuccess) {
+                                        CustomSnackbar.success(
+                                          message: result.resultValue,
+                                        );
+                                        ref
+                                            .read(getGroupsProvider.notifier)
+                                            .refresh();
+                                        context.pop();
+                                      } else {
+                                        CustomSnackbar.error(
+                                          message: result.errorMessage,
+                                        );
+                                      }
+                                    });
+                                  },
+                                );
+                              },
+                              icon: Icon(
+                                Icons.delete_outlined,
+                                color: context.colors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return const SizedBox();
                     },
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      color: context.colors.textPrimary,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    icon: Icon(
-                      Icons.delete_outlined,
-                      color: context.colors.textPrimary,
-                    ),
                   ),
                 ],
               ),
@@ -201,7 +259,7 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                             color: context.colors.primary,
                           ),
                           Text(
-                            '20 Peserta',
+                            '${(group.memberIds ?? []).length} Peserta',
                             style: context.textStyles.bodySmall.copyWith(
                               color: context.colors.textSecondary,
                             ),
@@ -233,48 +291,124 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        'Rp 1.000.000',
-                        style: context.textStyles.header.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.colors.secondary,
-                        ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final totalPaidMembers = ref.watch(
+                            getTotalGroupPaidAmountProvider(widget.groupId),
+                          );
+                          return totalPaidMembers.when(
+                            loading: () => const SizedBox(),
+                            error: (err, _) => const SizedBox(),
+                            data: (total) {
+                              return Text(
+                                ((group.dues ?? 0) * (total.resultValue ?? 0))
+                                    .toIdrWithPrefix,
+                                style: context.textStyles.header.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: context.colors.secondary,
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              Card(
-                margin: EdgeInsets.only(right: context.spacing.lg),
-                color: Colors.white,
-                elevation: 0,
-                child: Container(
-                  padding: EdgeInsets.all(context.spacing.md),
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      Icon(Icons.qr_code, size: context.appSize.s80),
-
-                      Container(
-                        margin: EdgeInsets.only(top: context.spacing.sm),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.spacing.md,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: context.colors.primary),
-                          borderRadius: BorderRadius.circular(
-                            context.radius.medium,
+              GestureDetector(
+                onTap: () {
+                  showAppModalBottomSheet(
+                    context: context,
+                    child: Padding(
+                      padding: EdgeInsets.all(context.spacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  group.name ?? '',
+                                  style: context.textStyles.title,
+                                ),
+                              ),
+                              Text(
+                                '#${group.code}',
+                                style: context.textStyles.body,
+                              ),
+                            ],
                           ),
-                        ),
-                        child: Text(
-                          'Bagikan',
-                          style: context.textStyles.body.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: context.colors.primary,
+                          Container(
+                            margin: EdgeInsets.only(
+                              top: context.spacing.lg,
+                              left: context.spacing.lg,
+                              right: context.spacing.lg,
+                              bottom: context.spacing.xl,
+                            ),
+                            width: double.infinity,
+                            child: PrettyQrView.data(data: group.code ?? ''),
                           ),
-                        ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: () {},
+                              child: Text('Bagikan'),
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(
+                              top: context.spacing.md,
+                              bottom: context.spacing.lg,
+                            ),
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                context.pop();
+                              },
+                              child: Text('Tutup'),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  );
+                },
+                child: Card(
+                  margin: EdgeInsets.only(right: context.spacing.lg),
+                  color: Colors.white,
+                  elevation: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(context.spacing.md),
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: context.appSize.s80,
+                          child: PrettyQrView.data(data: group.code ?? ''),
+                        ),
+
+                        Container(
+                          margin: EdgeInsets.only(top: context.spacing.md),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.spacing.md,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: context.colors.primary),
+                            borderRadius: BorderRadius.circular(
+                              context.radius.medium,
+                            ),
+                          ),
+                          child: Text(
+                            'Bagikan',
+                            style: context.textStyles.body.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: context.colors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
