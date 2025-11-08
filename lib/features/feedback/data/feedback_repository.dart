@@ -12,7 +12,7 @@ class FeedbackRepository {
   final _firestore = FirebaseFirestore.instance;
 
   Future<Result<List<FeedbackEntity>>> getFeedbacks({
-    List<String>? search,
+    String? search,
     String? status, // process, done, ignored
     int limit = 10,
     String? lastId,
@@ -34,7 +34,7 @@ class FeedbackRepository {
 
       // Optional search filter
       if (search != null && search.isNotEmpty) {
-        query = query.where('searchIndex', arrayContainsAny: search);
+        query = query.where('searchIndex', arrayContains: search);
       }
 
       // Order by createdAt for pagination
@@ -100,11 +100,9 @@ class FeedbackRepository {
         'updatedAt': DateTime.now().toString(),
       };
 
-      final docRef = await _firestore
-          .collection(DBCollections.feedback)
-          .add(feedbackData);
+      await _firestore.collection(DBCollections.feedback).add(feedbackData);
 
-      return Result.success(docRef.id);
+      return Result.success('Feedback berhasil dikirim');
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);

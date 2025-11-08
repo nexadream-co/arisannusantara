@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
@@ -12,8 +13,10 @@ import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import '../../../auth/presentations/provider/auth_providers.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
+import '../../../feedback/presentations/providers/feedback_providers.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../../term_conditions/presentations/pages/term_condition_page.dart';
+import '../providers/profile_providers.dart';
 import 'change_password_page.dart';
 import 'profile_edit_page.dart';
 
@@ -26,6 +29,14 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
+  late Future<PackageInfo> getVersionInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    getVersionInfo = PackageInfo.fromPlatform();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -363,11 +374,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               description:
                                   "Apakah anda yakin ingin menghapus akun?",
                               onYes: () {
-                                CustomSnackbar.show(
-                                  title: "Berhasil",
-                                  message: "Akun anda berhasil dihapus",
-                                  type: SnackbarType.success,
-                                );
+                                _deleteAccount();
                               },
                             );
                           },
@@ -392,9 +399,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             color: context.colors.textSecondary,
                           ),
                         ),
-                        trailing: Text(
-                          '1.1.2 (32)',
-                          style: context.textStyles.body,
+                        trailing: FutureBuilder<PackageInfo>(
+                          future: getVersionInfo,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final data = snapshot.data!;
+                              return Text(
+                                '${data.version} (${data.buildNumber})',
+                                style: context.textStyles.body,
+                              );
+                            }
+                            return const SizedBox();
+                          },
                         ),
                       ),
                     ],
@@ -445,82 +461,194 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   void _addFeedback() {
+    final formKey = GlobalKey<FormState>();
+    final titleController = TextEditingController();
+    final feedbackController = TextEditingController();
+
     showAppModalBottomSheet(
       context: context,
-      child: Container(
-        padding: EdgeInsets.all(context.spacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Feedback',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyles.title.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.primary,
-                  ),
-                ),
-                Text(
-                  'Kritik dan masukkan anda',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyles.body,
-                ),
-              ],
-            ),
-            SizedBox(height: context.appSize.s16),
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: context.spacing.sm,
-                horizontal: context.spacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: context.colors.accent,
-                borderRadius: BorderRadius.circular(context.radius.medium),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+      child: Form(
+        key: formKey,
+        child: Container(
+          padding: EdgeInsets.all(context.spacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline),
-                  SizedBox(width: context.spacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                      style: context.textStyles.body,
+                  Text(
+                    'Feedback',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.title.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.primary,
                     ),
+                  ),
+                  Text(
+                    'Kritik dan masukkan anda',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.body,
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: context.appSize.s16),
-            _textField(label: 'Judul', hintText: 'Masukkan judul disini...'),
-            SizedBox(height: context.appSize.s8),
-            _textField(
-              label: 'Feedback',
-              minLines: 2,
-              hintText: 'Masukkan dan kritik anda...',
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(
-                top: context.spacing.lg,
-                bottom: context.spacing.sm,
+              SizedBox(height: context.appSize.s16),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  vertical: context.spacing.sm,
+                  horizontal: context.spacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: context.colors.accent,
+                  borderRadius: BorderRadius.circular(context.radius.medium),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.info_outline),
+                    SizedBox(width: context.spacing.sm),
+                    Expanded(
+                      child: Text(
+                        'Jika anda memiliki pertanyaan, kritik, atau masukan, silahkan isi form di bawah ini. Terima kasih.',
+                        style: context.textStyles.body,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: FilledButton(onPressed: () {}, child: Text('Kirim')),
-            ),
-          ],
+              SizedBox(height: context.appSize.s16),
+              _textField(
+                controller: titleController,
+                required: true,
+                label: 'Judul',
+                hintText: 'Masukkan judul disini...',
+              ),
+              SizedBox(height: context.appSize.s8),
+              _textField(
+                controller: feedbackController,
+                required: true,
+                label: 'Feedback',
+                hintText: 'Masukkan dan kritik anda...',
+              ),
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.only(
+                  top: context.spacing.lg,
+                  bottom: context.spacing.sm,
+                ),
+                child: FilledButton(
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) return;
+                    final usecase = ref.read(createFeedbackUsecaseProvider);
+                    LoadingOverlay.show(context);
+                    usecase
+                        .call(
+                          title: titleController.text,
+                          feedback: feedbackController.text,
+                        )
+                        .then((result) {
+                          LoadingOverlay.hide();
+                          if (result.isSuccess) {
+                            CustomSnackbar.success(message: result.resultValue);
+                            Navigator.pop(context);
+                          } else {
+                            CustomSnackbar.error(message: result.errorMessage);
+                          }
+                        });
+                  },
+                  child: Text('Kirim'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _deleteAccount() {
+    final formKey = GlobalKey<FormState>();
+    final passwordController = TextEditingController();
+    showAppModalBottomSheet(
+      context: context,
+      child: Form(
+        key: formKey,
+        child: Container(
+          padding: EdgeInsets.all(context.spacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Password',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.title.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                  Text(
+                    'Masukkan password anda',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.body,
+                  ),
+                ],
+              ),
+              SizedBox(height: context.appSize.s16),
+              _textField(
+                controller: passwordController,
+                label: 'Password',
+                required: true,
+                hintText: 'Masukkan dan kritik anda...',
+              ),
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.only(
+                  top: context.spacing.lg,
+                  bottom: context.spacing.sm,
+                ),
+                child: FilledButton(
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) return;
+                    LoadingOverlay.show(context);
+                    ref
+                        .read(deleteAccountUsecaseProvider)
+                        .call(passwordController.text)
+                        .then((result) {
+                          LoadingOverlay.hide();
+                          if (result.isSuccess) {
+                            CustomSnackbar.success(message: result.resultValue);
+                            // Redirect after logout handled by middleware,
+                            // See `middleware()` in `router.dart`
+                          } else {
+                            CustomSnackbar.error(
+                              message: result.errorMessage,
+                              mounted: mounted,
+                            );
+                          }
+                        });
+                  },
+                  child: Text('Hapus Akun'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _textField({
+    TextEditingController? controller,
     required String label,
     required String hintText,
+    bool required = false,
     int? minLines,
   }) {
     return Container(
@@ -533,13 +661,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: context.spacing.md,
         children: [
-          Text(label, style: context.textStyles.body),
+          Expanded(flex: 1, child: Text(label, style: context.textStyles.body)),
           Expanded(
+            flex: 2,
             child: TextfieldWithoutBorderWidget(
+              controller: controller,
               hintText: hintText,
               minLines: minLines,
-              maxLines: null,
-              textAlign: TextAlign.end,
+              required: required,
+              maxLines: 1,
             ),
           ),
         ],

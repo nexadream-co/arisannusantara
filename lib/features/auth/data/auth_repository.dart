@@ -214,7 +214,7 @@ class AuthRepository {
         await docRef.update({'lastLoginAt': DateTime.now().toString()});
       }
 
-      return Result.success(token);
+      return Result.success('Login berhasil');
     } on FirebaseAuthException catch (e) {
       return Result.failed(getFirebaseAuthExceptionMessage(e));
     } catch (e, s) {

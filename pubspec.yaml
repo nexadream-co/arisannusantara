@@ -36,6 +36,7 @@ dependencies:
   json_annotation: ^4.9.0
   json_serializable: ^6.11.1
   pretty_qr_code: ^3.5.0
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:
