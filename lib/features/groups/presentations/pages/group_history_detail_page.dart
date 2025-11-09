@@ -96,7 +96,7 @@ class _GroupHistoryDetailPageState
                             ),
                           ),
                           Text(
-                            '#${widget.history.group?.code}',
+                            widget.history.group?.name ?? '',
                             maxLines: 1,
                             style: context.textStyles.body,
                           ),
@@ -196,8 +196,11 @@ class _GroupHistoryDetailPageState
                                                         .bodySmall,
                                                   ),
                                                   Text(
-                                                    widget.history.group?.dues
-                                                            ?.toString() ??
+                                                    widget
+                                                            .history
+                                                            .group
+                                                            ?.dues
+                                                            ?.toIdrWithPrefix ??
                                                         '-',
                                                     overflow:
                                                         TextOverflow.ellipsis,

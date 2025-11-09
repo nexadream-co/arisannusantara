@@ -19,7 +19,7 @@ mixin MemberRepository {
     required String groupId,
     String? query,
     bool? isActive,
-    bool? skip,
+    PaymentStatusEnum? paymentStatus,
     bool? hasReward,
   }) async {
     try {
@@ -39,8 +39,11 @@ mixin MemberRepository {
         memberQuery = memberQuery.where('isActive', isEqualTo: isActive);
       }
 
-      if (skip != null) {
-        memberQuery = memberQuery.where('skip', isEqualTo: skip);
+      if (paymentStatus != null) {
+        memberQuery = memberQuery.where(
+          'paymentStatus',
+          isEqualTo: paymentStatus.name,
+        );
       }
 
       if (hasReward != null) {
@@ -254,6 +257,35 @@ mixin MemberRepository {
       handleException(e, stackTrace: s);
       return const Result.failed(
         'Terjadi kesalahan saat mengambil total anggota yang sudah membayar',
+      );
+    }
+  }
+
+  Future<Result<bool>> checkEligibleToShuffle({required String groupId}) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      // Query members with paymentStatus = 'unpaid'
+      final snapshot = await _firestore
+          .collection(DBCollections.members)
+          .where('groupId', isEqualTo: groupId)
+          .where('paymentStatus', isEqualTo: PaymentStatusEnum.unpaid.name)
+          .get();
+
+      // Eligible if there are NO unpaid members
+      final bool isEligible = snapshot.docs.isEmpty;
+
+      return Result.success(isEligible);
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return const Result.failed(
+        'Terjadi kesalahan saat memeriksa kelayakan pengocokan arisan',
       );
     }
   }

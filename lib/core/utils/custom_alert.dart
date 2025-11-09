@@ -8,6 +8,7 @@ class CustomAlert {
     String? title,
     String? description,
     String? onYesText,
+    String? onCancelText,
     Function()? onYes,
     Function()? onCancel,
   }) async {
@@ -50,8 +51,8 @@ class CustomAlert {
                 ),
               ),
               onPressed: onCancel ?? () => Navigator.pop(context),
-              child: const Text(
-                'Batal',
+              child: Text(
+                onCancelText ?? 'Batal',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),

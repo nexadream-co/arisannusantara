@@ -225,7 +225,12 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                               ),
                               if (members[i].hasReward == true)
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    CustomSnackbar.warning(
+                                      message:
+                                          '${members[i].user?.name} telah mendapatkan hadiah',
+                                    );
+                                  },
                                   icon: Icon(
                                     Icons.emoji_events_outlined,
                                     color: context.colors.warning,

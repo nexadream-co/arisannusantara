@@ -381,7 +381,14 @@ final class GetMembersProvider
         $FutureProvider<Result<List<MemberEntity>>> {
   const GetMembersProvider._({
     required GetMembersFamily super.from,
-    required (String, String?) super.argument,
+    required (
+      String,
+      String?, {
+      bool? isActive,
+      PaymentStatusEnum? paymentStatus,
+      bool? hasReward,
+    })
+    super.argument,
   }) : super(
          retry: null,
          name: r'getMembersProvider',
@@ -408,8 +415,23 @@ final class GetMembersProvider
 
   @override
   FutureOr<Result<List<MemberEntity>>> create(Ref ref) {
-    final argument = this.argument as (String, String?);
-    return getMembers(ref, argument.$1, argument.$2);
+    final argument =
+        this.argument
+            as (
+              String,
+              String?, {
+              bool? isActive,
+              PaymentStatusEnum? paymentStatus,
+              bool? hasReward,
+            });
+    return getMembers(
+      ref,
+      argument.$1,
+      argument.$2,
+      isActive: argument.isActive,
+      paymentStatus: argument.paymentStatus,
+      hasReward: argument.hasReward,
+    );
   }
 
   @override
@@ -423,13 +445,19 @@ final class GetMembersProvider
   }
 }
 
-String _$getMembersHash() => r'4b4b233b1a3babc54efe474f132d931f53c1c6f3';
+String _$getMembersHash() => r'c561f7e945c45b6bc4718fc3fc842783882d7143';
 
 final class GetMembersFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<Result<List<MemberEntity>>>,
-          (String, String?)
+          (
+            String,
+            String?, {
+            bool? isActive,
+            PaymentStatusEnum? paymentStatus,
+            bool? hasReward,
+          })
         > {
   const GetMembersFamily._()
     : super(
@@ -440,11 +468,102 @@ final class GetMembersFamily extends $Family
         isAutoDispose: true,
       );
 
-  GetMembersProvider call(String groupId, String? search) =>
-      GetMembersProvider._(argument: (groupId, search), from: this);
+  GetMembersProvider call(
+    String groupId,
+    String? search, {
+    bool? isActive,
+    PaymentStatusEnum? paymentStatus,
+    bool? hasReward,
+  }) => GetMembersProvider._(
+    argument: (
+      groupId,
+      search,
+      isActive: isActive,
+      paymentStatus: paymentStatus,
+      hasReward: hasReward,
+    ),
+    from: this,
+  );
 
   @override
   String toString() => r'getMembersProvider';
+}
+
+@ProviderFor(checkEligibleToShuffle)
+const checkEligibleToShuffleProvider = CheckEligibleToShuffleFamily._();
+
+final class CheckEligibleToShuffleProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<bool>>,
+          Result<bool>,
+          FutureOr<Result<bool>>
+        >
+    with $FutureModifier<Result<bool>>, $FutureProvider<Result<bool>> {
+  const CheckEligibleToShuffleProvider._({
+    required CheckEligibleToShuffleFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'checkEligibleToShuffleProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$checkEligibleToShuffleHash();
+
+  @override
+  String toString() {
+    return r'checkEligibleToShuffleProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<bool>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<bool>> create(Ref ref) {
+    final argument = this.argument as String;
+    return checkEligibleToShuffle(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CheckEligibleToShuffleProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$checkEligibleToShuffleHash() =>
+    r'c04523ec551aee8bd9c1350c6079aa405629c791';
+
+final class CheckEligibleToShuffleFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<bool>>, String> {
+  const CheckEligibleToShuffleFamily._()
+    : super(
+        retry: null,
+        name: r'checkEligibleToShuffleProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  CheckEligibleToShuffleProvider call(String groupId) =>
+      CheckEligibleToShuffleProvider._(argument: groupId, from: this);
+
+  @override
+  String toString() => r'checkEligibleToShuffleProvider';
 }
 
 @ProviderFor(getHistories)

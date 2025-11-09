@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../config/enums/payment_status_enum.dart';
 import '../../../../core/app/result.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../data/group_repository.dart';
@@ -7,6 +8,7 @@ import '../../domain/entities/history_entity.dart';
 import '../../domain/entities/member_entity.dart';
 import '../../domain/usecases/add_group_owners_usecase.dart';
 import '../../domain/usecases/add_payment_account_usecase.dart';
+import '../../domain/usecases/check_eligible_to_shuffle_usecase.dart';
 import '../../domain/usecases/create_group_usecase.dart';
 import '../../domain/usecases/create_history_usecase.dart';
 import '../../domain/usecases/create_member_usecase.dart';
@@ -73,11 +75,27 @@ Future<Result<List<UserEntity>>> getGroupOwners(Ref ref, String groupId) async {
 Future<Result<List<MemberEntity>>> getMembers(
   Ref ref,
   String groupId,
-  String? search,
-) async {
+  String? search, {
+  bool? isActive,
+  PaymentStatusEnum? paymentStatus,
+  bool? hasReward,
+}) async {
   final repository = ref.read(groupRepositoryProvider);
   final usecase = GetMembersUsecase(repository: repository);
-  return await usecase(groupId: groupId, search: search);
+  return await usecase(
+    groupId: groupId,
+    search: search,
+    isActive: isActive,
+    paymentStatus: paymentStatus,
+    hasReward: hasReward,
+  );
+}
+
+@riverpod
+Future<Result<bool>> checkEligibleToShuffle(Ref ref, String groupId) async {
+  final repository = ref.read(groupRepositoryProvider);
+  final usecase = CheckEligibleToShuffleUsecase(repository: repository);
+  return await usecase(groupId: groupId);
 }
 
 @riverpod

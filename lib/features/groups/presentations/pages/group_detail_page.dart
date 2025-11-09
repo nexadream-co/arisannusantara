@@ -16,6 +16,7 @@ import '../../domain/entities/group_entity.dart';
 import '../../domain/entities/payment_account_entity.dart';
 import '../providers/get_group_detail_provider.dart';
 import '../providers/group_providers.dart';
+import 'group_choose_winner_page.dart';
 import 'group_manager_create_page.dart';
 import 'group_shuffle_winner_page.dart';
 
@@ -74,30 +75,121 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       floatingActionButton: Consumer(
         builder: (context, ref, child) {
           final auth = ref.watch(authStateProvider);
+          final eligibleToShuffle = ref.watch(
+            checkEligibleToShuffleProvider(widget.group.id!),
+          );
           return auth.when(
             error: (err, _) => const SizedBox(),
             loading: () => const SizedBox(),
             data: (user) {
               bool isOwner = (widget.group.owners ?? []).contains(user?.id);
               if (!isOwner) return const SizedBox();
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.end,
-                spacing: context.spacing.md,
-                children: [
-                  FloatingActionButton(
-                    heroTag: "shuffle",
-                    backgroundColor: context.colors.primary,
-                    child: const Icon(Icons.shuffle),
-                    onPressed: () {
-                      context.push(GroupShuffleWinnerPage.path);
-                    },
-                  ),
-                ],
+
+              return eligibleToShuffle.when(
+                loading: () => const SizedBox(),
+                error: (err, stack) => const SizedBox(),
+                data: (result) {
+                  final eligible =
+                      (result.resultValue ?? false) &&
+                      (widget.group.memberIds ?? []).isNotEmpty;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    spacing: context.spacing.md,
+                    children: [
+                      FloatingActionButton(
+                        heroTag: "shuffle",
+                        backgroundColor: eligible
+                            ? context.colors.primary
+                            : context.colors.textDisabled,
+                        onPressed: () {
+                          if ((widget.group.memberIds ?? []).isEmpty) {
+                            CustomSnackbar.warning(
+                              message:
+                                  'Belum ada peserta yang terdaftar di grup ini',
+                            );
+                            return;
+                          }
+
+                          if (!eligible) {
+                            CustomSnackbar.warning(
+                              message:
+                                  'Belum bisa kocok arisan, pastikan tidak ada peserta yang statusnya masih belum bayar',
+                            );
+                            return;
+                          }
+                          _shuffleOptionsModal();
+                        },
+
+                        child: const Icon(Icons.shuffle),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           );
         },
+      ),
+    );
+  }
+
+  void _shuffleOptionsModal() {
+    showAppModalBottomSheet(
+      context: context,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: context.spacing.lg,
+          vertical: context.spacing.xl,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pilih pemenang',
+              maxLines: 1,
+              style: context.textStyles.header,
+            ),
+            Text(
+              'Pilih cara penentuan pemenang',
+              maxLines: 1,
+              style: context.textStyles.body,
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.emoji_events_outlined,
+                color: context.colors.warning,
+              ),
+              trailing: Icon(Icons.chevron_right),
+              title: Text('Tentukan langsung'),
+              subtitle: Text('Pilih pemenang secara langsung'),
+              onTap: () {
+                context.pop();
+                context.push(GroupChooseWinnerPage.path, extra: widget.group);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.shuffle, color: context.colors.primary),
+              title: Text('Acak pemenang'),
+              trailing: Icon(Icons.chevron_right),
+              subtitle: Text('Pilih pemenang secara acak'),
+              onTap: () {
+                context.pop();
+                context.push(GroupShuffleWinnerPage.path, extra: widget.group);
+              },
+            ),
+            Container(
+              margin: EdgeInsets.only(top: context.spacing.lg),
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Tutup'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -352,7 +444,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                                 SizedBox(width: context.spacing.sm),
                                 Expanded(
                                   child: Text(
-                                    'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                                    'Pemilik grup memiliki hak akses penuh terhadap grup ini. Hubungi jika ada pertanyaan.',
                                     style: context.textStyles.body,
                                   ),
                                 ),

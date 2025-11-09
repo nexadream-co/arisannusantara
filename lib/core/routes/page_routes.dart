@@ -95,10 +95,12 @@ final pageRoutes = [
   ),
   GoRoute(
     path: GroupShuffleWinnerPage.path,
-    builder: (context, state) => GroupShuffleWinnerPage(),
+    builder: (context, state) =>
+        GroupShuffleWinnerPage(group: state.extra as GroupEntity),
   ),
   GoRoute(
     path: GroupChooseWinnerPage.path,
-    builder: (context, state) => GroupChooseWinnerPage(),
+    builder: (context, state) =>
+        GroupChooseWinnerPage(group: state.extra as GroupEntity),
   ),
 ];
