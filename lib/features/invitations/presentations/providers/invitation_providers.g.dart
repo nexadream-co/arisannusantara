@@ -103,7 +103,7 @@ final class GetInvitationsUsecaseProvider
 }
 
 String _$getInvitationsUsecaseHash() =>
-    r'db98d472441bbe244b614ea671b87a246f405fdd';
+    r'6401785566f31151e582d0c3b7f1172165a5f32a';
 
 @ProviderFor(createInvitationUsecase)
 const createInvitationUsecaseProvider = CreateInvitationUsecaseProvider._();
@@ -151,7 +151,59 @@ final class CreateInvitationUsecaseProvider
 }
 
 String _$createInvitationUsecaseHash() =>
-    r'638e9719751e95c4c277f534d25c6a29f3b46551';
+    r'293e52721445fb800c9f32983b475c398cb05f04';
+
+@ProviderFor(createInvitationByGroupCodeUsecase)
+const createInvitationByGroupCodeUsecaseProvider =
+    CreateInvitationByGroupCodeUsecaseProvider._();
+
+final class CreateInvitationByGroupCodeUsecaseProvider
+    extends
+        $FunctionalProvider<
+          CreateInvitationByGroupCodeUsecase,
+          CreateInvitationByGroupCodeUsecase,
+          CreateInvitationByGroupCodeUsecase
+        >
+    with $Provider<CreateInvitationByGroupCodeUsecase> {
+  const CreateInvitationByGroupCodeUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'createInvitationByGroupCodeUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$createInvitationByGroupCodeUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CreateInvitationByGroupCodeUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CreateInvitationByGroupCodeUsecase create(Ref ref) {
+    return createInvitationByGroupCodeUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CreateInvitationByGroupCodeUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CreateInvitationByGroupCodeUsecase>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$createInvitationByGroupCodeUsecaseHash() =>
+    r'ac016e9089bfaf94d63f1c93b5760d60ec54af5f';
 
 @ProviderFor(updateInvitationStatusUsecase)
 const updateInvitationStatusUsecaseProvider =
@@ -202,4 +254,4 @@ final class UpdateInvitationStatusUsecaseProvider
 }
 
 String _$updateInvitationStatusUsecaseHash() =>
-    r'a29c6615af3b84e37403af4c9be390d2a8019ede';
+    r'a9153de70e7023f929b7874a6ace06949b1a46d5';

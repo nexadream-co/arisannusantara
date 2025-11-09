@@ -23,6 +23,7 @@ import '../../features/privacy_policy/presentations/pages/privacy_policy_page.da
 import '../../features/profile/presentations/pages/change_password_page.dart';
 import '../../features/profile/presentations/pages/profile_edit_page.dart';
 import '../../features/term_conditions/presentations/pages/term_condition_page.dart';
+import '../../shared/widgets/mobile_scanner_widget.dart';
 
 final pageRoutes = [
   GoRoute(path: Splash.path, builder: (context, state) => Splash()),
@@ -87,6 +88,10 @@ final pageRoutes = [
   GoRoute(
     path: GroupCreatePage.path,
     builder: (context, state) => GroupCreatePage(),
+  ),
+  GoRoute(
+    path: MobileScannerWidget.path,
+    builder: (context, state) => MobileScannerWidget(),
   ),
   GoRoute(
     path: GroupEditPage.path,

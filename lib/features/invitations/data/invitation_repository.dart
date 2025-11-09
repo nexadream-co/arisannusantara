@@ -96,6 +96,88 @@ class InvitationRepository {
     }
   }
 
+  Future<Result<String>> createInvitationByGroupCode(String code) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      final invitationRef = _firestore.collection(DBCollections.invitations);
+      final groupQuery = await _firestore
+          .collection(DBCollections.groups)
+          .where('code', isEqualTo: code)
+          .limit(1)
+          .get();
+
+      if (groupQuery.docs.isEmpty) {
+        return const Result.failed('Grup tidak ditemukan');
+      }
+
+      final groupDoc = groupQuery.docs.first;
+      final groupData = groupDoc.data();
+      final groupId = groupDoc.id;
+      final ownerIds = List<String>.from(groupData['ownerIds'] ?? []);
+
+      // ✅ Check if there's already a pending invitation for this group
+      final existingInvitation = await invitationRef
+          .where('groupId', isEqualTo: groupId)
+          .where('userId', isEqualTo: user.uid)
+          .where('status', isEqualTo: InvitationStatus.pending.name)
+          .limit(1)
+          .get();
+
+      if (existingInvitation.docs.isNotEmpty) {
+        return const Result.failed(
+          'Permintaan undangan sudah diajukan dan masih menunggu persetujuan',
+        );
+      }
+
+      // Get current user data
+      final userSnapshot = await _firestore
+          .collection(DBCollections.users)
+          .doc(user.uid)
+          .get();
+      if (!userSnapshot.exists) {
+        return const Result.failed('Data pengguna tidak ditemukan');
+      }
+
+      final userData = userSnapshot.data()!;
+
+      // Build invitation entity
+      final invitation = InvitationEntity(
+        groupId: groupId,
+        userId: user.uid,
+        status: InvitationStatus.pending.name,
+        groupOwnerIds: ownerIds,
+        group: GroupEntity.fromJson(groupData),
+        user: UserEntity.fromJson(userData),
+        createdAt: DateTime.now(),
+      );
+
+      // Convert to Firestore data
+      final invitationJson = {
+        'groupId': invitation.groupId,
+        'userId': invitation.userId,
+        'status': invitation.status,
+        'groupOwnerIds': invitation.groupOwnerIds,
+        'group': invitation.group?.toJson()?..remove('paymentAccounts'),
+        'user': invitation.user?.toJson(),
+        'createdAt': DateTime.now().toString(),
+        'updatedAt': DateTime.now().toString(),
+      };
+
+      // Add document and update its ID
+      final docRef = await invitationRef.add(invitationJson);
+      await docRef.update({'id': docRef.id});
+
+      return const Result.success('Permintaan undangan berhasil dibuat');
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
   Future<Result<String>> updateInvitationStatus({
     required String invitationId,
     required String newStatus,

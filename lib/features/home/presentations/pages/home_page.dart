@@ -13,6 +13,7 @@ import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
+import '../../../../shared/widgets/mobile_scanner_widget.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../../groups/presentations/pages/group_create_page.dart';
 import '../../../groups/presentations/pages/group_page.dart';
@@ -662,7 +663,33 @@ class _HomePageState extends ConsumerState<HomePage> {
                       heroTag: "qrcode",
                       backgroundColor: context.colors.primary,
                       child: const Icon(Icons.qr_code),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push(MobileScannerWidget.path).then((result) {
+                          if (result != null) {
+                            LoadingOverlay.show(context);
+                            ref
+                                .read(
+                                  createInvitationByGroupCodeUsecaseProvider,
+                                )
+                                .call(code: result as String)
+                                .then((result) {
+                                  LoadingOverlay.hide();
+                                  if (result.isSuccess) {
+                                    CustomSnackbar.success(
+                                      message: result.resultValue,
+                                    );
+                                    if (widget.onPageChanged != null) {
+                                      widget.onPageChanged!(1);
+                                    }
+                                  } else {
+                                    CustomSnackbar.error(
+                                      message: result.errorMessage,
+                                    );
+                                  }
+                                });
+                          }
+                        });
+                      },
                     ),
                   if (user?.role == AppUserRole.manager)
                     FloatingActionButton(
