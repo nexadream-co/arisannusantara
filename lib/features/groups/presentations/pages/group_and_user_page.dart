@@ -10,7 +10,8 @@ import 'group_page.dart';
 
 class GroupAndUserPage extends StatefulWidget {
   static const String path = '/superadmin/group-and-user';
-  const GroupAndUserPage({super.key});
+  final int selectedIndex;
+  const GroupAndUserPage({super.key, this.selectedIndex = 0});
 
   @override
   State<GroupAndUserPage> createState() => _GroupAndUserPageState();
@@ -21,6 +22,7 @@ class _GroupAndUserPageState extends State<GroupAndUserPage> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
+      initialIndex: widget.selectedIndex,
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(

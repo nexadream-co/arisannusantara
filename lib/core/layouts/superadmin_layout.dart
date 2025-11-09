@@ -16,18 +16,37 @@ class SuperadminLayout extends StatefulWidget {
 
 class _SuperadminLayoutState extends State<SuperadminLayout> {
   int _selectedIndex = 0;
+  int _selectedGroupUserPage = 0;
 
-  final List<Widget> _pages = [
-    SuperadminHomePage(),
-    GroupAndUserPage(),
-    FeedbackPage(),
-    ProfilePage(),
-  ];
+  late List<Widget> _pages;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    updatePage();
+  }
+
+  void updatePage() {
+    _pages = [
+      SuperadminHomePage(
+        onChangePage: (index, groupUserIndex) {
+          setState(() {
+            _selectedIndex = index;
+            _selectedGroupUserPage = groupUserIndex;
+            updatePage();
+          });
+        },
+      ),
+      GroupAndUserPage(selectedIndex: _selectedGroupUserPage),
+      FeedbackPage(),
+      ProfilePage(),
+    ];
   }
 
   @override

@@ -20,7 +20,8 @@ import '../providers/home_providers.dart';
 
 class SuperadminHomePage extends ConsumerStatefulWidget {
   static const String path = '/superadmin/home';
-  const SuperadminHomePage({super.key});
+  final Function(int index, int userGroupPageIndex)? onChangePage;
+  const SuperadminHomePage({super.key, this.onChangePage});
 
   @override
   ConsumerState<SuperadminHomePage> createState() => _SuperadminHomePageState();
@@ -360,11 +361,18 @@ class _SuperadminHomePageState extends ConsumerState<SuperadminHomePage> {
                                 ),
                               ),
                               Spacer(),
-                              Text(
-                                'Selengkapnya',
-                                style: context.textStyles.body.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.colors.primary,
+                              GestureDetector(
+                                onTap: () {
+                                  if (widget.onChangePage != null) {
+                                    widget.onChangePage!(1, 0);
+                                  }
+                                },
+                                child: Text(
+                                  'Selengkapnya',
+                                  style: context.textStyles.body.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: context.colors.primary,
+                                  ),
                                 ),
                               ),
                             ],
@@ -639,11 +647,18 @@ class _SuperadminHomePageState extends ConsumerState<SuperadminHomePage> {
                                 ),
                               ),
                               Spacer(),
-                              Text(
-                                'Selengkapnya',
-                                style: context.textStyles.body.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.colors.primary,
+                              GestureDetector(
+                                onTap: () {
+                                  if (widget.onChangePage != null) {
+                                    widget.onChangePage!(1, 1);
+                                  }
+                                },
+                                child: Text(
+                                  'Selengkapnya',
+                                  style: context.textStyles.body.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: context.colors.primary,
+                                  ),
                                 ),
                               ),
                             ],
