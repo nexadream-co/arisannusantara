@@ -9,6 +9,7 @@
 /// ```
 library;
 
+import '../../config/enums/feedback_status_enum.dart';
 import '../../config/enums/invitation_status.dart';
 import '../../config/enums/payment_status_enum.dart';
 
@@ -213,6 +214,19 @@ extension StringExtensions on String {
         return PaymentStatusEnum.skip;
       case 'cancel':
         return PaymentStatusEnum.cancel;
+      default:
+        return null;
+    }
+  }
+
+  FeedbackStatusEnum? toFeedbackStatusEnum() {
+    switch (toLowerCase()) {
+      case 'process':
+        return FeedbackStatusEnum.process;
+      case 'done':
+        return FeedbackStatusEnum.done;
+      case 'ignored':
+        return FeedbackStatusEnum.ignored;
       default:
         return null;
     }

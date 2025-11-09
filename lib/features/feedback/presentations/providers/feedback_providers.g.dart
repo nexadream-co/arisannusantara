@@ -153,6 +153,55 @@ final class CreateFeedbackUsecaseProvider
 String _$createFeedbackUsecaseHash() =>
     r'52c1c71cd318e16591246e86720bcce43df3a2f3';
 
+@ProviderFor(updateStatusFeedbackUsecase)
+const updateStatusFeedbackUsecaseProvider =
+    UpdateStatusFeedbackUsecaseProvider._();
+
+final class UpdateStatusFeedbackUsecaseProvider
+    extends
+        $FunctionalProvider<
+          UpdateStatusFeedbackUsecase,
+          UpdateStatusFeedbackUsecase,
+          UpdateStatusFeedbackUsecase
+        >
+    with $Provider<UpdateStatusFeedbackUsecase> {
+  const UpdateStatusFeedbackUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updateStatusFeedbackUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updateStatusFeedbackUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdateStatusFeedbackUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  UpdateStatusFeedbackUsecase create(Ref ref) {
+    return updateStatusFeedbackUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdateStatusFeedbackUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdateStatusFeedbackUsecase>(value),
+    );
+  }
+}
+
+String _$updateStatusFeedbackUsecaseHash() =>
+    r'934772671139e0536a4fbd1a77439de1d06cd5ea';
+
 @ProviderFor(deleteFeedbackUsecase)
 const deleteFeedbackUsecaseProvider = DeleteFeedbackUsecaseProvider._();
 

@@ -5,6 +5,7 @@ import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/utils/generate_search_index.dart';
 
 class ProfileRepository {
   final _auth = FirebaseAuth.instance;
@@ -31,6 +32,7 @@ class ProfileRepository {
 
       await userRef.update({
         'name': name,
+        'searchIndex': generateSearchIndex([currentUser.email, name]),
         'phoneNumber': phoneNumber,
         'gender': gender,
         'updatedAt': DateTime.now().toString(),

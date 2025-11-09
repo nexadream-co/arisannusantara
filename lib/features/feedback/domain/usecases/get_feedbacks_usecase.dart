@@ -1,3 +1,4 @@
+import '../../../../config/enums/feedback_status_enum.dart';
 import '../../../../core/app/result.dart';
 import '../../data/feedback_repository.dart';
 import '../entities/feedback_entity.dart';
@@ -9,7 +10,7 @@ class GetFeedbacksUsecase {
 
   Future<Result<List<FeedbackEntity>>> call({
     String? search,
-    String? status,
+    FeedbackStatusEnum? status,
     int limit = 10,
     String? lastId,
   }) async {

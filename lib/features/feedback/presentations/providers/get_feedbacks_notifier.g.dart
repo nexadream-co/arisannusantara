@@ -42,7 +42,7 @@ final class GetFeedbacksNotifierProvider
 }
 
 String _$getFeedbacksNotifierHash() =>
-    r'4393c7ae06547f6e5609df364057741b55ecc1ee';
+    r'275ae032212d92c0dd1d0b68615163b4a254df24';
 
 abstract class _$GetFeedbacksNotifier extends $Notifier<GetFeedbacksState> {
   GetFeedbacksState build();

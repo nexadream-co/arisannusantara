@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../config/database/db_collection.dart';
+import '../../../config/enums/feedback_status_enum.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/utils/generate_search_index.dart';
 import '../domain/entities/feedback_entity.dart';
 
 class FeedbackRepository {
@@ -13,7 +15,7 @@ class FeedbackRepository {
 
   Future<Result<List<FeedbackEntity>>> getFeedbacks({
     String? search,
-    String? status, // process, done, ignored
+    FeedbackStatusEnum? status, // process, done, ignored
     int limit = 10,
     String? lastId,
   }) async {
@@ -28,8 +30,8 @@ class FeedbackRepository {
       );
 
       // Optional status filter
-      if (status != null && status.isNotEmpty) {
-        query = query.where('status', isEqualTo: status);
+      if (status != null) {
+        query = query.where('status', isEqualTo: status.name);
       }
 
       // Optional search filter
@@ -54,7 +56,7 @@ class FeedbackRepository {
       final snapshot = await query.get();
 
       if (snapshot.docs.isEmpty) {
-        return const Result.failed('Tidak ada feedback ditemukan');
+        return const Result.success([]);
       }
 
       final feedbacks = snapshot.docs.map((doc) {
@@ -92,10 +94,11 @@ class FeedbackRepository {
       final feedbackData = {
         'userId': currentUser.uid,
         'email': currentUser.email,
+        'searchIndex': generateSearchIndex([currentUser.email, title]),
         'user': userData,
         'title': title,
         'feedback': feedback,
-        'status': 'pending',
+        'status': FeedbackStatusEnum.process.name,
         'createdAt': DateTime.now().toString(),
         'updatedAt': DateTime.now().toString(),
       };
@@ -112,9 +115,9 @@ class FeedbackRepository {
     }
   }
 
-  Future<Result<String>> updateStatus({
+  Future<Result<String>> updateStatusFeedback({
     required String feedbackId,
-    required String newStatus, // process, done, ignored
+    required FeedbackStatusEnum newStatus,
   }) async {
     try {
       final currentUser = _auth.currentUser;
@@ -127,7 +130,7 @@ class FeedbackRepository {
           .doc(feedbackId);
 
       await feedbackRef.update({
-        'status': newStatus,
+        'status': newStatus.name,
         'updatedAt': DateTime.now().toString(),
       });
 

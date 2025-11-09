@@ -4,6 +4,7 @@ import '../../data/feedback_repository.dart';
 import '../../domain/usecases/create_feedback_usecase.dart';
 import '../../domain/usecases/delete_feedback_usecase.dart';
 import '../../domain/usecases/get_feedbacks_usecase.dart';
+import '../../domain/usecases/update_status_feedback_usecase.dart';
 
 part 'feedback_providers.g.dart';
 
@@ -22,6 +23,12 @@ GetFeedbacksUsecase getFeedbacksUsecase(Ref ref) {
 CreateFeedbackUsecase createFeedbackUsecase(Ref ref) {
   final repository = ref.watch(feedbackRepositoryProvider);
   return CreateFeedbackUsecase(repository: repository);
+}
+
+@riverpod
+UpdateStatusFeedbackUsecase updateStatusFeedbackUsecase(Ref ref) {
+  final repository = ref.watch(feedbackRepositoryProvider);
+  return UpdateStatusFeedbackUsecase(repository: repository);
 }
 
 @riverpod

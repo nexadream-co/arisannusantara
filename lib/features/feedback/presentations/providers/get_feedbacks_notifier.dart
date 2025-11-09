@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../config/enums/feedback_status_enum.dart';
 import '../../domain/entities/feedback_entity.dart';
 import 'feedback_providers.dart';
 
@@ -42,13 +43,20 @@ class GetFeedbacksNotifier extends _$GetFeedbacksNotifier {
   @override
   GetFeedbacksState build() => const GetFeedbacksState();
 
-  Future<void> fetchFeedbacks({String? search}) async {
+  Future<void> fetchFeedbacks({
+    String? search,
+    FeedbackStatusEnum? status,
+  }) async {
     if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
     final usecase = ref.read(getFeedbacksUsecaseProvider);
-    final result = await usecase(search: search, lastId: state.lastId);
+    final result = await usecase(
+      search: search,
+      status: status,
+      lastId: state.lastId,
+    );
 
     if (result.isSuccess) {
       final feedbacks = result.resultValue ?? [];
@@ -66,9 +74,9 @@ class GetFeedbacksNotifier extends _$GetFeedbacksNotifier {
     }
   }
 
-  Future<void> loadMore({String? search}) async {
+  Future<void> loadMore({String? search, FeedbackStatusEnum? status}) async {
     if (!state.hasMore || state.isLoading) return;
-    await fetchFeedbacks(search: search);
+    await fetchFeedbacks(search: search, status: status);
   }
 
   void reset() {

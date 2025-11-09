@@ -22,6 +22,14 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   final _searchController = TextEditingController();
   final _debouncer = Debouncer(milliseconds: 300);
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.watch(getNotificationsProvider.notifier).fetchNotifications();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(context.radius.medium),
