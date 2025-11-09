@@ -41,7 +41,7 @@ final class GetGroupsNotifierProvider
   }
 }
 
-String _$getGroupsNotifierHash() => r'42da8c850d93dc2d6c9ee6af54ac19bfd4d936f6';
+String _$getGroupsNotifierHash() => r'7661fe11fbbcc88acc46c7b81703f6b8311392d1';
 
 abstract class _$GetGroupsNotifier extends $Notifier<GetGroupsState> {
   GetGroupsState build();

@@ -1,11 +1,23 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../../core/extensions/context_extensions.dart';
+import '../../../../config/constants/app_user_role.dart';
+import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
+import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/debouncer.dart';
 import '../../../../core/utils/flexible_bottom_sheet.dart';
+import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../users/presentations/providers/get_users_notifier.dart';
+import '../../../users/presentations/providers/user_providers.dart';
+import '../providers/get_groups_notifier.dart';
 import 'group_page.dart';
 
 class GroupAndUserPage extends StatefulWidget {
@@ -115,14 +127,32 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class _GroupPage extends StatefulWidget {
+class _GroupPage extends ConsumerStatefulWidget {
   const _GroupPage();
 
   @override
-  State<_GroupPage> createState() => __GroupPageState();
+  ConsumerState<_GroupPage> createState() => __GroupPageState();
 }
 
-class __GroupPageState extends State<_GroupPage> {
+class __GroupPageState extends ConsumerState<_GroupPage> {
+  final _searchController = TextEditingController();
+  final _debouncer = Debouncer(milliseconds: 300);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refresh();
+    });
+  }
+
+  void _refresh() {
+    ref.read(getGroupsProvider.notifier).reset();
+    ref
+        .read(getGroupsProvider.notifier)
+        .fetchGroups(search: _searchController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
@@ -139,6 +169,12 @@ class __GroupPageState extends State<_GroupPage> {
               borderRadius: BorderRadius.circular(context.radius.medium),
             ),
             child: TextFormField(
+              controller: _searchController,
+              onChanged: (value) {
+                _debouncer.run(() {
+                  _refresh();
+                });
+              },
               decoration: InputDecoration(
                 hintText: "Cari grup...",
                 hintStyle: context.textStyles.subtitle,
@@ -154,153 +190,215 @@ class __GroupPageState extends State<_GroupPage> {
               ),
             ),
           ),
-          MasonryGridView.count(
-            padding: EdgeInsets.only(top: context.spacing.md),
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            crossAxisCount: 2,
-            mainAxisSpacing: context.spacing.md,
-            crossAxisSpacing: context.spacing.md,
-            itemCount: 20,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  context.push(GroupPage.path);
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.spacing.sm,
-                    vertical: context.spacing.md,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: context.colors.surface),
-                    borderRadius: BorderRadius.circular(context.radius.medium),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: context.appSize.s32,
-                            height: context.appSize.s32,
-                            child: CircleAvatar(
-                              backgroundColor: context.colors.surface,
-                              child: Text(
-                                'AC',
-                                style: context.textStyles.body.copyWith(
-                                  color: context.colors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: context.spacing.sm),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Arisan Ceria',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.bodySmall.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'KODE GRUP',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            color: context.colors.textPrimary,
-                          ),
-                        ],
+
+          Consumer(
+            builder: (context, ref, child) {
+              final state = ref.watch(getGroupsProvider);
+              final notifier = ref.read(getGroupsProvider.notifier);
+              return Column(
+                children: [
+                  if (state.groups.isNotEmpty)
+                    MasonryGridView.count(
+                      padding: EdgeInsets.only(
+                        top: context.spacing.lg,
+                        bottom: context.spacing.lg,
                       ),
-                      SizedBox(height: context.appSize.s16),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: context.spacing.sm,
-                          right: context.spacing.sm,
-                        ),
-                        child: Row(
-                          spacing: context.spacing.xs,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      mainAxisSpacing: context.spacing.md,
+                      crossAxisSpacing: context.spacing.md,
+                      itemCount: state.groups.length,
+                      itemBuilder: (context, index) {
+                        final group = state.groups[index];
+
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.spacing.sm,
+                            vertical: context.spacing.md,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: context.colors.surface),
+                            borderRadius: BorderRadius.circular(
+                              context.radius.medium,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
                                 children: [
-                                  Text(
-                                    'Iuran',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall
-                                        .copyWith(fontSize: 8),
-                                  ),
-                                  Text(
-                                    'Rp12.000',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall
-                                        .copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 8,
+                                  SizedBox(
+                                    width: context.appSize.s32,
+                                    height: context.appSize.s32,
+                                    child: CircleAvatar(
+                                      backgroundColor: context.colors.surface,
+                                      child: Text(
+                                        group.name?.initials ?? 'A',
+                                        style: context.textStyles.body.copyWith(
                                           color: context.colors.primary,
+                                          fontWeight: FontWeight.bold,
                                         ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: context.spacing.sm),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          group.name ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.textStyles.bodySmall
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        Text(
+                                          group.code ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.textStyles.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    color: context.colors.textPrimary,
                                   ),
                                 ],
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Tanggal Kocok',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall
-                                        .copyWith(fontSize: 8),
-                                  ),
-                                  Text(
-                                    '12 Oktober 2025',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall
-                                        .copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 8,
-                                          color: context.colors.primary,
-                                        ),
-                                  ),
-                                ],
+                              SizedBox(height: context.appSize.s16),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: context.spacing.sm,
+                                  right: context.spacing.sm,
+                                ),
+                                child: Row(
+                                  spacing: context.spacing.xs,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Iuran',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall
+                                                .copyWith(fontSize: 8),
+                                          ),
+                                          Text(
+                                            group.dues?.toIdrWithPrefix ?? '',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 8,
+                                                  color: context.colors.primary,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Tanggal Kocok',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall
+                                                .copyWith(fontSize: 8),
+                                          ),
+                                          Text(
+                                            group.periodsDate?.toIdDate ?? '',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.textStyles.bodySmall
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 8,
+                                                  color: context.colors.primary,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                              Container(
+                                margin: EdgeInsets.only(
+                                  top: context.spacing.md,
+                                ),
+                                width: double.infinity,
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: context.spacing.sm,
+                                    ),
+                                    minimumSize: Size(0, 0),
+                                  ),
+                                  onPressed: () {
+                                    context.push(
+                                      GroupPage.path,
+                                      extra: group.id,
+                                    );
+                                  },
+                                  child: Text('Lihat Detail'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  if (state.groups.isEmpty && !state.isLoading)
+                    Container(
+                      margin: EdgeInsets.only(top: context.spacing.lg),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Grup tidak ditemukan',
+                        style: context.textStyles.body,
+                      ),
+                    ),
+
+                  if (state.isLoading)
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(context.spacing.lg),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else if (state.hasMore && state.groups.isNotEmpty)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () =>
+                            notifier.loadMore(search: _searchController.text),
+                        child: const Text('Muat Lebih Banyak'),
+                      ),
+                    ),
+
+                  if (state.error != null)
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(context.spacing.md),
+                        child: Text(
+                          state.error!,
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ),
-                      if (index % 2 == 0)
-                        Container(
-                          margin: EdgeInsets.only(top: context.spacing.md),
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: context.spacing.sm,
-                              ),
-                              minimumSize: Size(0, 0),
-                            ),
-                            onPressed: () {},
-                            child: Text('Lihat Detail'),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+                    ),
+                ],
               );
             },
           ),
@@ -310,14 +408,32 @@ class __GroupPageState extends State<_GroupPage> {
   }
 }
 
-class _UserPage extends StatefulWidget {
+class _UserPage extends ConsumerStatefulWidget {
   const _UserPage();
 
   @override
-  State<_UserPage> createState() => __UserPageState();
+  ConsumerState<_UserPage> createState() => __UserPageState();
 }
 
-class __UserPageState extends State<_UserPage> {
+class __UserPageState extends ConsumerState<_UserPage> {
+  final _searchController = TextEditingController();
+  final _debouncer = Debouncer(milliseconds: 300);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refresh();
+    });
+  }
+
+  void _refresh() {
+    ref.read(getUsersProvider.notifier).reset();
+    ref
+        .read(getUsersProvider.notifier)
+        .fetchUsers(search: _searchController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
@@ -335,6 +451,12 @@ class __UserPageState extends State<_UserPage> {
                 borderRadius: BorderRadius.circular(context.radius.medium),
               ),
               child: TextFormField(
+                controller: _searchController,
+                onChanged: (value) {
+                  _debouncer.run(() {
+                    _refresh();
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: "Cari pengguna...",
                   hintStyle: context.textStyles.subtitle,
@@ -350,75 +472,139 @@ class __UserPageState extends State<_UserPage> {
                 ),
               ),
             ),
-            MasonryGridView.count(
-              padding: EdgeInsets.only(top: context.spacing.md),
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              mainAxisSpacing: context.spacing.md,
-              crossAxisSpacing: context.spacing.md,
-              itemCount: 20,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    _detailMember();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.spacing.sm,
-                      vertical: context.spacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: context.colors.surface),
-                      borderRadius: BorderRadius.circular(
-                        context.radius.medium,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: context.appSize.s32,
-                              height: context.appSize.s32,
-                              child: CircleAvatar(
-                                backgroundColor: context.colors.surface,
-                                child: Text(
-                                  'AC',
-                                  style: context.textStyles.body.copyWith(
-                                    color: context.colors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+            Consumer(
+              builder: (context, ref, child) {
+                final state = ref.watch(getUsersProvider);
+                final notifier = ref.read(getUsersProvider.notifier);
+                return Column(
+                  children: [
+                    if (state.users.isNotEmpty)
+                      MasonryGridView.count(
+                        padding: EdgeInsets.only(
+                          top: context.spacing.lg,
+                          bottom: context.spacing.lg,
+                        ),
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        crossAxisCount: 2,
+                        mainAxisSpacing: context.spacing.md,
+                        crossAxisSpacing: context.spacing.md,
+                        itemCount: state.users.length,
+                        itemBuilder: (context, index) {
+                          final user = state.users[index];
+                          return GestureDetector(
+                            onTap: () {
+                              _detailMember(user);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.spacing.sm,
+                                vertical: context.spacing.md,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: context.colors.surface,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  context.radius.medium,
                                 ),
                               ),
-                            ),
-                            SizedBox(width: context.spacing.sm),
-                            Expanded(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    'Agus Hermanto',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    'agushermanto@gmail.com',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textStyles.bodySmall,
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: context.appSize.s32,
+                                        height: context.appSize.s32,
+                                        child: CircleAvatar(
+                                          backgroundColor:
+                                              context.colors.surface,
+                                          child: Text(
+                                            user.name?.initials ?? '',
+                                            style: context.textStyles.body
+                                                .copyWith(
+                                                  color: context.colors.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: context.spacing.sm),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              user.name ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: context
+                                                  .textStyles
+                                                  .bodySmall
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                            ),
+                                            Text(
+                                              user.email ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style:
+                                                  context.textStyles.bodySmall,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                          ],
+                          );
+                        },
+                      ),
+
+                    if (state.users.isEmpty && state.isLoading == false)
+                      Container(
+                        margin: EdgeInsets.only(top: context.spacing.lg),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Pengguna tidak ditemukan',
+                          style: context.textStyles.body,
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+
+                    if (state.isLoading == true)
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(context.spacing.lg),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (state.hasMore && state.users.isNotEmpty)
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () =>
+                              notifier.loadMore(search: _searchController.text),
+                          child: const Text('Muat Lebih Banyak'),
+                        ),
+                      ),
+
+                    if (state.error != null)
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(context.spacing.md),
+                          child: Text(
+                            state.error!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                  ],
                 );
               },
             ),
@@ -428,162 +614,208 @@ class __UserPageState extends State<_UserPage> {
       floatingActionButton: FloatingActionButton(
         // backgroundColor: context.colors.primary,
         heroTag: 'add-user',
-        onPressed: _addMember,
+        onPressed: _addUser,
         child: Icon(Icons.add),
       ),
     );
   }
 
-  void _addMember() {
+  void _addUser() {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneNumberController = TextEditingController();
+    final passwordController = TextEditingController();
+    String role = 'user';
     showFlexibleBottomSheet(
+      initialSize: 0.72,
       context: context,
       builder: (scrollController) {
-        return SingleChildScrollView(
-          controller: scrollController,
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(context.spacing.md),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                controller: scrollController,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ardi Sanjaya',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textStyles.title.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: context.colors.primary,
-                          ),
-                        ),
-                        Text(
-                          'ardisanjaya@gmail.com',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textStyles.body,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: context.appSize.s16),
                     Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.spacing.sm,
-                        horizontal: context.spacing.md,
-                      ),
-                      decoration: BoxDecoration(
-                        color: context.colors.accent,
-                        borderRadius: BorderRadius.circular(
-                          context.radius.medium,
-                        ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      padding: EdgeInsets.all(context.spacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.info_outline),
-                          SizedBox(width: context.spacing.sm),
-                          Expanded(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tambah pengguna',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: context.textStyles.title.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                              Text(
+                                'Masukkan data pengguna baru',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: context.textStyles.body,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: context.appSize.s16),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: context.spacing.md,
+                            ),
                             child: Text(
-                              'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                              style: context.textStyles.body,
+                              'Infomasi Peserta',
+                              style: context.textStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: context.appSize.s16),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        vertical: context.spacing.md,
-                      ),
-                      child: Text(
-                        'Infomasi Peserta',
-                        style: context.textStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    _textField(
-                      label: 'Nama',
-                      hintText: 'Masukkan nama anda...',
-                    ),
-                    _textField(
-                      label: 'Jenis Kelamin',
-                      hintText: 'Masukkan jenis kelamin...',
-                    ),
-                    _textField(label: 'No Telp', hintText: 'No telp anda...'),
-
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        vertical: context.spacing.md,
-                      ),
-                      child: Text(
-                        'Kredensial',
-                        style: context.textStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    _textField(
-                      label: 'Password',
-                      hintText: 'Masukkan password anda...',
-                    ),
-                    _textField(
-                      label: 'Konfirmasi Password',
-                      hintText: 'Masukkan konfirmasi password...',
-                    ),
-
-                    Container(
-                      margin: EdgeInsets.only(
-                        top: context.spacing.lg,
-                        bottom: context.spacing.sm,
-                      ),
-                      child: Text(
-                        'Role',
-                        style: context.textStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    GridView(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 5,
+                          _textField(
+                            controller: nameController,
+                            required: true,
+                            label: 'Nama',
+                            hintText: 'Masukkan nama pengguna...',
                           ),
-                      children: [
-                        CheckboxListTile(
-                          controlAffinity: ListTileControlAffinity.leading,
-                          value: true,
-                          onChanged: (value) {},
-                          title: Text('Pengguna'),
-                        ),
-                        CheckboxListTile(
-                          controlAffinity: ListTileControlAffinity.leading,
-                          value: false,
-                          onChanged: (value) {},
-                          title: Text('Pengelola'),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(
-                        top: context.spacing.xxl,
-                        bottom: context.spacing.sm,
-                      ),
-                      child: Row(
-                        spacing: context.spacing.sm,
-                        children: [
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () {},
-                              child: Text('Simpan'),
+                          _textField(
+                            controller: emailController,
+                            required: true,
+                            label: 'Email',
+                            hintText: 'Masukkan email pengguna...',
+                          ),
+                          _textField(
+                            controller: phoneNumberController,
+                            label: 'No Telp',
+                            hintText: 'No telp pengguna...',
+                          ),
+
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: context.spacing.md,
+                            ),
+                            child: Text(
+                              'Kredensial',
+                              style: context.textStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          _textField(
+                            controller: passwordController,
+                            required: true,
+                            label: 'Password',
+                            hintText: 'Masukkan password pengguna...',
+                          ),
+
+                          Container(
+                            margin: EdgeInsets.only(
+                              top: context.spacing.lg,
+                              bottom: context.spacing.sm,
+                            ),
+                            child: Text(
+                              'Role',
+                              style: context.textStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          GridView(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 200,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 5,
+                                ),
+                            children: [
+                              CheckboxListTile(
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                value: role == AppUserRole.user,
+                                onChanged: (value) {
+                                  setState(() => role = AppUserRole.user);
+                                },
+                                title: Text('Pengguna (Peserta)'),
+                              ),
+                              CheckboxListTile(
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                value: role == AppUserRole.manager,
+                                onChanged: (value) {
+                                  setState(() => role = AppUserRole.manager);
+                                },
+                                title: Text('Pengelola'),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(
+                              top: context.spacing.xxl,
+                              bottom: context.spacing.sm,
+                            ),
+                            child: Row(
+                              spacing: context.spacing.sm,
+                              children: [
+                                Expanded(
+                                  child: FilledButton(
+                                    onPressed: () {
+                                      if (!formKey.currentState!.validate()) {
+                                        return;
+                                      }
+
+                                      LoadingOverlay.show(context);
+                                      ref
+                                          .read(createUserUsecaseProvider)
+                                          .call(
+                                            name: nameController.text,
+                                            email: emailController.text,
+                                            phoneNumber:
+                                                phoneNumberController.text,
+                                            password: passwordController.text,
+                                            role: role,
+                                            confirmPassword:
+                                                passwordController.text,
+                                          )
+                                          .then((result) {
+                                            LoadingOverlay.hide();
+                                            if (result.isSuccess) {
+                                              CustomSnackbar.success(
+                                                message: result.resultValue,
+                                              );
+                                              _refresh();
+                                              Navigator.pop(context);
+                                            } else {
+                                              CustomSnackbar.error(
+                                                message: result.errorMessage,
+                                              );
+                                            }
+                                          });
+                                    },
+                                    child: Text('Simpan'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(bottom: context.spacing.sm),
+                            child: Row(
+                              spacing: context.spacing.sm,
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('Batal'),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -592,14 +824,14 @@ class __UserPageState extends State<_UserPage> {
                   ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  void _detailMember() {
+  void _detailMember(UserEntity user) {
     showAppModalBottomSheet(
       context: context,
       child: Container(
@@ -611,7 +843,7 @@ class __UserPageState extends State<_UserPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ardi Sanjaya',
+                  user.name ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.textStyles.title.copyWith(
@@ -620,7 +852,7 @@ class __UserPageState extends State<_UserPage> {
                   ),
                 ),
                 Text(
-                  'ardisanjaya@gmail.com',
+                  user.email ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.textStyles.body,
@@ -628,37 +860,20 @@ class __UserPageState extends State<_UserPage> {
               ],
             ),
             SizedBox(height: context.appSize.s16),
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: context.spacing.sm,
-                horizontal: context.spacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: context.colors.accent,
-                borderRadius: BorderRadius.circular(context.radius.medium),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.info_outline),
-                  SizedBox(width: context.spacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
-                      style: context.textStyles.body,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: context.appSize.s16),
 
-            Text('Infomasi Peserta', style: context.textStyles.title),
+            Text('Infomasi Pengguna', style: context.textStyles.title),
             SizedBox(height: context.spacing.md),
-            _groupInformationItem('Nama', 'John Doe'),
-            _groupInformationItem('Email', 'johndoe@gmail.com'),
-            _groupInformationItem('Jenis kelamin', 'Laki-laki'),
-            _groupInformationItem('No telp', '45464654'),
+            _groupInformationItem('Nama', user.name ?? '-'),
+            _groupInformationItem('Email', user.email ?? '-'),
+            _groupInformationItem(
+              'Jenis kelamin',
+              user.gender?.toGenderId() ?? '-',
+            ),
+            _groupInformationItem('No telp', user.phoneNumber ?? '-'),
+            _groupInformationItem(
+              'Dibuat pada',
+              user.createdAt?.toIdDate ?? '-',
+            ),
             Container(
               margin: EdgeInsets.only(
                 top: context.spacing.lg,
@@ -667,27 +882,29 @@ class __UserPageState extends State<_UserPage> {
               child: Row(
                 spacing: context.spacing.sm,
                 children: [
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.spacing.md,
-                        horizontal: context.spacing.xl,
-                      ),
-                      foregroundColor: context.colors.error,
-                      side: BorderSide(color: context.colors.error, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          context.radius.medium,
-                        ),
-                      ),
-                    ),
-                    child: Text('Hapus'),
-                  ),
+                  // OutlinedButton(
+                  //   onPressed: () {
+
+                  //   },
+                  //   style: OutlinedButton.styleFrom(
+                  //     padding: EdgeInsets.symmetric(
+                  //       vertical: context.spacing.md,
+                  //       horizontal: context.spacing.xl,
+                  //     ),
+                  //     foregroundColor: context.colors.error,
+                  //     side: BorderSide(color: context.colors.error, width: 1.5),
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(
+                  //         context.radius.medium,
+                  //       ),
+                  //     ),
+                  //   ),
+                  //   child: Text('Hapus'),
+                  // ),
                   Expanded(
                     child: FilledButton(
-                      onPressed: () {},
-                      child: Text('Simpan'),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Tutup'),
                     ),
                   ),
                 ],
@@ -721,7 +938,12 @@ class __UserPageState extends State<_UserPage> {
     );
   }
 
-  Widget _textField({required String label, required String hintText}) {
+  Widget _textField({
+    TextEditingController? controller,
+    bool required = false,
+    required String label,
+    required String hintText,
+  }) {
     return Container(
       padding: EdgeInsets.only(bottom: context.spacing.sm),
       margin: EdgeInsets.only(bottom: context.spacing.xs),
@@ -729,13 +951,17 @@ class __UserPageState extends State<_UserPage> {
         border: Border(bottom: BorderSide(color: context.colors.divider)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: context.spacing.md,
         children: [
-          Text(label, style: context.textStyles.body),
+          Expanded(flex: 1, child: Text(label, style: context.textStyles.body)),
           Expanded(
+            flex: 2,
             child: TextfieldWithoutBorderWidget(
+              controller: controller,
+              required: required,
+              maxLines: 1,
               hintText: hintText,
-              textAlign: TextAlign.end,
             ),
           ),
         ],

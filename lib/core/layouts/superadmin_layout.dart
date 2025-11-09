@@ -23,6 +23,8 @@ class _SuperadminLayoutState extends State<SuperadminLayout> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _selectedGroupUserPage = 0;
+      updatePage();
     });
   }
 

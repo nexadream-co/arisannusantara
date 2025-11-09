@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/extensions/string_extensions.dart';
+import '../../../core/utils/generate_search_index.dart';
 import '../../auth/domain/entities/user_entity.dart';
 
 class UserRepository {
@@ -57,6 +60,7 @@ class UserRepository {
           email: data['email'] as String?,
           phoneNumber: data['phone'] as String?,
           emailVerified: data['emailVerified'] as bool? ?? false,
+          createdAt: data['createdAt']?.toString().toDateTime(),
         );
       }).toList();
 
@@ -76,7 +80,7 @@ class UserRepository {
     required String email,
     required String password,
     required String confirmPassword,
-    String role = 'user', // default role
+    String role = 'user',
     String? phoneNumber,
     String? photoUrl,
   }) async {
@@ -86,28 +90,36 @@ class UserRepository {
         return const Result.failed('Konfirmasi password tidak cocok');
       }
 
-      // Create user in Firebase Authentication
-      final userCredential = await _auth.createUserWithEmailAndPassword(
+      // Create a secondary FirebaseApp to avoid replacing the current auth session
+      final secondaryApp = await Firebase.initializeApp(
+        name: 'SecondaryApp',
+        options: Firebase.app().options,
+      );
+      final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
+
+      // Create user using secondary auth (won’t affect current user)
+      final userCredential = await secondaryAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       final user = userCredential.user;
       if (user == null) {
+        await secondaryApp.delete();
         return const Result.failed('Gagal membuat akun pengguna');
       }
 
-      // Send email verification
+      // Send email verification (optional)
       await user.sendEmailVerification();
 
-      // Create user data in Firestore
+      // Create user document in Firestore
       final userData = {
         'name': name,
         'email': email,
+        'searchIndex': generateSearchIndex([email, name]),
         'photoUrl': photoUrl,
         'phoneNumber': phoneNumber,
         'role': role,
-        'emailVerified': false,
         'createdAt': DateTime.now().toString(),
         'updatedAt': DateTime.now().toString(),
       };
@@ -116,6 +128,9 @@ class UserRepository {
           .collection(DBCollections.users)
           .doc(user.uid)
           .set(userData);
+
+      // Clean up the temporary Firebase app
+      await secondaryApp.delete();
 
       return const Result.success(
         'Akun berhasil dibuat dan email verifikasi telah dikirim',

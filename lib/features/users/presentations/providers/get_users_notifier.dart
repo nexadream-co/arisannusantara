@@ -42,13 +42,17 @@ class GetUsersNotifier extends _$GetUsersNotifier {
   @override
   GetUsersState build() => const GetUsersState();
 
-  Future<void> fetchUsers({String? search}) async {
+  Future<void> fetchUsers({String? search, int limit = 10}) async {
     if (state.isLoading == true) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
     final usecase = ref.read(getUsersUsecaseProvider);
-    final result = await usecase(search: search, lastId: state.lastId);
+    final result = await usecase(
+      search: search,
+      lastId: state.lastId,
+      limit: limit,
+    );
 
     if (result.isSuccess) {
       final users = result.resultValue ?? [];
@@ -66,9 +70,9 @@ class GetUsersNotifier extends _$GetUsersNotifier {
     }
   }
 
-  Future<void> loadMore({String? search}) async {
+  Future<void> loadMore({String? search, int limit = 10}) async {
     if (!state.hasMore || state.isLoading == true) return;
-    await fetchUsers(search: search);
+    await fetchUsers(search: search, limit: limit);
   }
 
   void reset() {

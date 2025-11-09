@@ -41,7 +41,7 @@ final class GetUsersNotifierProvider
   }
 }
 
-String _$getUsersNotifierHash() => r'0a8c5fba88d9bf518e861ca88d04a77f6df9709c';
+String _$getUsersNotifierHash() => r'e5c6cc9784b84868d323ce2efd178f979d672315';
 
 abstract class _$GetUsersNotifier extends $Notifier<GetUsersState> {
   GetUsersState build();

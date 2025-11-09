@@ -46,6 +46,7 @@ class GetGroupsNotifier extends _$GetGroupsNotifier {
   Future<void> fetchGroups({
     String? search,
     GroupFilter filter = GroupFilter.all,
+    int limit = 10,
   }) async {
     if (state.isLoading) return;
 
@@ -55,6 +56,7 @@ class GetGroupsNotifier extends _$GetGroupsNotifier {
     final result = await usecase(
       search: search,
       filter: filter,
+      limit: limit,
       lastId: state.lastId,
     );
 
@@ -77,9 +79,10 @@ class GetGroupsNotifier extends _$GetGroupsNotifier {
   Future<void> loadMore({
     String? search,
     GroupFilter filter = GroupFilter.all,
+    int limit = 10,
   }) async {
     if (!state.hasMore || state.isLoading) return;
-    await fetchGroups(search: search, filter: filter);
+    await fetchGroups(search: search, filter: filter, limit: limit);
   }
 
   void reset() {

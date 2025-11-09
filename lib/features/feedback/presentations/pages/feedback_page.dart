@@ -172,213 +172,199 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   );
                 },
               ),
-              Column(
-                children: [
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final state = ref.watch(getFeedbacksProvider);
-                      final notifier = ref.read(getFeedbacksProvider.notifier);
-                      return Column(
-                        children: [
-                          if (state.feedbacks.isNotEmpty)
-                            ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.only(
-                                left: context.spacing.lg,
-                                right: context.spacing.lg,
-                              ),
-                              shrinkWrap: true,
-                              itemCount: state.feedbacks.length,
-                              itemBuilder: (context, index) {
-                                final feedback = state.feedbacks[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    _detailFeedback(feedback);
-                                  },
-                                  child: Container(
-                                    margin: EdgeInsets.only(
-                                      bottom: context.spacing.md,
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: context.spacing.sm,
-                                      vertical: context.spacing.md,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: context.colors.surface,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        context.radius.medium,
-                                      ),
-                                    ),
-                                    child: Column(
+              Consumer(
+                builder: (context, ref, child) {
+                  final state = ref.watch(getFeedbacksProvider);
+                  final notifier = ref.read(getFeedbacksProvider.notifier);
+                  return Column(
+                    children: [
+                      if (state.feedbacks.isNotEmpty)
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.only(
+                            left: context.spacing.lg,
+                            right: context.spacing.lg,
+                          ),
+                          shrinkWrap: true,
+                          itemCount: state.feedbacks.length,
+                          itemBuilder: (context, index) {
+                            final feedback = state.feedbacks[index];
+                            return GestureDetector(
+                              onTap: () {
+                                _detailFeedback(feedback);
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                  bottom: context.spacing.md,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.spacing.sm,
+                                  vertical: context.spacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: context.colors.surface,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    context.radius.medium,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor:
-                                                  context.colors.surface,
-                                              child: Icon(
-                                                Icons.chat_outlined,
-                                                color: context.colors.primary,
+                                        CircleAvatar(
+                                          backgroundColor:
+                                              context.colors.surface,
+                                          child: Icon(
+                                            Icons.chat_outlined,
+                                            color: context.colors.primary,
+                                          ),
+                                        ),
+                                        SizedBox(width: context.spacing.sm),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                feedback.title ?? '',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: context.textStyles.body
+                                                    .copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                               ),
-                                            ),
-                                            SizedBox(width: context.spacing.sm),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                              Text(
+                                                feedback.user?.email ?? '',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: context.textStyles.body,
+                                              ),
+                                              SizedBox(
+                                                height: context.spacing.sm,
+                                              ),
+                                              Wrap(
                                                 children: [
                                                   Text(
-                                                    feedback.title ?? '',
+                                                    feedback.user?.name ?? '',
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: context
                                                         .textStyles
-                                                        .body
+                                                        .subtitleSmall
                                                         .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                          fontStyle:
+                                                              FontStyle.italic,
                                                         ),
                                                   ),
+                                                  SizedBox(
+                                                    width: context.spacing.md,
+                                                  ),
                                                   Text(
-                                                    feedback.user?.email ?? '',
+                                                    feedback
+                                                            .createdAt
+                                                            ?.toIdDateTime ??
+                                                        '',
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
-                                                    style:
-                                                        context.textStyles.body,
-                                                  ),
-                                                  SizedBox(
-                                                    height: context.spacing.sm,
-                                                  ),
-                                                  Wrap(
-                                                    children: [
-                                                      Text(
-                                                        feedback.user?.name ??
-                                                            '',
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: context
-                                                            .textStyles
-                                                            .subtitleSmall
-                                                            .copyWith(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .italic,
-                                                            ),
-                                                      ),
-                                                      SizedBox(
-                                                        width:
-                                                            context.spacing.md,
-                                                      ),
-                                                      Text(
-                                                        feedback
-                                                                .createdAt
-                                                                ?.toIdDateTime ??
-                                                            '',
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: context
-                                                            .textStyles
-                                                            .subtitleSmall
-                                                            .copyWith(
-                                                              fontStyle:
-                                                                  FontStyle
-                                                                      .italic,
-                                                            ),
-                                                      ),
-                                                    ],
+                                                    style: context
+                                                        .textStyles
+                                                        .subtitleSmall
+                                                        .copyWith(
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                        ),
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                            Text(
-                                              feedback.status
-                                                      ?.toFeedbackStatusEnum()
-                                                      ?.label ??
-                                                  '',
-                                              style: context.textStyles.body
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        feedback.status ==
-                                                            FeedbackStatusEnum
-                                                                .done
-                                                                .name
-                                                        ? context.colors.success
-                                                        : feedback.status ==
-                                                              FeedbackStatusEnum
-                                                                  .ignored
-                                                                  .name
-                                                        ? context.colors.error
-                                                        : context
-                                                              .colors
-                                                              .warning,
-                                                  ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          feedback.status
+                                                  ?.toFeedbackStatusEnum()
+                                                  ?.label ??
+                                              '',
+                                          style: context.textStyles.body
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    feedback.status ==
+                                                        FeedbackStatusEnum
+                                                            .done
+                                                            .name
+                                                    ? context.colors.success
+                                                    : feedback.status ==
+                                                          FeedbackStatusEnum
+                                                              .ignored
+                                                              .name
+                                                    ? context.colors.error
+                                                    : context.colors.warning,
+                                              ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-
-                          if (state.feedbacks.isEmpty && !state.isLoading)
-                            Container(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Feedback tidak ditemukan',
-                                style: context.textStyles.body,
-                              ),
-                            ),
-
-                          if (state.isLoading)
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(context.spacing.lg),
-                                child: CircularProgressIndicator(),
-                              ),
-                            )
-                          else if (state.hasMore && state.feedbacks.isNotEmpty)
-                            Container(
-                              width: double.infinity,
-                              margin: EdgeInsets.symmetric(
-                                horizontal: context.spacing.md,
-                              ),
-                              child: OutlinedButton(
-                                onPressed: () => notifier.loadMore(
-                                  status: _selectedFeedbackStatus,
-                                  search: _searchController.text,
-                                ),
-                                child: const Text('Muat Lebih Banyak'),
-                              ),
-                            ),
-
-                          if (state.error != null)
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Text(
-                                  state.error!,
-                                  style: const TextStyle(color: Colors.red),
+                                  ],
                                 ),
                               ),
+                            );
+                          },
+                        ),
+
+                      if (state.feedbacks.isEmpty && !state.isLoading)
+                        Container(
+                          margin: EdgeInsets.only(top: context.spacing.lg),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Feedback tidak ditemukan',
+                            style: context.textStyles.body,
+                          ),
+                        ),
+
+                      if (state.isLoading)
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(context.spacing.lg),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else if (state.hasMore && state.feedbacks.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.symmetric(
+                            horizontal: context.spacing.lg,
+                          ),
+                          child: OutlinedButton(
+                            onPressed: () => notifier.loadMore(
+                              status: _selectedFeedbackStatus,
+                              search: _searchController.text,
                             ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                            child: const Text('Muat Lebih Banyak'),
+                          ),
+                        ),
+
+                      if (state.error != null)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              state.error!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -418,28 +404,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   style: context.textStyles.body,
                 ),
               ],
-            ),
-
-            SizedBox(height: context.appSize.s16),
-
-            // ----- Info Box -----
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: context.spacing.sm,
-                horizontal: context.spacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: context.colors.accent,
-                borderRadius: BorderRadius.circular(context.radius.medium),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.info_outline),
-                  SizedBox(width: context.spacing.sm),
-                  Expanded(child: Text('', style: context.textStyles.body)),
-                ],
-              ),
             ),
 
             SizedBox(height: context.appSize.s16),

@@ -245,6 +245,17 @@ extension StringExtensions on String {
     }
   }
 
+  String? toGenderId() {
+    switch (toLowerCase()) {
+      case 'male':
+        return 'Laki-laki';
+      case 'female':
+        return 'Perempuan';
+      default:
+        return null;
+    }
+  }
+
   /// Convert string to DateTime safely.
   /// Supports ISO-8601 (e.g., "2025-10-30T12:30:00Z"),
   /// or simple date formats like "2025-10-30" or "2025/10/30".

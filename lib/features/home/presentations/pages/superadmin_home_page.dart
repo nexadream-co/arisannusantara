@@ -10,7 +10,6 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
-import '../../../../core/utils/custom_alert.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../../groups/presentations/pages/group_page.dart';
 import '../../../groups/presentations/pages/search_group_page.dart';
@@ -30,6 +29,8 @@ class SuperadminHomePage extends ConsumerStatefulWidget {
 class _SuperadminHomePageState extends ConsumerState<SuperadminHomePage> {
   GroupFilter selectedFilter = GroupFilter.all;
   PeriodFilter periodFilter = PeriodFilter.thisMonth;
+  int groupListLimit = 4;
+  int userListLimit = 8;
 
   @override
   void initState() {
@@ -37,8 +38,10 @@ class _SuperadminHomePageState extends ConsumerState<SuperadminHomePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(getGroupsProvider.notifier).fetchGroups(filter: selectedFilter);
-      ref.read(getUsersProvider.notifier).fetchUsers();
+      ref
+          .read(getGroupsProvider.notifier)
+          .fetchGroups(filter: selectedFilter, limit: groupListLimit);
+      ref.read(getUsersProvider.notifier).fetchUsers(limit: userListLimit);
     });
   }
 
@@ -395,65 +398,100 @@ class _SuperadminHomePageState extends ConsumerState<SuperadminHomePage> {
                           itemBuilder: (context, index) {
                             final group = state.groups[index];
 
-                            return GestureDetector(
-                              onTap: () {
-                                if (group.isJoined == true ||
-                                    group.isOwned == true) {
-                                  context.push(GroupPage.path, extra: group.id);
-                                } else {
-                                  CustomAlert.show(
-                                    context,
-                                    title: 'Info Grup',
-                                    description:
-                                        'Anda belum bergabung di grup ini. Silakan bergabung terlebih dahulu untuk melihat detail grup.',
-                                  );
-                                }
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: context.spacing.sm,
-                                  vertical: context.spacing.md,
+                            return Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.spacing.sm,
+                                vertical: context.spacing.md,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: context.colors.surface,
                                 ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: context.colors.surface,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    context.radius.medium,
-                                  ),
+                                borderRadius: BorderRadius.circular(
+                                  context.radius.medium,
                                 ),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: context.appSize.s32,
-                                          height: context.appSize.s32,
-                                          child: CircleAvatar(
-                                            backgroundColor:
-                                                context.colors.surface,
-                                            child: Text(
-                                              group.name?.initials ?? 'A',
-                                              style: context.textStyles.body
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: context.appSize.s32,
+                                        height: context.appSize.s32,
+                                        child: CircleAvatar(
+                                          backgroundColor:
+                                              context.colors.surface,
+                                          child: Text(
+                                            group.name?.initials ?? 'A',
+                                            style: context.textStyles.body
+                                                .copyWith(
+                                                  color: context.colors.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: context.spacing.sm),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              group.name ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: context
+                                                  .textStyles
+                                                  .bodySmall
                                                   .copyWith(
-                                                    color:
-                                                        context.colors.primary,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                             ),
-                                          ),
+                                            Text(
+                                              group.code ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style:
+                                                  context.textStyles.bodySmall,
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: context.spacing.sm),
+                                      ),
+                                      Icon(
+                                        Icons.chevron_right,
+                                        color: context.colors.textPrimary,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: context.appSize.s16),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      left: context.spacing.sm,
+                                      right: context.spacing.sm,
+                                    ),
+                                    child: Row(
+                                      spacing: context.spacing.xs,
+                                      children: [
                                         Expanded(
+                                          flex: 1,
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                group.name ?? '',
-                                                maxLines: 1,
+                                                'Iuran',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: context
+                                                    .textStyles
+                                                    .bodySmall
+                                                    .copyWith(fontSize: 8),
+                                              ),
+                                              Text(
+                                                group.dues?.toIdrWithPrefix ??
+                                                    '',
                                                 overflow: TextOverflow.ellipsis,
                                                 style: context
                                                     .textStyles
@@ -461,130 +499,73 @@ class _SuperadminHomePageState extends ConsumerState<SuperadminHomePage> {
                                                     .copyWith(
                                                       fontWeight:
                                                           FontWeight.bold,
+                                                      fontSize: 8,
+                                                      color: context
+                                                          .colors
+                                                          .primary,
                                                     ),
-                                              ),
-                                              Text(
-                                                group.code ?? '',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: context
-                                                    .textStyles
-                                                    .bodySmall,
                                               ),
                                             ],
                                           ),
                                         ),
-                                        Icon(
-                                          Icons.chevron_right,
-                                          color: context.colors.textPrimary,
+                                        Expanded(
+                                          flex: 2,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Tanggal Kocok',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: context
+                                                    .textStyles
+                                                    .bodySmall
+                                                    .copyWith(fontSize: 8),
+                                              ),
+                                              Text(
+                                                group.periodsDate?.toIdDate ??
+                                                    '',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: context
+                                                    .textStyles
+                                                    .bodySmall
+                                                    .copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 8,
+                                                      color: context
+                                                          .colors
+                                                          .primary,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: context.appSize.s16),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: context.spacing.sm,
-                                        right: context.spacing.sm,
-                                      ),
-                                      child: Row(
-                                        spacing: context.spacing.xs,
-                                        children: [
-                                          Expanded(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Iuran',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: context
-                                                      .textStyles
-                                                      .bodySmall
-                                                      .copyWith(fontSize: 8),
-                                                ),
-                                                Text(
-                                                  group.dues?.toIdrWithPrefix ??
-                                                      '',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: context
-                                                      .textStyles
-                                                      .bodySmall
-                                                      .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 8,
-                                                        color: context
-                                                            .colors
-                                                            .primary,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Tanggal Kocok',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: context
-                                                      .textStyles
-                                                      .bodySmall
-                                                      .copyWith(fontSize: 8),
-                                                ),
-                                                Text(
-                                                  group.periodsDate?.toIdDate ??
-                                                      '',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: context
-                                                      .textStyles
-                                                      .bodySmall
-                                                      .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 8,
-                                                        color: context
-                                                            .colors
-                                                            .primary,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                      top: context.spacing.md,
                                     ),
-                                    Container(
-                                      margin: EdgeInsets.only(
-                                        top: context.spacing.md,
-                                      ),
-                                      width: double.infinity,
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: context.spacing.sm,
-                                          ),
-                                          minimumSize: Size(0, 0),
+                                    width: double.infinity,
+                                    child: OutlinedButton(
+                                      style: OutlinedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: context.spacing.sm,
                                         ),
-                                        onPressed: () {
-                                          context.push(
-                                            GroupPage.path,
-                                            extra: group.id,
-                                          );
-                                        },
-                                        child: Text('Lihat Detail'),
+                                        minimumSize: Size(0, 0),
                                       ),
+                                      onPressed: () {
+                                        context.push(
+                                          GroupPage.path,
+                                          extra: group.id,
+                                        );
+                                      },
+                                      child: Text('Lihat Detail'),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             );
                           },
