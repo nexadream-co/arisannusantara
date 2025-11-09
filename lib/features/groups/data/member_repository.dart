@@ -171,7 +171,7 @@ mixin MemberRepository {
           .doc(member.groupId);
 
       await groupRef.update({
-        'memberIds': FieldValue.arrayUnion([memberRef.id]),
+        'memberIds': FieldValue.arrayUnion([userDoc.id]),
         'updatedAt': now,
       });
 

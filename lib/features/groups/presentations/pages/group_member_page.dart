@@ -10,6 +10,7 @@ import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
+import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/entities/member_entity.dart';
 import '../providers/group_providers.dart';
@@ -77,20 +78,33 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         ),
       ),
 
-      floatingActionButton: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        spacing: context.spacing.md,
-        children: [
-          FloatingActionButton(
-            heroTag: "add-member",
-            backgroundColor: context.colors.primary,
-            child: const Icon(Icons.add),
-            onPressed: () {
-              _memberModal();
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final auth = ref.watch(authStateProvider);
+          return auth.when(
+            error: (err, _) => const SizedBox(),
+            loading: () => const SizedBox(),
+            data: (user) {
+              bool isOwner = (widget.group.owners ?? []).contains(user?.id);
+              if (!isOwner) return const SizedBox();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: context.spacing.md,
+                children: [
+                  FloatingActionButton(
+                    heroTag: "add-member",
+                    backgroundColor: context.colors.primary,
+                    child: const Icon(Icons.add),
+                    onPressed: () {
+                      _memberModal();
+                    },
+                  ),
+                ],
+              );
             },
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -98,6 +112,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   Widget _groupMember() {
     return Consumer(
       builder: (context, ref, child) {
+        final auth = ref.watch(authStateProvider);
         final membersRef = ref.watch(
           getMembersProvider(widget.group.id!, _searchController.text),
         );
@@ -216,14 +231,23 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                                     color: context.colors.warning,
                                   ),
                                 ),
-                              IconButton(
-                                onPressed: () {
-                                  _memberModal(member: members[i]);
+                              auth.when(
+                                loading: () => const SizedBox(),
+                                error: (_, __) => const SizedBox(),
+                                data: (user) {
+                                  bool isOwner = (widget.group.owners ?? [])
+                                      .contains(user?.id);
+                                  if (!isOwner) return const SizedBox();
+                                  return IconButton(
+                                    onPressed: () {
+                                      _memberModal(member: members[i]);
+                                    },
+                                    icon: Icon(
+                                      Icons.edit_outlined,
+                                      color: context.colors.primary,
+                                    ),
+                                  );
                                 },
-                                icon: Icon(
-                                  Icons.edit_outlined,
-                                  color: context.colors.primary,
-                                ),
                               ),
                               OutlinedButton(
                                 onPressed: () {},

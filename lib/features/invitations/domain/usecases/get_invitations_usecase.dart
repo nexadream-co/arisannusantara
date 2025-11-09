@@ -15,7 +15,6 @@ class GetInvitationsUsecase {
   }) async {
     return await repository.getInvitations(
       status: status,
-      forOwner: forOwner,
       lastId: lastId,
       limit: limit,
     );

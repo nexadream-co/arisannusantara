@@ -41,10 +41,7 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
         ref.read(getInvitationsProvider.notifier).reset();
         ref
             .read(getInvitationsProvider.notifier)
-            .fetchInvitations(
-              status: selectedStatus.name,
-              forOwner: user?.role != AppUserRole.user,
-            );
+            .fetchInvitations(status: selectedStatus.name);
       },
       error: (_, __) => null,
       loading: () => null,
@@ -339,11 +336,14 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
                                                               [])
                                                           .contains(user?.id))
                                                     Text(
-                                                      'Menunggu',
+                                                      'Menunggu\nPersetujuan',
+                                                      textAlign: TextAlign.end,
                                                       style: context
                                                           .textStyles
-                                                          .title
+                                                          .body
                                                           .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
                                                             color: context
                                                                 .colors
                                                                 .warning,

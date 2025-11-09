@@ -202,7 +202,6 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                       ),
                       _textField(
                         controller: _adminFeeController,
-                        required: true,
                         keyboardType: TextInputType.number,
                         label: "Biaya admin",
                         hintText: 'Masukkan biaya admin...',

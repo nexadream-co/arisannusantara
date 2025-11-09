@@ -184,13 +184,9 @@ class _GroupManagerCreatePageState
                         : () {
                             // ✅ Validation
                             if (_selectedIds.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
+                              CustomSnackbar.warning(
+                                message:
                                     'Pilih minimal satu peserta terlebih dahulu.',
-                                  ),
-                                  backgroundColor: context.colors.error,
-                                ),
                               );
                               return;
                             }

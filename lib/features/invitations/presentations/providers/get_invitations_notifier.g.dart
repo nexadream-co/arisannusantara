@@ -42,7 +42,7 @@ final class GetInvitationsNotifierProvider
 }
 
 String _$getInvitationsNotifierHash() =>
-    r'31bd95045010b4672a3000a4128d69ca7ee4a9e5';
+    r'c21903c1b7afc7134183f67a63d20e34fcd5e94c';
 
 abstract class _$GetInvitationsNotifier extends $Notifier<GetInvitationsState> {
   GetInvitationsState build();

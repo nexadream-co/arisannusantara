@@ -20,12 +20,7 @@ class UserLayout extends StatefulWidget {
 class _UserLayoutState extends State<UserLayout> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    HomePage(),
-    InvitationPage(),
-    NotificationPage(),
-    ProfilePage(),
-  ];
+  late List<Widget> _pages;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,6 +31,18 @@ class _UserLayoutState extends State<UserLayout> {
   @override
   void initState() {
     super.initState();
+    _pages = [
+      HomePage(
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+      ),
+      InvitationPage(),
+      NotificationPage(),
+      ProfilePage(),
+    ];
     _selectedIndex = widget.selectedIndex;
   }
 

@@ -71,20 +71,33 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         ),
       ),
 
-      floatingActionButton: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        spacing: context.spacing.md,
-        children: [
-          FloatingActionButton(
-            heroTag: "shuffle",
-            backgroundColor: context.colors.primary,
-            child: const Icon(Icons.shuffle),
-            onPressed: () {
-              context.push(GroupShuffleWinnerPage.path);
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final auth = ref.watch(authStateProvider);
+          return auth.when(
+            error: (err, _) => const SizedBox(),
+            loading: () => const SizedBox(),
+            data: (user) {
+              bool isOwner = (widget.group.owners ?? []).contains(user?.id);
+              if (!isOwner) return const SizedBox();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: context.spacing.md,
+                children: [
+                  FloatingActionButton(
+                    heroTag: "shuffle",
+                    backgroundColor: context.colors.primary,
+                    child: const Icon(Icons.shuffle),
+                    onPressed: () {
+                      context.push(GroupShuffleWinnerPage.path);
+                    },
+                  ),
+                ],
+              );
             },
-          ),
-        ],
+          );
+        },
       ),
     );
   }

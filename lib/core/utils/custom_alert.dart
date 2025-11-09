@@ -7,6 +7,7 @@ class CustomAlert {
     BuildContext context, {
     String? title,
     String? description,
+    String? onYesText,
     Function()? onYes,
     Function()? onCancel,
   }) async {
@@ -68,8 +69,8 @@ class CustomAlert {
                   horizontal: 28,
                 ),
               ),
-              child: const Text(
-                'Ya',
+              child: Text(
+                onYesText ?? 'Ya',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),

@@ -50,7 +50,6 @@ mixin GroupDetailRepository {
       // Apply membership filter based on enum
       switch (filter) {
         case GroupFilter.joined:
-          // query = query.where('member_ids', arrayContains: user.uid);
           query = query.where(
             Filter.or(
               Filter('memberIds', arrayContains: user.uid),
@@ -60,9 +59,6 @@ mixin GroupDetailRepository {
           break;
         case GroupFilter.owned:
           query = query.where('ownerIds', arrayContains: user.uid);
-          break;
-        case GroupFilter.invited:
-          query = query.where('invitedUserIds', arrayContains: user.uid);
           break;
         case GroupFilter.all:
           // no filter applied

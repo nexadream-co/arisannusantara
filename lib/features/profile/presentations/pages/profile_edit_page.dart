@@ -37,6 +37,9 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
             _nameController.text = user.name ?? '';
             _telpController.text = user.phoneNumber ?? '';
             _gender = user.gender;
+            if (mounted) {
+              setState(() {});
+            }
           }
         },
         error: (_, __) => null,

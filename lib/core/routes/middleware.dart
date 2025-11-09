@@ -44,7 +44,7 @@ String? middleware({
   }
 
   // Prevent cross-role access
-  if (user.role == AppUserRole.user &&
+  if ((user.role == AppUserRole.user || user.role == AppUserRole.manager) &&
       (state.matchedLocation == Splash.path ||
           state.matchedLocation == SuperadminLayout.path ||
           state.matchedLocation == LoginPage.path)) {

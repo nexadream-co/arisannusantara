@@ -1,4 +1,4 @@
-enum GroupFilter { joined, all, invited, owned }
+enum GroupFilter { joined, all, owned }
 
 extension GroupFilterExtension on GroupFilter {
   String get label {
@@ -7,8 +7,6 @@ extension GroupFilterExtension on GroupFilter {
         return 'Tergabung';
       case GroupFilter.all:
         return 'Semua';
-      case GroupFilter.invited:
-        return 'Undangan';
       case GroupFilter.owned:
         return 'Dikelola';
     }

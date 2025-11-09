@@ -28,6 +28,20 @@ class InvitationRepository {
       final groupRef = _firestore.collection(DBCollections.groups).doc(groupId);
       final invitationRef = _firestore.collection(DBCollections.invitations);
 
+      // ✅ Check if there's already a pending invitation
+      final existingInvitation = await invitationRef
+          .where('groupId', isEqualTo: groupId)
+          .where('userId', isEqualTo: user.uid)
+          .where('status', isEqualTo: InvitationStatus.pending.name)
+          .limit(1)
+          .get();
+
+      if (existingInvitation.docs.isNotEmpty) {
+        return const Result.failed(
+          'Permintaan undangan sudah diajukan dan masih menunggu persetujuan',
+        );
+      }
+
       // Get group data
       final groupSnapshot = await groupRef.get();
       if (!groupSnapshot.exists) {
@@ -159,7 +173,6 @@ class InvitationRepository {
 
   Future<Result<List<InvitationEntity>>> getInvitations({
     required String status,
-    required bool forOwner,
     int limit = 10,
     String? lastId,
   }) async {
@@ -176,13 +189,12 @@ class InvitationRepository {
       // Filter by status
       query = query.where('status', isEqualTo: status);
 
-      if (forOwner) {
-        // For admin/manager (group owner)
-        query = query.where('groupOwnerIds', arrayContains: currentUser.uid);
-      } else {
-        // For regular member/user
-        query = query.where('userId', isEqualTo: currentUser.uid);
-      }
+      query = query.where(
+        Filter.or(
+          Filter('userId', isEqualTo: currentUser.uid),
+          Filter('groupOwnerIds', arrayContains: currentUser.uid),
+        ),
+      );
 
       // Order by createdAt for pagination
       query = query.orderBy('createdAt', descending: true).limit(limit);

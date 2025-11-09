@@ -4,22 +4,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../config/constants/app_user_role.dart';
 import '../../../../config/enums/group_filter.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/custom_alert.dart';
+import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/loading_overlay.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../../groups/presentations/pages/group_create_page.dart';
 import '../../../groups/presentations/pages/group_page.dart';
 import '../../../groups/presentations/pages/search_group_page.dart';
 import '../../../groups/presentations/providers/get_groups_notifier.dart';
+import '../../../invitations/presentations/providers/invitation_providers.dart';
 import '../providers/get_paid_groups_percentage_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   static const String path = '/home';
-  const HomePage({super.key});
+  final Function(int index)? onPageChanged;
+  const HomePage({super.key, this.onPageChanged});
 
   @override
   ConsumerState<HomePage> createState() => _HomePageState();
@@ -382,9 +387,33 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 } else {
                                   CustomAlert.show(
                                     context,
-                                    title: 'Info Grup',
+                                    title: 'Gabung Grup',
+                                    onYesText: 'Ya, Gabung',
                                     description:
-                                        'Anda belum bergabung di grup ini. Silakan bergabung terlebih dahulu untuk melihat detail grup.',
+                                        'Anda belum bergabung di grup ini. Silakan buat permobohan bergabung terlebih dahulu untuk melihat detail grup.',
+
+                                    onYes: () {
+                                      LoadingOverlay.show(context);
+                                      ref
+                                          .read(createInvitationUsecaseProvider)
+                                          .call(groupId: group.id!)
+                                          .then((result) {
+                                            LoadingOverlay.hide();
+                                            if (result.isSuccess) {
+                                              if (widget.onPageChanged !=
+                                                  null) {
+                                                widget.onPageChanged!(1);
+                                              }
+                                              CustomSnackbar.success(
+                                                message: result.resultValue,
+                                              );
+                                            } else {
+                                              CustomSnackbar.error(
+                                                message: result.errorMessage,
+                                              );
+                                            }
+                                          });
+                                    },
                                   );
                                 }
                               },
@@ -616,26 +645,39 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ),
       ),
-      floatingActionButton: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        spacing: context.spacing.md,
-        children: [
-          FloatingActionButton(
-            heroTag: "qrcode",
-            backgroundColor: context.colors.primary,
-            child: const Icon(Icons.qr_code),
-            onPressed: () {},
-          ),
-          FloatingActionButton(
-            heroTag: "add-group",
-            backgroundColor: context.colors.primary,
-            child: const Icon(Icons.add),
-            onPressed: () {
-              context.push(GroupCreatePage.path);
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final authState = ref.watch(authStateProvider);
+          return authState.when(
+            loading: () => const SizedBox(),
+            error: (_, __) => const SizedBox(),
+            data: (user) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: context.spacing.md,
+                children: [
+                  if (user?.role == AppUserRole.user)
+                    FloatingActionButton(
+                      heroTag: "qrcode",
+                      backgroundColor: context.colors.primary,
+                      child: const Icon(Icons.qr_code),
+                      onPressed: () {},
+                    ),
+                  if (user?.role == AppUserRole.manager)
+                    FloatingActionButton(
+                      heroTag: "add-group",
+                      backgroundColor: context.colors.primary,
+                      child: const Icon(Icons.add),
+                      onPressed: () {
+                        context.push(GroupCreatePage.path);
+                      },
+                    ),
+                ],
+              );
             },
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -42,20 +42,13 @@ class GetInvitationsNotifier extends _$GetInvitationsNotifier {
   @override
   GetInvitationsState build() => const GetInvitationsState();
 
-  Future<void> fetchInvitations({
-    required String status,
-    required bool forOwner,
-  }) async {
+  Future<void> fetchInvitations({required String status}) async {
     if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
     final usecase = ref.read(getInvitationsUsecaseProvider);
-    final result = await usecase(
-      status: status,
-      forOwner: forOwner,
-      lastId: state.lastId,
-    );
+    final result = await usecase(status: status, lastId: state.lastId);
 
     if (result.isSuccess) {
       final invitations = result.resultValue ?? [];
@@ -80,7 +73,7 @@ class GetInvitationsNotifier extends _$GetInvitationsNotifier {
     required bool forOwner,
   }) async {
     if (!state.hasMore || state.isLoading) return;
-    await fetchInvitations(status: status, forOwner: forOwner);
+    await fetchInvitations(status: status);
   }
 
   void reset() {
