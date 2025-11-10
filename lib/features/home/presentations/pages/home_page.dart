@@ -662,7 +662,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     FloatingActionButton(
                       heroTag: "qrcode",
                       backgroundColor: context.colors.primary,
-                      child: const Icon(Icons.qr_code),
+                      child: const Icon(Icons.qr_code_scanner),
                       onPressed: () {
                         context.push(MobileScannerWidget.path).then((result) {
                           if (result != null) {

@@ -114,7 +114,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           if (!eligible) {
                             CustomSnackbar.warning(
                               message:
-                                  'Belum bisa kocok arisan, pastikan tidak ada peserta yang statusnya masih belum bayar',
+                                  'Belum bisa kocok arisan, pastikan tidak ada peserta yang statusnya masih belum bayar atau masih ada yang belum mendapatkan hadiah',
                             );
                             return;
                           }
@@ -256,6 +256,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
               ],
             ),
+            if (!isOwner) SizedBox(height: context.spacing.sm),
             Container(
               width: double.infinity,
               margin: EdgeInsets.only(bottom: context.spacing.md),
@@ -417,6 +418,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                           ),
                       ],
                     ),
+                    if (!isOwner) SizedBox(height: context.spacing.sm),
                     Container(
                       margin: EdgeInsets.only(bottom: context.spacing.md),
                       padding: EdgeInsets.symmetric(

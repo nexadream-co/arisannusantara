@@ -9,12 +9,13 @@ class CustomAlert {
     String? description,
     String? onYesText,
     String? onCancelText,
+    bool barrierDismissible = true,
     Function()? onYes,
     Function()? onCancel,
   }) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: barrierDismissible,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,

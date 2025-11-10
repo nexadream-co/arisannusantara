@@ -37,11 +37,15 @@ class _GroupHistoryPageState extends ConsumerState<GroupHistoryPage> {
         final provider = ref.watch(getHistoriesProvider(widget.group.id!));
 
         return provider.when(
-          loading: () => Text(
-            'Mohon tunggu...',
-            style: context.textStyles.body.copyWith(
-              color: context.colors.primary,
-              fontStyle: FontStyle.italic,
+          loading: () => SizedBox(
+            width: double.infinity,
+            child: Text(
+              'Mohon tunggu...',
+              textAlign: TextAlign.center,
+              style: context.textStyles.body.copyWith(
+                color: context.colors.primary,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ),
           error: (err, stack) => Text(

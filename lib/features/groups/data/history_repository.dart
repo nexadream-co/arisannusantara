@@ -76,6 +76,7 @@ mixin HistoryRepository {
       final winnerList = winners
           .map((w) => w.toJson()..['user'] = w.user?.toJson())
           .toList();
+
       final winnerIds = winners
           .map((w) => w.user?.id)
           .whereType<String>()
@@ -88,7 +89,7 @@ mixin HistoryRepository {
 
       final members = membersSnap.docs.map((m) => m.data()).toList();
 
-      // Count only active members
+      // Count only active and paid members
       final activeMembers = members
           .where(
             (m) =>
@@ -105,7 +106,6 @@ mixin HistoryRepository {
 
       // Step 5: Create new history document
       final historyRef = _firestore.collection(DBCollections.histories).doc();
-
       final now = DateTime.now().toIso8601String();
 
       final historyData = {
@@ -124,19 +124,22 @@ mixin HistoryRepository {
 
       await historyRef.set(historyData);
 
-      // Step 6: Update members collection (reset payment status, mark winners)
+      // Step 6: Update only current winner members
       final batch = _firestore.batch();
 
       for (final doc in membersSnap.docs) {
-        final memberRef = doc.reference;
         final memberData = doc.data();
         final userId = memberData['user']?['id'];
-        final isWinner = winnerIds.contains(userId);
 
-        batch.update(memberRef, {
+        Map<String, dynamic> updatedData = {
           'paymentStatus': PaymentStatusEnum.unpaid.name,
-          'hasReward': isWinner,
-        });
+        };
+
+        if (userId != null && winnerIds.contains(userId)) {
+          updatedData['hasReward'] = true;
+        }
+
+        batch.update(doc.reference, updatedData);
       }
 
       await batch.commit();

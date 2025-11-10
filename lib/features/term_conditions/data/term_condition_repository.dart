@@ -1,20 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 
 class TermConditionRepository {
-  final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
   Future<Result<Map<String, dynamic>>> getTermAndCondition() async {
     try {
-      final currentUser = _auth.currentUser;
-      if (currentUser == null) {
-        return const Result.failed('Pengguna tidak ditemukan');
-      }
-
       // Reference to settings collection
       final settingRef = _firestore
           .collection(DBCollections.settings)

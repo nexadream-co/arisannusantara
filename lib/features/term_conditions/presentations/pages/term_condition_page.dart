@@ -49,7 +49,10 @@ class _TermConditionPageState extends ConsumerState<TermConditionPage> {
                             "Terakhir diperbarui ${term['updatedAt']?.toString().toDateTime().toIdDate}",
                       ),
                       SizedBox(height: context.appSize.s40),
-                      Text(term['value'], style: context.textStyles.subtitle),
+                      Text(
+                        term['value']?.toString() ?? '',
+                        style: context.textStyles.subtitle,
+                      ),
                     ],
                   ),
                 ),

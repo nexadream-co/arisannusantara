@@ -267,7 +267,7 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                           ),
                           SizedBox(width: context.spacing.sm),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.shuffle,

@@ -268,15 +268,32 @@ mixin MemberRepository {
         return const Result.failed('Pengguna tidak ditemukan');
       }
 
-      // Query members with paymentStatus = 'unpaid'
-      final snapshot = await _firestore
-          .collection(DBCollections.members)
+      final membersRef = _firestore.collection(DBCollections.members);
+
+      final eligibleMembers = await membersRef
           .where('groupId', isEqualTo: groupId)
-          .where('paymentStatus', isEqualTo: PaymentStatusEnum.unpaid.name)
+          .where('isActive', isEqualTo: true)
+          .where(
+            Filter.or(
+              Filter('paymentStatus', isEqualTo: PaymentStatusEnum.unpaid.name),
+              Filter.and(
+                Filter('paymentStatus', isEqualTo: PaymentStatusEnum.paid.name),
+                Filter('hasReward', isEqualTo: false),
+              ),
+            ),
+          )
           .get();
 
-      // Eligible if there are NO unpaid members
-      final bool isEligible = snapshot.docs.isEmpty;
+      final unpaidExists = eligibleMembers.docs.any(
+        (d) => d['paymentStatus'] == PaymentStatusEnum.unpaid.name,
+      );
+      final hasNoRewardExists = eligibleMembers.docs.any(
+        (d) =>
+            d['paymentStatus'] == PaymentStatusEnum.paid.name &&
+            d['hasReward'] == false,
+      );
+
+      final bool isEligible = !unpaidExists && hasNoRewardExists;
 
       return Result.success(isEligible);
     } on FirebaseException catch (e) {

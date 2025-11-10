@@ -46,6 +46,29 @@ class _GroupShuffleWinnerPageState
       ),
     );
 
+    provider.whenData((result) {
+      final members = result.resultValue ?? [];
+      if (members.length < 2 && members.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          CustomAlert.show(
+            context,
+            title: 'Selamat, ${members[winnerIndex].user?.name ?? ''}!',
+            description:
+                'Telah menjadi pemenang, apakah anda ingin menyimpannya?',
+            onYes: () async {
+              _selectedMembers.add(members[winnerIndex]);
+              await saveWinners();
+              // this.context.pop();
+            },
+            onCancel: () {
+              this.context.pop();
+              this.context.pop();
+            },
+          );
+        });
+      }
+    });
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -62,6 +85,9 @@ class _GroupShuffleWinnerPageState
             data: (result) {
               final members = result.resultValue ?? [];
               _members = [...members];
+              if (members.length < 2 && members.isNotEmpty) {
+                return Center(child: LoadingIconAnimation());
+              }
               return StatefulBuilder(
                 builder: (context, setState) {
                   return Column(
@@ -394,40 +420,7 @@ class _GroupShuffleWinnerPageState
                                           description:
                                               'Apakah anda yakin ingin menyimpan pemenang?',
                                           onYes: () {
-                                            LoadingOverlay.show(context);
-                                            ref
-                                                .read(
-                                                  createHistoryUsecaseProvider,
-                                                )
-                                                .call(
-                                                  groupId: widget.group.id!,
-                                                  winners: _selectedMembers,
-                                                )
-                                                .then((result) {
-                                                  LoadingOverlay.hide();
-                                                  if (result.isSuccess) {
-                                                    CustomSnackbar.success(
-                                                      message:
-                                                          result.resultValue,
-                                                    );
-                                                    ref.invalidate(
-                                                      getGroupDetailProvider(
-                                                        widget.group.id!,
-                                                      ),
-                                                    );
-                                                    ref.invalidate(
-                                                      checkEligibleToShuffleProvider(
-                                                        widget.group.id!,
-                                                      ),
-                                                    );
-                                                    context.pop();
-                                                  } else {
-                                                    CustomSnackbar.error(
-                                                      message:
-                                                          result.errorMessage,
-                                                    );
-                                                  }
-                                                });
+                                            saveWinners();
                                           },
                                         );
                                       },
@@ -448,5 +441,23 @@ class _GroupShuffleWinnerPageState
         ),
       ),
     );
+  }
+
+  Future<void> saveWinners() async {
+    LoadingOverlay.show(context);
+    await ref
+        .read(createHistoryUsecaseProvider)
+        .call(groupId: widget.group.id!, winners: _selectedMembers)
+        .then((result) {
+          LoadingOverlay.hide();
+          if (result.isSuccess) {
+            CustomSnackbar.success(message: result.resultValue);
+            ref.invalidate(getGroupDetailProvider(widget.group.id!));
+            ref.invalidate(checkEligibleToShuffleProvider(widget.group.id!));
+            context.pop();
+          } else {
+            CustomSnackbar.error(message: result.errorMessage);
+          }
+        });
   }
 }

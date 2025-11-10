@@ -124,11 +124,15 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
             spacing: context.spacing.md,
             children: [
               membersRef.when(
-                loading: () => Text(
-                  'Mohon tunggu...',
-                  style: context.textStyles.body.copyWith(
-                    color: context.colors.primary,
-                    fontStyle: FontStyle.italic,
+                loading: () => SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    'Mohon tunggu...',
+                    textAlign: TextAlign.center,
+                    style: context.textStyles.body.copyWith(
+                      color: context.colors.primary,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
                 error: (err, stack) => Text(
@@ -172,7 +176,10 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                         ),
                       for (var i = 0; i < members.length; i++)
                         Container(
-                          padding: EdgeInsets.only(bottom: context.spacing.md),
+                          padding: EdgeInsets.only(
+                            bottom: context.spacing.md,
+                            top: context.spacing.md,
+                          ),
                           decoration: BoxDecoration(
                             border: i == 2
                                 ? null
