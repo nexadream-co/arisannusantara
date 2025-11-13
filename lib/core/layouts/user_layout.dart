@@ -7,6 +7,7 @@ import '../../features/notifications/presentations/pages/notification_page.dart'
 import '../../features/notifications/presentations/providers/get_unread_count_provider.dart';
 import '../../features/profile/presentations/pages/profile_page.dart';
 import '../../shared/widgets/bottom_navbar.dart';
+import '../services/firebase_messaging_service.dart';
 
 class UserLayout extends StatefulWidget {
   static const String path = '/user-layout';
@@ -44,6 +45,10 @@ class _UserLayoutState extends State<UserLayout> {
       ProfilePage(),
     ];
     _selectedIndex = widget.selectedIndex;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FirebaseMessagingService().init(context);
+    });
   }
 
   @override

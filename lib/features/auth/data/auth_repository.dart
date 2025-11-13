@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../config/constants/app_user_role.dart';
@@ -50,19 +51,25 @@ class AuthRepository {
       final docRef = usersRef.doc(user.uid);
       final docSnapshot = await docRef.get();
 
+      final deviceToken = await FirebaseMessaging.instance.getToken();
+
       if (!docSnapshot.exists) {
         // Create new user document if not exists
         await docRef.set({
           'id': user.uid,
           'name': user.displayName ?? '',
           'email': user.email ?? email,
+          'deviceToken': deviceToken,
           'createdAt': DateTime.now().toString(),
           'updatedAt': DateTime.now().toString(),
           'role': AppUserRole.user,
         });
       } else {
         // Optionally, update last login or refresh info
-        await docRef.update({'lastLoginAt': DateTime.now().toString()});
+        await docRef.update({
+          'deviceToken': deviceToken,
+          'lastLoginAt': DateTime.now().toString(),
+        });
       }
 
       return const Result.success('Login berhasil');
@@ -114,11 +121,14 @@ class AuthRepository {
           .limit(1)
           .get();
 
+      final deviceToken = await FirebaseMessaging.instance.getToken();
+
       if (existingUser.docs.isNotEmpty) {
         // Update existing document
         await usersRef.doc(existingUser.docs.first.id).update({
           'id': user.uid,
           'name': name,
+          'deviceToken': deviceToken,
           'photoUrl': user.photoURL,
           'updatedAt': DateTime.now().toString(),
         });
@@ -128,6 +138,7 @@ class AuthRepository {
           'id': user.uid,
           'name': name,
           'email': email,
+          'deviceToken': deviceToken,
           'searchIndex': generateSearchIndex([email, name]),
           'role': AppUserRole.user,
           'photoUrl': user.photoURL,
@@ -200,12 +211,15 @@ class AuthRepository {
       final docRef = usersRef.doc(user.uid);
       final docSnapshot = await docRef.get();
 
+      final deviceToken = await FirebaseMessaging.instance.getToken();
+
       if (!docSnapshot.exists) {
         // Create new user document if not exists
         await docRef.set({
           'id': user.uid,
           'name': user.displayName,
           'email': user.email,
+          'deviceToken': deviceToken,
           'photoUrl': user.photoURL,
           'createdAt': DateTime.now().toString(),
           'updatedAt': DateTime.now().toString(),
@@ -213,7 +227,10 @@ class AuthRepository {
         });
       } else {
         // Optionally, update last login or refresh info
-        await docRef.update({'lastLoginAt': DateTime.now().toString()});
+        await docRef.update({
+          'deviceToken': deviceToken,
+          'lastLoginAt': DateTime.now().toString(),
+        });
       }
 
       return Result.success('Login berhasil');
@@ -316,6 +333,7 @@ class AuthRepository {
         id: user.uid,
         name: data['name'] ?? user.displayName ?? '',
         email: data['email'] ?? user.email ?? '',
+        deviceToken: data['deviceToken'],
         role: data['role'] ?? AppUserRole.user,
         photoUrl: data['photoUrl'] ?? user.photoURL,
       );

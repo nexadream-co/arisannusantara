@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserEntity {
 
- String? get id; String? get name; String? get email; String? get photoUrl; String? get gender; String? get phoneNumber; String? get role;// 'user' or 'superadmin'
+ String? get id; String? get name; String? get email; String? get photoUrl; String? get gender; String? get deviceToken; String? get phoneNumber; String? get role;// 'user' or 'superadmin'
  bool get emailVerified; DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of UserEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -29,16 +29,16 @@ $UserEntityCopyWith<UserEntity> get copyWith => _$UserEntityCopyWithImpl<UserEnt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.deviceToken, deviceToken) || other.deviceToken == deviceToken)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,email,photoUrl,gender,phoneNumber,role,emailVerified,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,name,email,photoUrl,gender,deviceToken,phoneNumber,role,emailVerified,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'UserEntity(id: $id, name: $name, email: $email, photoUrl: $photoUrl, gender: $gender, phoneNumber: $phoneNumber, role: $role, emailVerified: $emailVerified, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'UserEntity(id: $id, name: $name, email: $email, photoUrl: $photoUrl, gender: $gender, deviceToken: $deviceToken, phoneNumber: $phoneNumber, role: $role, emailVerified: $emailVerified, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $UserEntityCopyWith<$Res>  {
   factory $UserEntityCopyWith(UserEntity value, $Res Function(UserEntity) _then) = _$UserEntityCopyWithImpl;
 @useResult
 $Res call({
- String? id, String? name, String? email, String? photoUrl, String? gender, String? phoneNumber, String? role, bool emailVerified, DateTime? createdAt, DateTime? updatedAt
+ String? id, String? name, String? email, String? photoUrl, String? gender, String? deviceToken, String? phoneNumber, String? role, bool emailVerified, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -66,13 +66,14 @@ class _$UserEntityCopyWithImpl<$Res>
 
 /// Create a copy of UserEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = freezed,Object? email = freezed,Object? photoUrl = freezed,Object? gender = freezed,Object? phoneNumber = freezed,Object? role = freezed,Object? emailVerified = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = freezed,Object? email = freezed,Object? photoUrl = freezed,Object? gender = freezed,Object? deviceToken = freezed,Object? phoneNumber = freezed,Object? role = freezed,Object? emailVerified = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String?,deviceToken: freezed == deviceToken ? _self.deviceToken : deviceToken // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String?,emailVerified: null == emailVerified ? _self.emailVerified : emailVerified // ignore: cast_nullable_to_non_nullable
@@ -163,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? name,  String? email,  String? photoUrl,  String? gender,  String? phoneNumber,  String? role,  bool emailVerified,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? name,  String? email,  String? photoUrl,  String? gender,  String? deviceToken,  String? phoneNumber,  String? role,  bool emailVerified,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserEntity() when $default != null:
-return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_that.phoneNumber,_that.role,_that.emailVerified,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_that.deviceToken,_that.phoneNumber,_that.role,_that.emailVerified,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -184,10 +185,10 @@ return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? name,  String? email,  String? photoUrl,  String? gender,  String? phoneNumber,  String? role,  bool emailVerified,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? name,  String? email,  String? photoUrl,  String? gender,  String? deviceToken,  String? phoneNumber,  String? role,  bool emailVerified,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _UserEntity():
-return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_that.phoneNumber,_that.role,_that.emailVerified,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_that.deviceToken,_that.phoneNumber,_that.role,_that.emailVerified,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +205,10 @@ return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? name,  String? email,  String? photoUrl,  String? gender,  String? phoneNumber,  String? role,  bool emailVerified,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? name,  String? email,  String? photoUrl,  String? gender,  String? deviceToken,  String? phoneNumber,  String? role,  bool emailVerified,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _UserEntity() when $default != null:
-return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_that.phoneNumber,_that.role,_that.emailVerified,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_that.deviceToken,_that.phoneNumber,_that.role,_that.emailVerified,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -219,7 +220,7 @@ return $default(_that.id,_that.name,_that.email,_that.photoUrl,_that.gender,_tha
 @JsonSerializable()
 
 class _UserEntity implements UserEntity {
-  const _UserEntity({this.id, this.name, this.email, this.photoUrl, this.gender, this.phoneNumber, this.role, this.emailVerified = true, this.createdAt, this.updatedAt});
+  const _UserEntity({this.id, this.name, this.email, this.photoUrl, this.gender, this.deviceToken, this.phoneNumber, this.role, this.emailVerified = true, this.createdAt, this.updatedAt});
   factory _UserEntity.fromJson(Map<String, dynamic> json) => _$UserEntityFromJson(json);
 
 @override final  String? id;
@@ -227,6 +228,7 @@ class _UserEntity implements UserEntity {
 @override final  String? email;
 @override final  String? photoUrl;
 @override final  String? gender;
+@override final  String? deviceToken;
 @override final  String? phoneNumber;
 @override final  String? role;
 // 'user' or 'superadmin'
@@ -247,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.deviceToken, deviceToken) || other.deviceToken == deviceToken)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,email,photoUrl,gender,phoneNumber,role,emailVerified,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,name,email,photoUrl,gender,deviceToken,phoneNumber,role,emailVerified,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'UserEntity(id: $id, name: $name, email: $email, photoUrl: $photoUrl, gender: $gender, phoneNumber: $phoneNumber, role: $role, emailVerified: $emailVerified, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'UserEntity(id: $id, name: $name, email: $email, photoUrl: $photoUrl, gender: $gender, deviceToken: $deviceToken, phoneNumber: $phoneNumber, role: $role, emailVerified: $emailVerified, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -267,7 +269,7 @@ abstract mixin class _$UserEntityCopyWith<$Res> implements $UserEntityCopyWith<$
   factory _$UserEntityCopyWith(_UserEntity value, $Res Function(_UserEntity) _then) = __$UserEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String? id, String? name, String? email, String? photoUrl, String? gender, String? phoneNumber, String? role, bool emailVerified, DateTime? createdAt, DateTime? updatedAt
+ String? id, String? name, String? email, String? photoUrl, String? gender, String? deviceToken, String? phoneNumber, String? role, bool emailVerified, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -284,13 +286,14 @@ class __$UserEntityCopyWithImpl<$Res>
 
 /// Create a copy of UserEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = freezed,Object? email = freezed,Object? photoUrl = freezed,Object? gender = freezed,Object? phoneNumber = freezed,Object? role = freezed,Object? emailVerified = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = freezed,Object? email = freezed,Object? photoUrl = freezed,Object? gender = freezed,Object? deviceToken = freezed,Object? phoneNumber = freezed,Object? role = freezed,Object? emailVerified = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_UserEntity(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
 as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String?,deviceToken: freezed == deviceToken ? _self.deviceToken : deviceToken // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String?,emailVerified: null == emailVerified ? _self.emailVerified : emailVerified // ignore: cast_nullable_to_non_nullable

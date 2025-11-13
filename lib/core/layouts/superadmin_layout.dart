@@ -5,6 +5,7 @@ import '../../features/groups/presentations/pages/group_and_user_page.dart';
 import '../../features/home/presentations/pages/superadmin_home_page.dart';
 import '../../features/profile/presentations/pages/profile_page.dart';
 import '../../shared/widgets/bottom_navbar.dart';
+import '../services/firebase_messaging_service.dart';
 
 class SuperadminLayout extends StatefulWidget {
   static const String path = '/superadmin-layout';
@@ -32,6 +33,10 @@ class _SuperadminLayoutState extends State<SuperadminLayout> {
   void initState() {
     super.initState();
     updatePage();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FirebaseMessagingService().init(context);
+    });
   }
 
   void updatePage() {
