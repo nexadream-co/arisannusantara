@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/app_modal_bottom_sheet.dart';
 import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
+import '../../../../core/utils/helpers.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
@@ -341,7 +343,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                               ),
                             ),
                           OutlinedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              final text = paymentAccounts[i].bankNumber ?? '';
+                              Clipboard.setData(ClipboardData(text: text));
+                              CustomSnackbar.success(
+                                message: 'Berhasil disalin',
+                              );
+                            },
                             style: OutlinedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
                                 vertical: context.spacing.sm,
@@ -558,7 +566,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                                       ),
                                     ),
                                   OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      applaunchUrl(
+                                        'tel:${groupOwners[i].phoneNumber}',
+                                      );
+                                    },
                                     style: OutlinedButton.styleFrom(
                                       padding: EdgeInsets.symmetric(
                                         vertical: context.spacing.sm,
@@ -646,7 +658,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     SizedBox(width: context.spacing.sm),
                     Expanded(
                       child: Text(
-                        'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                        'Pembayaran dilakukan manual ke akun pembayaran dibawah ini, aplikasi tidak mengelola pembayaran secara langsung',
                         style: context.textStyles.body,
                       ),
                     ),

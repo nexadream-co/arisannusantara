@@ -443,7 +443,7 @@ class _ProfileSuperadminPageState extends ConsumerState<ProfileSuperadminPage> {
                   SizedBox(width: context.spacing.sm),
                   Expanded(
                     child: Text(
-                      'Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet',
+                      'Jika ada kritik dan masukan anda, silahkan masukkan di sini',
                       style: context.textStyles.body,
                     ),
                   ),

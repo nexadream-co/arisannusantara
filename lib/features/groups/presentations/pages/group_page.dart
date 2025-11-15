@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
@@ -353,7 +354,23 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                final params = ShareParams(
+                                  files: [
+                                    XFile('path/image1.jpg'),
+                                    XFile('path/image2.jpg'),
+                                  ],
+                                );
+
+                                final result = await SharePlus.instance.share(
+                                  params,
+                                );
+
+                                if (result.status ==
+                                    ShareResultStatus.dismissed) {
+                                  // do something
+                                }
+                              },
                               child: Text('Bagikan'),
                             ),
                           ),
