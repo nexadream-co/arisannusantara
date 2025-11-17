@@ -84,15 +84,15 @@ class _GroupEditPageState extends ConsumerState<GroupEditPage> {
                               ),
                             ),
                             Spacer(),
-                            IconButton(
-                              onPressed: () {
-                                context.pop();
-                              },
-                              icon: Icon(
-                                Icons.info_outline,
-                                color: context.colors.textPrimary,
-                              ),
-                            ),
+                            // IconButton(
+                            //   onPressed: () {
+                            //     context.pop();
+                            //   },
+                            //   icon: Icon(
+                            //     Icons.info_outline,
+                            //     color: context.colors.textPrimary,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),

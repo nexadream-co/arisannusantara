@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/custom_snackbar.dart';
+
 /// Firebase Messaging Service (no local notifications)
 class FirebaseMessagingService {
   static final FirebaseMessagingService _instance =
@@ -19,23 +21,13 @@ class FirebaseMessagingService {
     // Request notification permissions (especially iOS / Android 13+)
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
 
-    // Print FCM token (for testing)
-    final token = await _messaging.getToken();
-    debugPrint('📱 FCM Token: $token');
-
     // 🔹 Foreground message handler — show Snackbar
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.notification?.title ?? 'No title';
       final body = message.notification?.body ?? 'No body';
 
       // Show as Snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$title\n$body'),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      CustomSnackbar.notification(title: title, message: body);
     });
 
     // 🔹 Background tap handler — when user taps notification

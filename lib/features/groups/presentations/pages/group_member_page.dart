@@ -11,6 +11,8 @@ import '../../../../core/utils/debouncer.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../../shared/widgets/textfield_without_border_widget.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
+import '../../../notifications/domain/entities/notification_entity.dart';
+import '../../../notifications/presentations/providers/notification_providers.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/entities/member_entity.dart';
 import '../providers/group_providers.dart';
@@ -599,6 +601,25 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                                             _searchController.text,
                                           ),
                                         );
+
+                                        if (member.user?.id != null &&
+                                            member.paymentStatus !=
+                                                selectedPaymentStatus) {
+                                          ref
+                                              .read(
+                                                createNotificationsUsecaseProvider,
+                                              )
+                                              .call(
+                                                userIds: [member.user!.id!],
+                                                notification: NotificationEntity(
+                                                  userId: member.user!.id!,
+                                                  title:
+                                                      'Status Pembayaran ${widget.group.name}',
+                                                  description:
+                                                      'Pembayaran anda telah diubah menjadi ${selectedPaymentStatus?.label}',
+                                                ),
+                                              );
+                                        }
                                       } else {
                                         CustomSnackbar.error(
                                           message: result.errorMessage,

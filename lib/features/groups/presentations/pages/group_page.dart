@@ -1,6 +1,11 @@
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -355,11 +360,31 @@ class _GroupPageState extends ConsumerState<GroupPage> {
                             width: double.infinity,
                             child: FilledButton(
                               onPressed: () async {
+                                final qrCode = QrCode.fromData(
+                                  data: group.code ?? '',
+                                  errorCorrectLevel: QrErrorCorrectLevel.H,
+                                );
+
+                                final qrImage = QrImage(qrCode);
+                                ByteData? qrImageBytes = await qrImage
+                                    .toImageAsBytes(
+                                      size: 512,
+                                      decoration: const PrettyQrDecoration(),
+                                    );
+                                // Convert ByteData → Uint8List
+                                final Uint8List pngBytes = qrImageBytes!.buffer
+                                    .asUint8List();
+
+                                // Save to temporary file
+                                final tempDir = await getTemporaryDirectory();
+                                final filePath =
+                                    '${tempDir.path}/qrshare${Random().nextInt(100)}.png';
+                                final file = File(filePath);
+                                await file.writeAsBytes(pngBytes);
+
+                                // Share the file
                                 final params = ShareParams(
-                                  files: [
-                                    XFile('path/image1.jpg'),
-                                    XFile('path/image2.jpg'),
-                                  ],
+                                  files: [XFile(file.path)],
                                 );
 
                                 final result = await SharePlus.instance.share(

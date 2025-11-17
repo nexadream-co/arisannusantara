@@ -92,145 +92,137 @@ class _GroupHistoryPageState extends ConsumerState<GroupHistoryPage> {
                       ),
                     ),
                   for (int i = 0; i < histories.length; i++)
-                    GestureDetector(
-                      onTap: () {
-                        context.push(GroupHistoryDetailPage.path);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.spacing.sm,
-                          vertical: context.spacing.md,
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.spacing.sm,
+                        vertical: context.spacing.md,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.colors.surface),
+                        borderRadius: BorderRadius.circular(
+                          context.radius.medium,
                         ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: context.colors.surface),
-                          borderRadius: BorderRadius.circular(
-                            context.radius.medium,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: context.colors.accent,
-                                  child: Icon(
-                                    Icons.emoji_events_outlined,
-                                    color: context.colors.secondary,
-                                  ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: context.colors.accent,
+                                child: Icon(
+                                  Icons.emoji_events_outlined,
+                                  color: context.colors.secondary,
                                 ),
-                                SizedBox(width: context.spacing.sm),
+                              ),
+                              SizedBox(width: context.spacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      histories[i].date?.toIdFullDate ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    SizedBox(height: context.spacing.xs),
+                                    Text(
+                                      'Periode ${histories.length - i}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              OutlinedButton(
+                                onPressed: () {
+                                  context.push(
+                                    GroupHistoryDetailPage.path,
+                                    extra: histories[i].copyWith(
+                                      periodOrder: histories.length - i,
+                                    ),
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: context.spacing.sm,
+                                  ),
+                                  minimumSize: Size(0, 0),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: context.spacing.md,
+                                  ),
+                                  child: Text('Lihat detail'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: context.appSize.s16),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: context.spacing.sm,
+                              right: context.spacing.sm,
+                            ),
+                            child: Row(
+                              spacing: context.spacing.xs,
+                              children: [
                                 Expanded(
+                                  flex: 1,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        histories[i].date?.toIdFullDate ?? '',
-                                        maxLines: 1,
+                                        'Pemenang',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: context.textStyles.bodySmall,
+                                      ),
+                                      Text(
+                                        '${(histories[i].winners ?? []).length} Orang',
                                         overflow: TextOverflow.ellipsis,
                                         style: context.textStyles.bodySmall
                                             .copyWith(
                                               fontWeight: FontWeight.bold,
+                                              color: context.colors.primary,
                                             ),
-                                      ),
-                                      SizedBox(height: context.spacing.xs),
-                                      Text(
-                                        'Periode ${histories.length - i}',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: context.textStyles.bodySmall,
                                       ),
                                     ],
                                   ),
                                 ),
-                                OutlinedButton(
-                                  onPressed: () {
-                                    context.push(
-                                      GroupHistoryDetailPage.path,
-                                      extra: histories[i].copyWith(
-                                        periodOrder: histories.length - i,
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        histories[i].reward ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: context.textStyles.bodySmall,
                                       ),
-                                    );
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: context.spacing.sm,
-                                    ),
-                                    minimumSize: Size(0, 0),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: context.spacing.md,
-                                    ),
-                                    child: Text('Lihat detail'),
+                                      Text(
+                                        histories[i].amount?.toIdrWithPrefix ??
+                                            '',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: context.textStyles.bodySmall
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: context.colors.primary,
+                                            ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: context.appSize.s16),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: context.spacing.sm,
-                                right: context.spacing.sm,
-                              ),
-                              child: Row(
-                                spacing: context.spacing.xs,
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Pemenang',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall,
-                                        ),
-                                        Text(
-                                          '${(histories[i].winners ?? []).length} Orang',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: context.colors.primary,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          histories[i].reward ?? '',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall,
-                                        ),
-                                        Text(
-                                          histories[i]
-                                                  .amount
-                                                  ?.toIdrWithPrefix ??
-                                              '',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: context.textStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: context.colors.primary,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                 ],

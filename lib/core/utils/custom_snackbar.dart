@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app.dart';
 
-enum SnackbarType { success, warning, error }
+enum SnackbarType { success, warning, error, notification }
 
 class CustomSnackbar {
   static success({
@@ -42,6 +42,19 @@ class CustomSnackbar {
     duration: duration,
   );
 
+  static notification({
+    String? title,
+    String? message,
+    SnackbarType? type,
+    Duration? duration,
+    bool mounted = true,
+  }) => show(
+    title: title,
+    message: message,
+    type: SnackbarType.notification,
+    duration: duration,
+  );
+
   static show({
     BuildContext? context,
     String? title,
@@ -74,6 +87,8 @@ class CustomSnackbar {
                   ? Icons.check_circle
                   : type == SnackbarType.warning
                   ? Icons.info
+                  : type == SnackbarType.notification
+                  ? Icons.notifications_outlined
                   : Icons.error_outline,
               color: _color(type),
             ),
@@ -124,6 +139,8 @@ Color _color(SnackbarType? type) {
   return type == SnackbarType.success
       ? Colors.green.shade700
       : type == SnackbarType.warning
+      ? Colors.orange
+      : type == SnackbarType.notification
       ? Colors.orange
       : Colors.red.shade700;
 }

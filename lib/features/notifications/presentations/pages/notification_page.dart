@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/utils/app_modal_bottom_sheet.dart';
 import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../../core/utils/loading_overlay.dart';
+import '../../domain/entities/notification_entity.dart';
 import '../providers/get_notifications_notifier.dart';
 import '../providers/notification_providers.dart';
 
@@ -253,7 +255,9 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                                         ),
                                       ),
                                       OutlinedButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          _detailNotification(notification);
+                                        },
                                         style: OutlinedButton.styleFrom(
                                           padding: EdgeInsets.symmetric(
                                             vertical: context.spacing.sm,
@@ -321,6 +325,61 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _detailNotification(NotificationEntity notification) {
+    showAppModalBottomSheet(
+      context: context,
+      child: Container(
+        padding: EdgeInsets.all(context.spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Detail Notifikasi',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.title.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Text(
+                  notification.createdAt?.toIdDateTime ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.body,
+                ),
+              ],
+            ),
+            Divider(thickness: 0.5),
+            SizedBox(height: context.appSize.s16),
+            Text(notification.title ?? '', style: context.textStyles.title),
+            SizedBox(height: context.appSize.s16),
+            Text(
+              notification.description ?? '',
+              style: context.textStyles.body,
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(
+                top: context.spacing.lg,
+                bottom: context.spacing.sm,
+              ),
+              child: FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Tutup'),
+              ),
+            ),
+          ],
         ),
       ),
     );

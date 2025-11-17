@@ -153,6 +153,55 @@ final class MarkAllAsReadUsecaseProvider
 String _$markAllAsReadUsecaseHash() =>
     r'893f3a924a815eab911db89ddce9428928e9aa9a';
 
+@ProviderFor(createNotificationsUsecase)
+const createNotificationsUsecaseProvider =
+    CreateNotificationsUsecaseProvider._();
+
+final class CreateNotificationsUsecaseProvider
+    extends
+        $FunctionalProvider<
+          CreateNotificationsUsecase,
+          CreateNotificationsUsecase,
+          CreateNotificationsUsecase
+        >
+    with $Provider<CreateNotificationsUsecase> {
+  const CreateNotificationsUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'createNotificationsUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$createNotificationsUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CreateNotificationsUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CreateNotificationsUsecase create(Ref ref) {
+    return createNotificationsUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CreateNotificationsUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CreateNotificationsUsecase>(value),
+    );
+  }
+}
+
+String _$createNotificationsUsecaseHash() =>
+    r'c0a4118a0a507ea1151b77289b703f2dbba246d4';
+
 @ProviderFor(getUnreadCountUsecase)
 const getUnreadCountUsecaseProvider = GetUnreadCountUsecaseProvider._();
 

@@ -295,8 +295,12 @@ class AuthRepository {
           user?.providerData.map((e) => e.providerId).toList() ?? [];
 
       if (providers.contains('google.com')) {
-        final googleSignIn = GoogleSignIn.instance;
-        await googleSignIn.disconnect();
+        try {
+          final googleSignIn = GoogleSignIn.instance;
+          await googleSignIn.disconnect();
+        } catch (_) {
+          // ignore Google Play Services missing/outdated errors
+        }
       }
 
       // Sign out from Firebase

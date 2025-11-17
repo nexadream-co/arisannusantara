@@ -5,6 +5,7 @@ import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
 import '../../../core/errors/firebase_exception.dart';
+import '../../../core/utils/send_push_notification.dart';
 import '../domain/entities/notification_entity.dart';
 
 class NotificationRepository {
@@ -129,6 +130,84 @@ class NotificationRepository {
     } on FirebaseException catch (e) {
       final message = getFirebaseFirestoreExceptionMessage(e);
       return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<bool>> createNotifications({
+    required List<String> userIds,
+    required NotificationEntity notification,
+    bool withFCM = true,
+  }) async {
+    try {
+      // --- 1. Validate ---
+      if (userIds.isEmpty) {
+        return const Result.failed("Pengguna tidak ditemukan");
+      }
+
+      final batch = _firestore.batch();
+      final usersRef = _firestore.collection(DBCollections.users);
+      final notifRef = _firestore.collection(DBCollections.notifications);
+
+      // --- 2. Firestore 'whereIn' max allowed = 10 ---
+      const chunkSize = 10;
+      final chunks = <List<String>>[];
+
+      for (int i = 0; i < userIds.length; i += chunkSize) {
+        chunks.add(
+          userIds.sublist(
+            i,
+            (i + chunkSize > userIds.length) ? userIds.length : i + chunkSize,
+          ),
+        );
+      }
+
+      // --- 3. Collect device tokens (for FCM) ---
+      final List<String> allDeviceTokens = [];
+
+      for (final chunk in chunks) {
+        final userSnapshot = await usersRef
+            .where(FieldPath.documentId, whereIn: chunk)
+            .get();
+
+        for (final doc in userSnapshot.docs) {
+          final data = doc.data();
+
+          // Create notification for this user
+          final newDoc = notifRef.doc();
+          final notifData = {
+            ...notification.toJson(),
+            "id": newDoc.id,
+            "userId": doc.id,
+            "readAt": null,
+            "createdAt": DateTime.now().toString(),
+          };
+
+          batch.set(newDoc, notifData);
+
+          // Collect device token
+          final token = data["deviceToken"];
+          if (token != null && token.toString().isNotEmpty) {
+            allDeviceTokens.add(token);
+          }
+        }
+      }
+
+      // --- 4. Commit all notifications
+      await batch.commit();
+
+      // --- 5. Optional FCM Push ---
+      if (withFCM && allDeviceTokens.isNotEmpty) {
+        FirebasePushService().sendPushToMultipleDevices(
+          deviceTokens: allDeviceTokens,
+          title: notification.title ?? '',
+          body: notification.description ?? '',
+        );
+      }
+
+      return const Result.success(true);
     } catch (e, s) {
       handleException(e, stackTrace: s);
       return Result.systemError();

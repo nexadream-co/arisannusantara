@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/notification_repository.dart';
+import '../../domain/usecases/create_notifications_usecase.dart';
 import '../../domain/usecases/get_notifications_usecase.dart';
 import '../../domain/usecases/get_unread_count_usecase.dart';
 import '../../domain/usecases/mark_all_as_read_usecase.dart';
@@ -22,6 +23,12 @@ GetNotificationsUsecase getNotificationsUsecase(Ref ref) {
 MarkAllAsReadUsecase markAllAsReadUsecase(Ref ref) {
   final repository = ref.watch(notificationRepositoryProvider);
   return MarkAllAsReadUsecase(repository: repository);
+}
+
+@riverpod
+CreateNotificationsUsecase createNotificationsUsecase(Ref ref) {
+  final repository = ref.watch(notificationRepositoryProvider);
+  return CreateNotificationsUsecase(repository: repository);
 }
 
 @riverpod

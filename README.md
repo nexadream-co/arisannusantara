@@ -2,6 +2,10 @@
 
 Aplikasi yang digunakan untuk mengelola data Arisan.
 
+## Kredensial
+
+- Service Account Json: [Download](https://drive.google.com/file/d/1o5x6nuAD6f23QoE6RhIFQT5aofFP5cx-/view?usp=sharing)
+
 ## Desain Aplikasi
 
 - DB Desain: [Lihat Disini](https://www.figma.com/board/GZvE06rcVsgZyZWYmk247C/Arisan-Nusantara-DB-Design?node-id=0-1&t=Q1OKqkObpxqxhwV7-1)

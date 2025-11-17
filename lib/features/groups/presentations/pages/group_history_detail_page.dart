@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../../../../config/enums/payment_status_enum.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/datetime_extensions.dart';
 import '../../../../core/extensions/number_extensions.dart';
+import '../../../../core/utils/download_arisan_history_excel.dart';
 import '../../domain/entities/history_entity.dart';
 import '../widgets/history_detail_members_widget.dart';
 
@@ -58,7 +61,7 @@ class _GroupHistoryDetailPageState
                             Spacer(),
                             IconButton(
                               onPressed: () {
-                                context.pop();
+                                downloadHistoryExcel(widget.history);
                               },
                               icon: Icon(
                                 Icons.download_outlined,
@@ -67,7 +70,12 @@ class _GroupHistoryDetailPageState
                             ),
                             IconButton(
                               onPressed: () {
-                                context.pop();
+                                final text = _buildShareTextFromHistory(
+                                  widget.history,
+                                );
+                                SharePlus.instance.share(
+                                  ShareParams(text: text),
+                                );
                               },
                               icon: Icon(
                                 Icons.share_outlined,
@@ -273,5 +281,53 @@ class _GroupHistoryDetailPageState
         ),
       ),
     );
+  }
+
+  String _buildShareTextFromHistory(HistoryEntity history) {
+    final buffer = StringBuffer();
+
+    // Header
+    buffer.writeln("📌 Riwayat Arisan");
+    buffer.writeln("");
+
+    // Group info
+    buffer.writeln("Nama Grup : ${history.group?.name ?? '-'}");
+    buffer.writeln("Kode Grup : ${history.group?.code ?? '-'}");
+    buffer.writeln("Tanggal   : ${history.date.toIdFullDate}");
+    buffer.writeln("Periode   : ${history.periodOrder ?? '-'}");
+    buffer.writeln("Iuran     : ${history.amount?.toIdrWithPrefix}");
+    buffer.writeln("Reward    : ${history.reward ?? '-'}");
+    buffer.writeln("");
+    buffer.writeln("-------------");
+    // Winners
+    buffer.writeln("🏆 Pemenang:");
+    if (history.winners != null && history.winners!.isNotEmpty) {
+      for (final w in history.winners!) {
+        buffer.writeln("- ${w.user?.name ?? 'Tidak diketahui'}");
+      }
+    } else {
+      buffer.writeln("- Tidak ada pemenang");
+    }
+    buffer.writeln("");
+    buffer.writeln("-------------");
+
+    // Members
+    buffer.writeln("👥 Semua Anggota:");
+    if (history.members != null && history.members!.isNotEmpty) {
+      for (final m in history.members!) {
+        buffer.writeln(
+          "- ${m.user?.name ?? 'Tidak diketahui'} (${m.paymentStatus?.label ?? '-'})",
+        );
+      }
+    } else {
+      buffer.writeln("- Tidak ada anggota");
+    }
+    buffer.writeln("");
+
+    // Notes
+    // buffer.writeln("Catatan:");
+    // buffer.writeln(history.notes?.isNotEmpty == true ? history.notes! : "-");
+
+    return buffer.toString();
   }
 }

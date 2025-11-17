@@ -72,15 +72,18 @@ class _GroupCreatePageState extends ConsumerState<GroupCreatePage> {
                               ),
                             ),
                             Spacer(),
-                            IconButton(
-                              onPressed: () {
-                                context.pop();
-                              },
-                              icon: Icon(
-                                Icons.info_outline,
-                                color: context.colors.textPrimary,
-                              ),
-                            ),
+                            // IconButton(
+                            //   onPressed: () {
+                            //     CustomSnackbar.warning(
+                            //       message:
+                            //           'Ini adalah halaman tambah grup, anda dapat menambahkan grup arisan baru anda disini',
+                            //     );
+                            //   },
+                            //   icon: Icon(
+                            //     Icons.info_outline,
+                            //     color: context.colors.textPrimary,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),

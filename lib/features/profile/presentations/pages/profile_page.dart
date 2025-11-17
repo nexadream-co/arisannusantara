@@ -82,11 +82,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.info_outlined,
-                          color: context.colors.textPrimary,
+                      Padding(
+                        padding: EdgeInsets.only(right: context.spacing.sm),
+                        child: IconButton(
+                          onPressed: () {
+                            CustomAlert.show(
+                              context,
+                              title: "Peringatan",
+                              description: "Apakah anda yakin ingin keluar?",
+                              onYes: _logout,
+                            );
+                          },
+                          icon: Icon(
+                            Icons.logout,
+                            color: context.colors.textPrimary,
+                          ),
                         ),
                       ),
                     ],
