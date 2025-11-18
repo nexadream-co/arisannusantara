@@ -15,7 +15,9 @@ import '../../domain/usecases/create_member_usecase.dart';
 import '../../domain/usecases/delete_group_usecase.dart';
 import '../../domain/usecases/delete_member_usecase.dart';
 import '../../domain/usecases/delete_payment_account_usecase.dart';
+import '../../domain/usecases/get_group_detail_by_code_usecase.dart';
 import '../../domain/usecases/get_group_detail_usecase.dart';
+import '../../domain/usecases/get_group_owners_by_code_usecase.dart';
 import '../../domain/usecases/get_group_owners_usecase.dart';
 import '../../domain/usecases/get_groups_usecase.dart';
 import '../../domain/usecases/get_histories_usecase.dart';
@@ -62,6 +64,18 @@ DeleteGroupUsecase deleteGroupUsecase(Ref ref) {
 GetGroupDetailUsecase getGroupDetailUsecase(Ref ref) {
   final repository = ref.read(groupRepositoryProvider);
   return GetGroupDetailUsecase(repository: repository);
+}
+
+@riverpod
+GetGroupDetailByCodeUsecase getGroupDetailByCodeUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return GetGroupDetailByCodeUsecase(repository: repository);
+}
+
+@riverpod
+GetGroupOwnersByCodeUsecase getGroupOwnersByCodeUsecase(Ref ref) {
+  final repository = ref.read(groupRepositoryProvider);
+  return GetGroupOwnersByCodeUsecase(repository: repository);
 }
 
 @riverpod

@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/user_repository.dart';
 import '../../domain/usecases/create_user_usecase.dart';
 import '../../domain/usecases/delete_user_usecase.dart';
+import '../../domain/usecases/get_superadmin_users_usecase.dart';
 import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/usecases/update_user_usecase.dart';
 
@@ -17,6 +18,12 @@ UserRepository userRepository(Ref ref) {
 GetUsersUsecase getUsersUsecase(Ref ref) {
   final repository = ref.read(userRepositoryProvider);
   return GetUsersUsecase(repository: repository);
+}
+
+@riverpod
+GetSuperadminUsersUsecase getSuperadminUsersUsecase(Ref ref) {
+  final repository = ref.read(userRepositoryProvider);
+  return GetSuperadminUsersUsecase(repository: repository);
 }
 
 @riverpod

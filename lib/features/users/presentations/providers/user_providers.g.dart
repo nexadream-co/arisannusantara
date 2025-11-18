@@ -92,6 +92,54 @@ final class GetUsersUsecaseProvider
 
 String _$getUsersUsecaseHash() => r'4cc763330005d7e27a29c57b2b32cb33e6780422';
 
+@ProviderFor(getSuperadminUsersUsecase)
+const getSuperadminUsersUsecaseProvider = GetSuperadminUsersUsecaseProvider._();
+
+final class GetSuperadminUsersUsecaseProvider
+    extends
+        $FunctionalProvider<
+          GetSuperadminUsersUsecase,
+          GetSuperadminUsersUsecase,
+          GetSuperadminUsersUsecase
+        >
+    with $Provider<GetSuperadminUsersUsecase> {
+  const GetSuperadminUsersUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getSuperadminUsersUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getSuperadminUsersUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetSuperadminUsersUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetSuperadminUsersUsecase create(Ref ref) {
+    return getSuperadminUsersUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetSuperadminUsersUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetSuperadminUsersUsecase>(value),
+    );
+  }
+}
+
+String _$getSuperadminUsersUsecaseHash() =>
+    r'474ca27a88c6aaf7a98ca46b62d8f0ac91af2924';
+
 @ProviderFor(createUserUsecase)
 const createUserUsecaseProvider = CreateUserUsecaseProvider._();
 

@@ -612,11 +612,11 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                                               .call(
                                                 userIds: [member.user!.id!],
                                                 notification: NotificationEntity(
-                                                  userId: member.user!.id!,
                                                   title:
                                                       'Status Pembayaran ${widget.group.name}',
                                                   description:
                                                       'Pembayaran anda telah diubah menjadi ${selectedPaymentStatus?.label}',
+                                                  type: 'group_member',
                                                 ),
                                               );
                                         }

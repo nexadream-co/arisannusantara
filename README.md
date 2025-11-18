@@ -30,3 +30,7 @@ Aplikasi yang digunakan untuk mengelola data Arisan.
 
 - Email: `arisantara.id@gmail.com`
 - Password: `E1cfk53W`
+
+### Note:
+
+- Pastikan jika ada user yang menghapus akunnya sendiri, tidak berpengaruh pada proses arisan

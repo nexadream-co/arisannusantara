@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import '../../../config/constants/app_user_role.dart';
 import '../../../config/database/db_collection.dart';
 import '../../../core/app/result.dart';
 import '../../../core/errors/exception.dart';
@@ -49,6 +50,45 @@ class UserRepository {
           query = query.startAfterDocument(lastDoc);
         }
       }
+
+      final snapshot = await query.get();
+
+      final users = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return UserEntity(
+          id: doc.id,
+          name: data['name'] as String?,
+          email: data['email'] as String?,
+          phoneNumber: data['phone'] as String?,
+          emailVerified: data['emailVerified'] as bool? ?? false,
+          createdAt: data['createdAt']?.toString().toDateTime(),
+        );
+      }).toList();
+
+      return Result.success(users);
+    } on FirebaseException catch (e, s) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      handleException(e, stackTrace: s);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<List<UserEntity>>> getSuperadminUsers() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      Query<Map<String, dynamic>> query = _firestore.collection(
+        DBCollections.users,
+      );
+
+      // Order and limit
+      query = query.where('role', isEqualTo: AppUserRole.superadmin);
 
       final snapshot = await query.get();
 

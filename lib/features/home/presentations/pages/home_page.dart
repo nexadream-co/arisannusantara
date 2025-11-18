@@ -19,7 +19,10 @@ import '../../../groups/presentations/pages/group_create_page.dart';
 import '../../../groups/presentations/pages/group_page.dart';
 import '../../../groups/presentations/pages/search_group_page.dart';
 import '../../../groups/presentations/providers/get_groups_notifier.dart';
+import '../../../groups/presentations/providers/group_providers.dart';
 import '../../../invitations/presentations/providers/invitation_providers.dart';
+import '../../../notifications/domain/entities/notification_entity.dart';
+import '../../../notifications/presentations/providers/notification_providers.dart';
 import '../providers/get_paid_groups_percentage_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -664,20 +667,53 @@ class _HomePageState extends ConsumerState<HomePage> {
                       backgroundColor: context.colors.primary,
                       child: const Icon(Icons.qr_code_scanner),
                       onPressed: () {
-                        context.push(MobileScannerWidget.path).then((result) {
-                          if (result != null) {
+                        context.push(MobileScannerWidget.path).then((code) {
+                          if (code != null) {
                             LoadingOverlay.show(context);
                             ref
                                 .read(
                                   createInvitationByGroupCodeUsecaseProvider,
                                 )
-                                .call(code: result as String)
+                                .call(code: code as String)
                                 .then((result) {
                                   LoadingOverlay.hide();
                                   if (result.isSuccess) {
                                     CustomSnackbar.success(
                                       message: result.resultValue,
                                     );
+                                    ref
+                                        .read(
+                                          getGroupDetailByCodeUsecaseProvider,
+                                        )
+                                        .call(code)
+                                        .then((detailResult) {
+                                          if (detailResult.isSuccess &&
+                                              (detailResult
+                                                          .resultValue
+                                                          ?.owners ??
+                                                      [])
+                                                  .isNotEmpty) {
+                                            ref
+                                                .read(
+                                                  createNotificationsUsecaseProvider,
+                                                )
+                                                .call(
+                                                  userIds: detailResult
+                                                      .resultValue!
+                                                      .owners!,
+                                                  notification: NotificationEntity(
+                                                    title:
+                                                        'Permintaan Gabung ${detailResult.resultValue?.name}',
+                                                    description:
+                                                        'Anda menerima permintaan gabung grup dari ${user?.name}',
+                                                    type: 'invitation',
+                                                    data: detailResult
+                                                        .resultValue!
+                                                        .toJson(),
+                                                  ),
+                                                );
+                                          }
+                                        });
                                     if (widget.onPageChanged != null) {
                                       widget.onPageChanged!(1);
                                     }

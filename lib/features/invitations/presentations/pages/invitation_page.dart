@@ -10,6 +10,8 @@ import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
+import '../../../notifications/domain/entities/notification_entity.dart';
+import '../../../notifications/presentations/providers/notification_providers.dart';
 import '../../domain/entities/invitation_entity.dart';
 import '../providers/get_invitations_notifier.dart';
 import '../providers/invitation_providers.dart';
@@ -93,13 +95,13 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
                             ],
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.info_outlined,
-                            color: context.colors.textPrimary,
-                          ),
-                        ),
+                        // IconButton(
+                        //   onPressed: () {},
+                        //   icon: Icon(
+                        //     Icons.info_outlined,
+                        //     color: context.colors.textPrimary,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -567,20 +569,34 @@ class _InvitationPageState extends ConsumerState<InvitationPage> {
       onYes: () async {
         LoadingOverlay.show(context);
         final usecase = ref.read(updateInvitationStatusUsecaseProvider);
-        usecase.call(invitationId: invitation.id!, newStatus: status.name).then(
-          (result) {
-            LoadingOverlay.hide();
-            if (result.isSuccess) {
-              setState(() {
-                selectedStatus = status;
-              });
-              refresh();
-              CustomSnackbar.success(message: result.resultValue);
-            } else {
-              CustomSnackbar.error(message: result.errorMessage);
+        usecase.call(invitationId: invitation.id!, newStatus: status.name).then((
+          result,
+        ) {
+          LoadingOverlay.hide();
+          if (result.isSuccess) {
+            if (invitation.userId != null) {
+              ref
+                  .read(createNotificationsUsecaseProvider)
+                  .call(
+                    userIds: [invitation.userId!],
+                    notification: NotificationEntity(
+                      title: 'Undangan ${invitation.group?.name}',
+                      description:
+                          'Status undangan grup ${invitation.group?.name} telah ${status.label.toLowerCase()}',
+                      type: 'invitation',
+                    ),
+                  );
             }
-          },
-        );
+
+            setState(() {
+              selectedStatus = status;
+            });
+            refresh();
+            CustomSnackbar.success(message: result.resultValue);
+          } else {
+            CustomSnackbar.error(message: result.errorMessage);
+          }
+        });
       },
     );
   }

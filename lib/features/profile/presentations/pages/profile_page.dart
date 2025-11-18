@@ -14,8 +14,11 @@ import '../../../auth/presentations/provider/auth_providers.dart';
 import '../../../auth/presentations/provider/auth_state_provider.dart';
 import '../../../faq/presentations/pages/faq_page.dart';
 import '../../../feedback/presentations/providers/feedback_providers.dart';
+import '../../../notifications/domain/entities/notification_entity.dart';
+import '../../../notifications/presentations/providers/notification_providers.dart';
 import '../../../privacy_policy/presentations/pages/privacy_policy_page.dart';
 import '../../../term_conditions/presentations/pages/term_condition_page.dart';
+import '../../../users/presentations/providers/user_providers.dart';
 import '../providers/profile_providers.dart';
 import 'change_password_page.dart';
 import 'profile_edit_page.dart';
@@ -561,6 +564,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         .then((result) {
                           LoadingOverlay.hide();
                           if (result.isSuccess) {
+                            ref
+                                .read(getSuperadminUsersUsecaseProvider)
+                                .call()
+                                .then((usersResult) {
+                                  if (usersResult.isSuccess) {
+                                    ref
+                                        .read(
+                                          createNotificationsUsecaseProvider,
+                                        )
+                                        .call(
+                                          userIds:
+                                              (usersResult.resultValue ?? [])
+                                                  .map((e) => e.id!)
+                                                  .toList(),
+                                          notification: NotificationEntity(
+                                            title:
+                                                'Feedback: ${titleController.text}',
+                                            description:
+                                                feedbackController.text,
+                                            type: 'feedback',
+                                          ),
+                                        );
+                                  }
+                                });
+
                             CustomSnackbar.success(message: result.resultValue);
                             Navigator.pop(context);
                           } else {

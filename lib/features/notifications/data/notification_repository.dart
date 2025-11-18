@@ -142,6 +142,11 @@ class NotificationRepository {
     bool withFCM = true,
   }) async {
     try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
       // --- 1. Validate ---
       if (userIds.isEmpty) {
         return const Result.failed("Pengguna tidak ditemukan");
@@ -182,6 +187,11 @@ class NotificationRepository {
             "id": newDoc.id,
             "userId": doc.id,
             "readAt": null,
+            "createdBy": {
+              "id": currentUser.uid,
+              "name": currentUser.displayName,
+              "email": currentUser.email,
+            },
             "createdAt": DateTime.now().toString(),
           };
 

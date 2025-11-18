@@ -364,6 +364,73 @@ mixin GroupDetailRepository {
     }
   }
 
+  Future<Result<List<UserEntity>>> getGroupOwnersByCode(String code) async {
+    try {
+      // Get group document
+      final groupDoc = await _firestore
+          .collection(DBCollections.groups)
+          .where('code', isEqualTo: code)
+          .get();
+
+      if (groupDoc.docs.isEmpty) {
+        return const Result.failed('Grup tidak ditemukan');
+      }
+
+      final data = groupDoc.docs.first.data();
+      final ownerIds =
+          (data['ownerIds'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [];
+
+      if (ownerIds.isEmpty) {
+        return const Result.success([]); // no owners
+      }
+
+      // Firestore only allows `whereIn` with up to 10 elements
+      final chunks = <List<String>>[];
+      for (var i = 0; i < ownerIds.length; i += 10) {
+        chunks.add(
+          ownerIds.sublist(
+            i,
+            i + 10 > ownerIds.length ? ownerIds.length : i + 10,
+          ),
+        );
+      }
+
+      final List<UserEntity> owners = [];
+
+      for (final chunk in chunks) {
+        final usersSnapshot = await _firestore
+            .collection(DBCollections.users)
+            .where(FieldPath.documentId, whereIn: chunk)
+            .get();
+
+        final chunkOwners = usersSnapshot.docs.map((doc) {
+          final userData = doc.data();
+          return UserEntity(
+            id: doc.id,
+            name: userData['name'] as String?,
+            email: userData['email'] as String? ?? '',
+            photoUrl: userData['photoUrl'] as String?,
+            role: userData['role'] as String?,
+          );
+        }).toList();
+
+        owners.addAll(chunkOwners);
+      }
+
+      return Result.success(owners);
+    } on FirebaseException catch (e, s) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      handleException(e, stackTrace: s);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
   Future<Result<GroupEntity>> getGroupDetail(String groupId) async {
     try {
       final user = _auth.currentUser;
@@ -381,6 +448,63 @@ mixin GroupDetailRepository {
       final data = groupSnap.data()!;
       final group = GroupEntity(
         id: groupSnap.id,
+        name: data['name'] as String?,
+        description: data['description'] as String?,
+        code: data['code'] as String?,
+        reward: data['reward'] as String?,
+        periodsType: data['periodsType'] as String?,
+        periodsDate: parseFirestoreDate(data['periodsDate']),
+        owners: data['ownerIds']?.cast<String>() ?? [],
+        dues: (data['dues'] as num?)?.toDouble(),
+        maxWinner: data['maxWinner'] as int?,
+        memberIds: data['memberIds']?.cast<String>() ?? [],
+        adminFee: (data['adminFee'] as num?)?.toDouble(),
+        target: (data['target'] as num?)?.toDouble(),
+        paymentAccounts: (data['paymentAccounts'] as List<dynamic>?)
+            ?.map(
+              (item) => PaymentAccountEntity(
+                id: item['id'] as String?,
+                accountName: item['accountName'] as String?,
+                bankName: item['bankName'] as String?,
+                bankNumber: item['bankNumber'] as String?,
+                createdAt: parseFirestoreDate(item['createdAt']),
+                updatedAt: parseFirestoreDate(item['updatedAt']),
+              ),
+            )
+            .toList(),
+        createdAt: data['createdAt']?.toString().toDateTime(),
+      );
+
+      return Result.success(group);
+    } on FirebaseException catch (e) {
+      final message = getFirebaseFirestoreExceptionMessage(e);
+      return Result.failed(message);
+    } catch (e, s) {
+      handleException(e, stackTrace: s);
+      return Result.systemError();
+    }
+  }
+
+  Future<Result<GroupEntity>> getGroupDetailByCode(String code) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Result.failed('Pengguna tidak ditemukan');
+      }
+
+      final groupRef = _firestore
+          .collection(DBCollections.groups)
+          .where('code', isEqualTo: code)
+          .limit(1);
+      final groupSnap = await groupRef.get();
+
+      if (groupSnap.docs.isEmpty) {
+        return const Result.failed('Grup tidak ditemukan');
+      }
+
+      final data = groupSnap.docs.first.data();
+      final group = GroupEntity(
+        id: groupSnap.docs.first.id,
         name: data['name'] as String?,
         description: data['description'] as String?,
         code: data['code'] as String?,

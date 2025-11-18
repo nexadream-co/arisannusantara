@@ -289,6 +289,104 @@ final class GetGroupDetailUsecaseProvider
 String _$getGroupDetailUsecaseHash() =>
     r'333490da734969485e79daf46e347101a3225859';
 
+@ProviderFor(getGroupDetailByCodeUsecase)
+const getGroupDetailByCodeUsecaseProvider =
+    GetGroupDetailByCodeUsecaseProvider._();
+
+final class GetGroupDetailByCodeUsecaseProvider
+    extends
+        $FunctionalProvider<
+          GetGroupDetailByCodeUsecase,
+          GetGroupDetailByCodeUsecase,
+          GetGroupDetailByCodeUsecase
+        >
+    with $Provider<GetGroupDetailByCodeUsecase> {
+  const GetGroupDetailByCodeUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getGroupDetailByCodeUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getGroupDetailByCodeUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetGroupDetailByCodeUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetGroupDetailByCodeUsecase create(Ref ref) {
+    return getGroupDetailByCodeUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetGroupDetailByCodeUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetGroupDetailByCodeUsecase>(value),
+    );
+  }
+}
+
+String _$getGroupDetailByCodeUsecaseHash() =>
+    r'5a2b16c40fb5329ea866ffc483eda6b75f088525';
+
+@ProviderFor(getGroupOwnersByCodeUsecase)
+const getGroupOwnersByCodeUsecaseProvider =
+    GetGroupOwnersByCodeUsecaseProvider._();
+
+final class GetGroupOwnersByCodeUsecaseProvider
+    extends
+        $FunctionalProvider<
+          GetGroupOwnersByCodeUsecase,
+          GetGroupOwnersByCodeUsecase,
+          GetGroupOwnersByCodeUsecase
+        >
+    with $Provider<GetGroupOwnersByCodeUsecase> {
+  const GetGroupOwnersByCodeUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getGroupOwnersByCodeUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getGroupOwnersByCodeUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetGroupOwnersByCodeUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetGroupOwnersByCodeUsecase create(Ref ref) {
+    return getGroupOwnersByCodeUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetGroupOwnersByCodeUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetGroupOwnersByCodeUsecase>(value),
+    );
+  }
+}
+
+String _$getGroupOwnersByCodeUsecaseHash() =>
+    r'92d85750f76437a3dae2e1c603b3da07ca689d17';
+
 @ProviderFor(getGroupOwners)
 const getGroupOwnersProvider = GetGroupOwnersFamily._();
 

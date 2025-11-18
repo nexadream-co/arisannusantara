@@ -12,6 +12,8 @@ import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/utils/custom_alert.dart';
 import '../../../../core/utils/custom_snackbar.dart';
 import '../../../../core/utils/loading_overlay.dart';
+import '../../../notifications/domain/entities/notification_entity.dart';
+import '../../../notifications/presentations/providers/notification_providers.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/entities/member_entity.dart';
 import '../providers/get_group_detail_provider.dart';
@@ -451,6 +453,21 @@ class _GroupShuffleWinnerPageState
         .then((result) {
           LoadingOverlay.hide();
           if (result.isSuccess) {
+            ref
+                .read(createNotificationsUsecaseProvider)
+                .call(
+                  userIds: _selectedMembers.map((e) => e.user!.id!).toList(),
+                  notification: NotificationEntity(
+                    title: 'Pemenang 🏆 ${widget.group.name}',
+                    description:
+                        'Anda telah menjadi pemenang grup ${widget.group.name}',
+                    type: 'history',
+                    data: {
+                      'group': {'id': widget.group.id},
+                    },
+                  ),
+                );
+
             CustomSnackbar.success(message: result.resultValue);
             ref.invalidate(getGroupDetailProvider(widget.group.id!));
             ref.invalidate(checkEligibleToShuffleProvider(widget.group.id!));
