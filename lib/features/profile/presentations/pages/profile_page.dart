@@ -643,7 +643,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 controller: passwordController,
                 label: 'Password',
                 required: true,
-                hintText: 'Masukkan dan kritik anda...',
+                hintText: 'Masukkan password anda...',
               ),
               Container(
                 width: double.infinity,
